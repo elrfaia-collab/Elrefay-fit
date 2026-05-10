@@ -4,36 +4,36 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="mobile-web-app-capable" content="yes"/>
 <title>IronFit Pro</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#1a1a2e;font-family:'Segoe UI',Tahoma,sans-serif;overflow:hidden}
-:root{
-  --pr:#1a1a2e;--ac:#e94560;--gold:#f5a623;--surf:#16213e;--card:#0f3460;
-  --txt:#eaeaea;--mut:#8892a4;--bd:rgba(255,255,255,0.08);--gr:#2ecc71;--or:#f39c12;
-}
-#root{height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;background:var(--pr);position:relative;overflow:hidden}
-.scr{display:none;flex:1;flex-direction:column;overflow:hidden}
-.scr.on{display:flex}
-.scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
-.scroll::-webkit-scrollbar{display:none}
-
-/* HEADER */
+:root{--pr:#1a1a2e;--ac:#e94560;--gold:#f5a623;--surf:#16213e;--card:#0f3460;--txt:#eaeaea;--mut:#8892a4;--bd:rgba(255,255,255,0.08);--gr:#2ecc71;--or:#f39c12}
+#root{height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;background:var(--pr);overflow:hidden}
+.scr{display:none;flex:1;flex-direction:column;overflow:hidden}.scr.on{display:flex}
+.scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}.scroll::-webkit-scrollbar{display:none}
 .hdr{background:var(--surf);padding:14px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0}
 .hdr h2{font-size:15px;font-weight:500;flex:1;color:var(--txt)}
-.back{color:var(--ac);font-size:22px;cursor:pointer;padding:4px;line-height:1}
-
-/* INPUTS */
+.back{color:var(--ac);font-size:22px;cursor:pointer;padding:4px}
 .inp{width:100%;background:rgba(255,255,255,0.07);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;color:var(--txt);font-size:15px;margin-bottom:10px;outline:none;font-family:inherit}
 .inp:focus{border-color:var(--ac)}
-select.inp{-webkit-appearance:none;appearance:none}
-
-/* BUTTONS */
-.btn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:500;cursor:pointer;margin-top:4px;font-family:inherit}
+select.inp{-webkit-appearance:none}
+.btn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px;font-family:inherit}
 .btn:active{opacity:0.85}
-.btn2{background:transparent;border:1px solid var(--ac);color:var(--ac);width:100%;border-radius:10px;padding:11px;font-size:14px;cursor:pointer;margin-top:8px;font-family:inherit}
+.p16{padding:16px}
+.card{background:var(--surf);border-radius:12px;padding:14px;border:1px solid var(--bd);margin-bottom:10px}
+.hero{background:linear-gradient(135deg,#c1121f,#e94560);border-radius:12px;padding:18px;margin-bottom:14px}
+.hero h3{font-size:17px;font-weight:500;color:#fff}
+.hero p{color:rgba(255,255,255,0.75);font-size:12px;margin-top:3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:var(--surf);border-radius:10px;padding:13px;border:1px solid var(--bd)}
+.stat .n{font-size:22px;font-weight:500;color:var(--gold)}.stat .l{font-size:11px;color:var(--mut);margin-top:2px}
+.sec-t{font-size:14px;font-weight:500;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;color:var(--txt)}
+.sec-t span{font-size:12px;color:var(--ac);cursor:pointer}
+.cli-row{background:var(--surf);border-radius:10px;padding:13px;border:1px solid var(--bd);display:flex;align-items:center;gap:11px;margin-bottom:8px;cursor:pointer}
+.cli-row:active{opacity:0.8}
+.ava{width:42px;height:42px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--gold);flex-shrink:0}
 
 /* CARDS */
 .p16{padding:16px}
