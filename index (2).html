@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<title>IronFit Pro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#1a1a2e;font-family:'Segoe UI',Tahoma,sans-serif;overflow:hidden}
+:root{
+  --pr:#1a1a2e;--ac:#e94560;--gold:#f5a623;--surf:#16213e;--card:#0f3460;
+  --txt:#eaeaea;--mut:#8892a4;--bd:rgba(255,255,255,0.08);--gr:#2ecc71;--or:#f39c12;
+}
+#root{height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;background:var(--pr);position:relative;overflow:hidden}
+.scr{display:none;flex:1;flex-direction:column;overflow:hidden}
+.scr.on{display:flex}
+.scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+
+/* HEADER */
+.hdr{background:var(--surf);padding:14px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hdr h2{font-size:15px;font-weight:500;flex:1;color:var(--txt)}
+.back{color:var(--ac);font-size:22px;cursor:pointer;padding:4px;line-height:1}
+
+/* INPUTS */
+.inp{width:100%;background:rgba(255,255,255,0.07);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;color:var(--txt);font-size:15px;margin-bottom:10px;outline:none;font-family:inherit}
+.inp:focus{border-color:var(--ac)}
+select.inp{-webkit-appearance:none;appearance:none}
+
+/* BUTTONS */
+.btn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:500;cursor:pointer;margin-top:4px;font-family:inherit}
+.btn:active{opacity:0.85}
+.btn2{background:transparent;border:1px solid var(--ac);color:var(--ac);width:100%;border-radius:10px;padding:11px;font-size:14px;cursor:pointer;margin-top:8px;font-family:inherit}
+
+/* CARDS */
+.p16{padding:16px}
+.card{background:var(--surf);border-radius:12px;padding:14px;border:1px solid var(--bd);margin-bottom:10px}
+.hero-card{background:#c1121f;border-radius:12px;padding:18px;margin-bottom:14px}
+.hero-card h3{font-size:17px;font-weight:500;color:#fff}
+.hero-card p{color:rgba(255,255,255,0.75);font-size:12px;margin-top:3px}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:var(--surf);border-radius:10px;padding:13px;border:1px solid var(--bd)}
+.stat .n{font-size:22px;font-weight:500;color:var(--gold)}
+.stat .l{font-size:11px;color:var(--mut);margin-top:2px}
+
+/* LIST */
+.sec-ttl{font-size:14px;font-weight:500;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;color:var(--txt)}
+.sec-ttl span{font-size:12px;color:var(--ac);cursor:pointer}
+.cli-row{background:var(--surf);border-radius:10px;padding:13px;border:1px solid var(--bd);display:flex;align-items:center;gap:11px;margin-bottom:8px;cursor:pointer}
+.cli-row:active{opacity:0.8}
+.ava{width:42px;height:42px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--gold);flex-shrink:0}
+
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;padding:9px 4px;border-radius:8px;border:1px solid var(--bd);background:transparent;color:var(--mut);font-size:12px;cursor:pointer;font-family:inherit}
+.tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+
+/* EXERCISES */
+.ex-card{background:var(--card);border-radius:10px;padding:12px;margin-bottom:10px}
+.ex-name{font-weight:500;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px;color:var(--txt)}
+.sets{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.set-box{background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 3px;text-align:center}
+.set-lbl{font-size:10px;color:var(--mut);margin-bottom:3px}
+.set-in{width:100%;background:transparent;border:none;color:var(--txt);font-size:14px;font-weight:500;text-align:center;outline:none;font-family:inherit}
+.set-in::placeholder{color:rgba(255,255,255,0.2);font-size:11px}
+.set-u{font-size:9px;color:var(--mut);margin-top:2px}
+
+/* DAYS */
+.days{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.day-btn{flex-shrink:0;padding:8px 13px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:var(--mut);font-size:12px;cursor:pointer;font-family:inherit}
+.day-btn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+
+/* MEALS */
+.meal-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px;color:var(--txt)}
+.meal-row:last-child{border-bottom:none}
+
+/* ALERTS */
+.alert-red{background:rgba(233,69,96,0.12);border:1px solid rgba(233,69,96,0.3);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:9px}
+.alert-or{background:rgba(243,156,18,0.12);border:1px solid rgba(243,156,18,0.3);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:9px}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0}
+.notif-dot.or{background:var(--or)}
+
+/* TAGS */
+.tag{background:rgba(245,166,35,0.15);color:var(--gold);font-size:11px;padding:3px 8px;border-radius:20px}
+.vid-badge{background:rgba(233,69,96,0.2);color:var(--ac);font-size:10px;padding:2px 7px;border-radius:20px;margin-right:auto}
+
+/* PROGRESS */
+.sub-bar{height:6px;border-radius:3px;background:rgba(255,255,255,0.08);margin-top:5px;overflow:hidden}
+.sub-fill{height:100%;border-radius:3px}
+.prog-wrap{height:6px;border-radius:3px;background:rgba(255,255,255,0.08);margin-top:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:var(--gr)}
+
+/* CHART */
+.chart-area{height:120px;display:flex;align-items:flex-end;gap:6px;padding:8px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar{width:100%;border-radius:4px 4px 0 0;min-height:4px}
+.bar-lbl{font-size:10px;color:var(--mut)}
+.bar-val{font-size:10px;color:var(--txt)}
+
+/* FORMS */
+.add-form{background:var(--surf);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--bd)}
+.add-form label{font-size:11px;color:var(--mut);display:block;margin-bottom:4px;margin-top:10px}
+.add-form label:first-child{margin-top:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.save-btn{background:var(--ac);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;cursor:pointer;width:100%;margin-top:12px;font-weight:500;font-family:inherit}
+.ex-img{width:100%;height:70px;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;font-size:32px;background:rgba(255,255,255,0.05)}
+.weight-in{background:rgba(255,255,255,0.07);border:1px solid var(--bd);border-radius:8px;padding:10px;color:var(--txt);font-size:15px;outline:none;text-align:center;flex:1;font-family:inherit}
+
+/* LOGIN SCREEN */
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:var(--surf)}
+.logo-box{width:70px;height:70px;background:var(--ac);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+</style>
+</head>
+<body>
+<div id="root">
+
+<!-- LOGIN -->
+<div class="scr on" id="s-login">
+  <div class="scroll">
+    <div class="login-wrap">
+      <div style="text-align:center;margin-bottom:36px">
+        <div class="logo-box"><i class="ti ti-barbell" style="color:#fff;font-size:36px"></i></div>
+        <div style="font-size:24px;font-weight:600;letter-spacing:1px;color:var(--txt)">IRONFIT PRO</div>
+        <div style="color:var(--mut);font-size:13px;margin-top:4px">نظام إدارة الجيم الاحترافي</div>
+      </div>
+      <div style="width:100%">
+        <input class="inp" id="u-in" placeholder="اسم المستخدم" autocomplete="username"/>
+        <input class="inp" id="p-in" type="password" placeholder="كلمة المرور" autocomplete="current-password"/>
+        <button class="btn" onclick="doLogin()">دخول</button>
+        <div id="l-err" style="color:var(--ac);font-size:12px;text-align:center;margin-top:10px;display:none">
+          اسم المستخدم أو كلمة المرور غلط
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN HOME -->
+<div class="scr" id="s-admin">
+  <div class="hdr">
+    <div style="flex:1">
+      <div style="font-size:11px;color:var(--mut)">لوحة المدرب</div>
+      <div style="font-weight:500;font-size:16px;color:var(--txt)">IronFit Pro</div>
+    </div>
+    <i class="ti ti-logout" style="font-size:22px;color:var(--ac);cursor:pointer" onclick="logout()"></i>
+  </div>
+  <div class="scroll p16">
+    <div class="hero-card">
+      <h3>💪 إدارة العملاء</h3>
+      <p>تحكم في الأنظمة الغذائية والتدريبية وتتبع تقدم عملائك</p>
+    </div>
+    <div id="notifs-area"></div>
+    <div class="grid2">
+      <div class="stat"><div class="n" id="a-total">0</div><div class="l">إجمالي العملاء</div></div>
+      <div class="stat"><div class="n" style="color:var(--gr)" id="a-active">0</div><div class="l">اشتراك نشط</div></div>
+    </div>
+    <div class="sec-ttl">العملاء <span onclick="toggleAddForm()">+ إضافة عميل</span></div>
+    <div id="add-wrap" style="display:none">
+      <div class="add-form">
+        <label>اسم العميل</label><input class="inp" id="n-name" placeholder="محمد أحمد" style="margin-bottom:0"/>
+        <label>اسم المستخدم</label><input class="inp" id="n-user" placeholder="client4" style="margin-bottom:0"/>
+        <label>كلمة المرور</label><input class="inp" id="n-pass" type="password" placeholder="****" style="margin-bottom:0"/>
+        <div class="row2" style="margin-top:10px">
+          <div><label style="margin-top:0">الوزن (كج)</label><input class="inp" id="n-wt" type="number" placeholder="80" style="margin-bottom:0"/></div>
+          <div><label style="margin-top:0">الطول (سم)</label><input class="inp" id="n-ht" type="number" placeholder="175" style="margin-bottom:0"/></div>
+        </div>
+        <label>الهدف</label>
+        <select class="inp" id="n-goal" style="margin-bottom:0">
+          <option>حرق دهون</option><option>بناء عضل</option><option>لياقة عامة</option><option>زيادة وزن</option>
+        </select>
+        <label>مدة الاشتراك (أيام)</label>
+        <input class="inp" id="n-days" type="number" placeholder="30" style="margin-bottom:0"/>
+        <button class="save-btn" onclick="addClient()">حفظ العميل</button>
+      </div>
+    </div>
+    <div id="cli-list"></div>
+  </div>
+</div>
+
+<!-- CLIENT DETAIL (admin view) -->
+<div class="scr" id="s-detail">
+  <div class="hdr">
+    <span class="back" onclick="goBack()"><i class="ti ti-arrow-right"></i></span>
+    <h2 id="d-name">عميل</h2>
+    <span id="d-badge" style="font-size:10px;padding:3px 8px;border-radius:20px"></span>
+  </div>
+  <div class="scroll p16">
+    <div class="card" style="display:flex;gap:13px;align-items:center">
+      <div class="ava" id="d-ava" style="width:52px;height:52px;font-size:20px">م</div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:15px;color:var(--txt)" id="d-full">-</div>
+        <div style="font-size:12px;color:var(--mut);margin-top:2px" id="d-stats">-</div>
+        <div style="margin-top:5px"><span class="tag" id="d-goal">-</span></div>
+        <div id="d-sub-info" style="margin-top:7px"></div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="swTab('diet',this,'s-detail')"><i class="ti ti-salad"></i> الغذاء</button>
+      <button class="tab" onclick="swTab('train',this,'s-detail')"><i class="ti ti-barbell"></i> التدريب</button>
+      <button class="tab" onclick="swTab('prog',this,'s-detail')"><i class="ti ti-chart-line"></i> التقدم</button>
+    </div>
+    <div id="p-diet"></div>
+    <div id="p-train" style="display:none"></div>
+    <div id="p-prog" style="display:none"></div>
+  </div>
+</div>
+
+<!-- CLIENT HOME -->
+<div class="scr" id="s-client">
+  <div class="hdr">
+    <div style="flex:1">
+      <div style="font-size:11px;color:var(--mut)">مرحباً</div>
+      <div style="font-weight:500;font-size:16px;color:var(--txt)" id="c-name">-</div>
+    </div>
+    <i class="ti ti-logout" style="font-size:22px;color:var(--ac);cursor:pointer" onclick="logout()"></i>
+  </div>
+  <div class="scroll p16">
+    <div class="hero-card" style="margin-bottom:12px">
+      <div style="font-size:12px;color:rgba(255,255,255,0.7)">هدفك</div>
+      <div style="font-size:18px;font-weight:500;margin-top:2px;color:#fff" id="c-goal">-</div>
+      <div id="c-sub-bar-wrap" style="margin-top:10px"></div>
+    </div>
+    <div id="c-notif-area"></div>
+    <div class="tabs" style="flex-wrap:wrap;gap:5px">
+      <button class="tab on" onclick="swTab('diet',this,'s-client')"><i class="ti ti-salad"></i> الغذاء</button>
+      <button class="tab" onclick="swTab('train',this,'s-client')"><i class="ti ti-barbell"></i> التدريب</button>
+      <button class="tab" onclick="swTab('log',this,'s-client')"><i class="ti ti-pencil"></i> سجل اليوم</button>
+      <button class="tab" onclick="swTab('prog',this,'s-client')"><i class="ti ti-chart-line"></i> تقدمي</button>
+    </div>
+    <div id="c-diet"></div>
+    <div id="c-train" style="display:none"></div>
+    <div id="c-log" style="display:none"></div>
+    <div id="c-prog" style="display:none"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ==============================
+// DATA
+// ==============================
+// n=name, cpu=calories per unit, q=default quantity, u=unit label
+const DIETS = {
+  'حرق دهون': [
+    {meal:'إفطار', items:[{n:'بيض مسلوق',cpu:70,q:3,u:'بيضة'},{n:'شوفان بحليب',cpu:180,q:1,u:'وجبة'},{n:'موزة',cpu:90,q:1,u:'حبة'}]},
+    {meal:'غداء', items:[{n:'صدر دجاج مشوي',cpu:165,q:2,u:'100ج'},{n:'أرز بني',cpu:140,q:1,u:'150ج'},{n:'سلطة خضراء',cpu:50,q:1,u:'طبق'}]},
+    {meal:'ما بعد التدريب', items:[{n:'بروتين واي',cpu:120,q:1,u:'سكوب'},{n:'تفاحة',cpu:80,q:1,u:'حبة'}]},
+    {meal:'عشاء', items:[{n:'سمك مشوي',cpu:120,q:2,u:'100ج'},{n:'خضروات مطبوخة',cpu:80,q:1,u:'طبق'},{n:'حساء عدس',cpu:130,q:1,u:'كوب'}]},
+  ],
+  'بناء عضل': [
+    {meal:'إفطار', items:[{n:'بيض كامل',cpu:70,q:5,u:'بيضة'},{n:'شوفان بموز',cpu:350,q:1,u:'وجبة'},{n:'عسل طبيعي',cpu:60,q:1,u:'ملعقة'}]},
+    {meal:'غداء', items:[{n:'صدر دجاج',cpu:165,q:3,u:'100ج'},{n:'أرز أبيض',cpu:130,q:2,u:'100ج'},{n:'خبز أسمر',cpu:120,q:1,u:'شريحتان'}]},
+    {meal:'ما بعد التدريب', items:[{n:'بروتين واي',cpu:120,q:2,u:'سكوب'},{n:'تمر',cpu:55,q:4,u:'حبة'}]},
+    {meal:'عشاء', items:[{n:'لحم مفروم',cpu:220,q:2,u:'100ج'},{n:'بطاطا مسلوقة',cpu:100,q:2,u:'حبة'},{n:'خضروات',cpu:60,q:1,u:'طبق'}]},
+  ],
+  'لياقة عامة': [
+    {meal:'إفطار', items:[{n:'بيض',cpu:70,q:2,u:'بيضة'},{n:'شوفان',cpu:150,q:1,u:'وجبة'},{n:'فاكهة موسمية',cpu:80,q:1,u:'حبة'}]},
+    {meal:'غداء', items:[{n:'صدر دجاج',cpu:165,q:1,u:'100ج'},{n:'أرز بني',cpu:140,q:1,u:'100ج'},{n:'سلطة',cpu:50,q:1,u:'طبق'}]},
+    {meal:'وجبة خفيفة', items:[{n:'زبادي يوناني',cpu:130,q:1,u:'كوب'},{n:'مكسرات',cpu:180,q:1,u:'30ج'}]},
+    {meal:'عشاء', items:[{n:'تونة بزيت',cpu:200,q:1,u:'علبة'},{n:'خبز أسمر',cpu:80,q:2,u:'شريحة'}]},
+  ],
+  'زيادة وزن': [
+    {meal:'إفطار', items:[{n:'بيض مقلي بزيت',cpu:120,q:4,u:'بيضة'},{n:'شوفان بحليب كامل',cpu:420,q:1,u:'وجبة'}]},
+    {meal:'غداء', items:[{n:'لحم بقر',cpu:220,q:3,u:'100ج'},{n:'أرز',cpu:130,q:3,u:'100ج'},{n:'خبز',cpu:100,q:2,u:'شريحة'}]},
+    {meal:'ما بعد التدريب', items:[{n:'بروتين واي',cpu:120,q:2,u:'سكوب'},{n:'موز',cpu:90,q:2,u:'حبة'}]},
+    {meal:'عشاء', items:[{n:'دجاج',cpu:165,q:2,u:'100ج'},{n:'مكرونة',cpu:150,q:2,u:'100ج'}]},
+  ],
+};
+
+const TRAIN = {
+  'السبت':    [{name:'بنش بريس (الصدر)',icon:'🏋️'},{name:'ضغط بالدمبل',icon:'💪'},{name:'كابل كروس',icon:'🔗'},{name:'فلاي على البنشة',icon:'🦋'}],
+  'الاثنين':  [{name:'سكوات بالبار',icon:'🦵'},{name:'ليغ بريس',icon:'🦿'},{name:'ليغ إكستنشن',icon:'🔩'},{name:'ليغ كيرل',icon:'🔄'}],
+  'الأربعاء': [{name:'ديدليفت',icon:'⚡'},{name:'سحب علوي',icon:'🎯'},{name:'رفرفة للظهر',icon:'🦅'},{name:'سحب بالكابل',icon:'🔀'}],
+  'الجمعة':   [{name:'ضغط عسكري',icon:'🎖️'},{name:'رفع جانبي',icon:'↗️'},{name:'كيرل بار',icon:'💥'},{name:'ترايسبس',icon:'🔱'}],
+};
+
+// ==============================
+// STATE - saved in localStorage
+// ==============================
+function loadState() {
+  try { return JSON.parse(localStorage.getItem('ironfit_state')) || {}; } catch(e){ return {}; }
+}
+function saveState(s) {
+  try { localStorage.setItem('ironfit_state', JSON.stringify(s)); } catch(e){}
+}
+
+let STATE = loadState();
+if (!STATE.clients) {
+  STATE.clients = [
+    {name:'محمد أحمد', user:'client1', pass:'1234', wt:88, ht:178, goal:'حرق دهون', ava:'م', subDays:5,  progress:[{w:'أ1',kg:88},{w:'أ2',kg:86.5},{w:'أ3',kg:85},{w:'أ4',kg:83.5}]},
+    {name:'سارة علي',  user:'client2', pass:'1234', wt:62, ht:164, goal:'بناء عضل',  ava:'س', subDays:22, progress:[{w:'أ1',kg:62},{w:'أ2',kg:62.5},{w:'أ3',kg:63},{w:'أ4',kg:63.8}]},
+    {name:'خالد إبراهيم',user:'client3',pass:'1234',wt:75, ht:180, goal:'لياقة عامة',ava:'خ', subDays:30, progress:[{w:'أ1',kg:75},{w:'أ2',kg:74.5},{w:'أ3',kg:74},{w:'أ4',kg:73.5}]},
+  ];
+  STATE.admin = {user:'admin', pass:'1234'};
+  saveState(STATE);
+}
+
+let cur = null;
+let selDay = 'السبت';
+let selCliIdx = null;
+
+// ==============================
+// SESSION helpers
+// ==============================
+function saveSession(data) {
+  try { localStorage.setItem('ironfit_session', JSON.stringify(data)); } catch(e){}
+}
+function clearSession() {
+  try { localStorage.removeItem('ironfit_session'); } catch(e){}
+}
+function restoreSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem('ironfit_session'));
+    if (!s) return false;
+    if (s.role === 'admin') {
+      cur = {role:'admin'};
+      renderAdmin();
+      show('s-admin');
+      return true;
+    }
+    if (s.role === 'client' && STATE.clients[s.id]) {
+      cur = {role:'client', id: s.id};
+      loadClient(s.id);
+      show('s-client');
+      return true;
+    }
+  } catch(e){}
+  return false;
+}
+
+// ==============================
+// NAVIGATION
+// ==============================
+function show(id) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function logout() { cur = null; clearSession(); show('s-login'); }
+function goBack() { renderAdmin(); show('s-admin'); }
+
+// ==============================
+// LOGIN
+// ==============================
+function doLogin() {
+  const u = document.getElementById('u-in').value.trim();
+  const p = document.getElementById('p-in').value.trim();
+  const err = document.getElementById('l-err');
+  err.style.display = 'none';
+
+  if (u === STATE.admin.user && p === STATE.admin.pass) {
+    cur = {role:'admin'};
+    saveSession({role:'admin'});
+    renderAdmin();
+    show('s-admin');
+    return;
+  }
+  const idx = STATE.clients.findIndex(c => c.user === u && c.pass === p);
+  if (idx >= 0) {
+    cur = {role:'client', id:idx};
+    saveSession({role:'client', id:idx});
+    loadClient(idx);
+    show('s-client');
+    return;
+  }
+  err.style.display = 'block';
+}
+
+// ==============================
+// ADMIN
+// ==============================
+function renderAdmin() {
+  renderNotifs();
+  document.getElementById('a-total').textContent = STATE.clients.length;
+  document.getElementById('a-active').textContent = STATE.clients.filter(c => c.subDays > 0).length;
+  const list = document.getElementById('cli-list');
+  list.innerHTML = '';
+  STATE.clients.forEach((c, i) => {
+    const pct = Math.round(Math.min(100, c.subDays / 30 * 100));
+    const col = c.subDays <= 5 ? 'var(--ac)' : c.subDays <= 10 ? 'var(--or)' : 'var(--gr)';
+    const d = document.createElement('div');
+    d.className = 'cli-row';
+    d.innerHTML = `
+      <div class="ava">${c.ava}</div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:14px;color:var(--txt)">${c.name}</div>
+        <div style="font-size:11px;color:var(--mut);margin-top:1px">${c.wt}كج · ${c.ht}سم · ${c.goal}</div>
+        <div class="sub-bar"><div class="sub-fill" style="width:${pct}%;background:${col}"></div></div>
+        <div style="font-size:10px;color:${col};margin-top:2px">${c.subDays} يوم متبقي</div>
+      </div>
+      <i class="ti ti-chevron-left" style="color:var(--mut);font-size:16px"></i>`;
+    d.onclick = () => openDetail(i);
+    list.appendChild(d);
+  });
+}
+
+function renderNotifs() {
+  const area = document.getElementById('notifs-area');
+  area.innerHTML = '';
+  STATE.clients.forEach(c => {
+    if (c.subDays <= 0) return;
+    if (c.subDays <= 5) {
+      area.innerHTML += `<div class="alert-red"><div class="notif-dot"></div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--txt)">${c.name}</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">ينتهي اشتراكه خلال ${c.subDays} أيام ⚠️</div></div></div>`;
+    } else if (c.subDays <= 10) {
+      area.innerHTML += `<div class="alert-or"><div class="notif-dot or"></div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--txt)">${c.name}</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">ينتهي اشتراكه خلال ${c.subDays} أيام</div></div></div>`;
+    }
+  });
+}
+
+function toggleAddForm() {
+  const w = document.getElementById('add-wrap');
+  w.style.display = w.style.display === 'none' ? 'block' : 'none';
+}
+
+function addClient() {
+  const name = document.getElementById('n-name').value.trim();
+  const user = document.getElementById('n-user').value.trim();
+  const pass = document.getElementById('n-pass').value.trim();
+  const wt   = parseInt(document.getElementById('n-wt').value) || 70;
+  const ht   = parseInt(document.getElementById('n-ht').value) || 170;
+  const goal = document.getElementById('n-goal').value;
+  const days = parseInt(document.getElementById('n-days').value) || 30;
+  if (!name || !user || !pass) { alert('الرجاء تعبئة الاسم واليوزر والباسوورد'); return; }
+  if (STATE.clients.find(c => c.user === user)) { alert('اسم المستخدم موجود بالفعل'); return; }
+  STATE.clients.push({name, user, pass, wt, ht, goal, ava: name[0], subDays: days, progress:[{w:'أ1',kg:wt}]});
+  saveState(STATE);
+  document.getElementById('add-wrap').style.display = 'none';
+  ['n-name','n-user','n-pass','n-wt','n-ht','n-days'].forEach(id => document.getElementById(id).value = '');
+  renderAdmin();
+}
+
+// ==============================
+// CLIENT DETAIL (admin)
+// ==============================
+function openDetail(i) {
+  selCliIdx = i;
+  const c = STATE.clients[i];
+  document.getElementById('d-name').textContent = c.name;
+  document.getElementById('d-full').textContent = c.name;
+  document.getElementById('d-ava').textContent  = c.ava;
+  document.getElementById('d-stats').textContent = `${c.wt}كج · ${c.ht}سم`;
+  document.getElementById('d-goal').textContent  = c.goal;
+  const col = c.subDays <= 5 ? 'var(--ac)' : c.subDays <= 10 ? 'var(--or)' : 'var(--gr)';
+  const badge = document.getElementById('d-badge');
+  badge.textContent = c.subDays > 0 ? 'نشط' : 'منتهي';
+  badge.style.cssText = `font-size:10px;padding:3px 8px;border-radius:20px;background:${c.subDays>0?'rgba(46,204,113,0.15)':'rgba(233,69,96,0.15)'};color:${c.subDays>0?'var(--gr)':'var(--ac)'}`;
+  document.getElementById('d-sub-info').innerHTML = `<div style="font-size:11px;color:${col};margin-top:2px"><i class="ti ti-calendar" style="font-size:12px"></i> ${c.subDays} يوم متبقي</div>`;
+  renderDiet('p-diet', c.goal);
+  renderTrain('p-train', i, 'd');
+  renderProgress('p-prog', c, i, 'd');
+  resetTabs('s-detail');
+  show('s-detail');
+}
+
+// ==============================
+// CLIENT HOME
+// ==============================
+function loadClient(idx) {
+  const c = STATE.clients[idx];
+  document.getElementById('c-name').textContent = c.name;
+  document.getElementById('c-goal').textContent = c.goal;
+  const pct = Math.round(Math.min(100, c.subDays / 30 * 100));
+  const col = c.subDays <= 5 ? 'var(--ac)' : c.subDays <= 10 ? 'var(--or)' : 'var(--gr)';
+  document.getElementById('c-sub-bar-wrap').innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+      <span style="color:rgba(255,255,255,0.6)">الاشتراك</span>
+      <span style="color:${col}">${c.subDays} يوم متبقي</span>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div>`;
+  const cn = document.getElementById('c-notif-area');
+  cn.innerHTML = '';
+  if (c.subDays > 0 && c.subDays <= 5)
+    cn.innerHTML = `<div class="alert-red" style="margin-bottom:12px"><div class="notif-dot"></div><div style="font-size:12px;color:var(--txt)">اشتراكك ينتهي خلال <strong>${c.subDays}</strong> أيام — تواصل مع المدرب ⚠️</div></div>`;
+  else if (c.subDays <= 10)
+    cn.innerHTML = `<div class="alert-or" style="margin-bottom:12px"><div class="notif-dot or"></div><div style="font-size:12px;color:var(--txt)">اشتراكك ينتهي خلال <strong>${c.subDays}</strong> أيام</div></div>`;
+  renderDiet('c-diet', c.goal);
+  renderTrain('c-train', idx, 'c');
+  renderLog('c-log', idx);
+  renderProgress('c-prog', c, idx, 'c');
+  resetTabs('s-client');
+}
+
+// ==============================
+// TABS
+// ==============================
+function swTab(tab, btn, scr) {
+  document.querySelectorAll('#' + scr + ' .tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  const prefix = scr === 's-detail' ? 'p-' : 'c-';
+  const keys = scr === 's-detail' ? ['diet','train','prog'] : ['diet','train','log','prog'];
+  keys.forEach(k => {
+    const el = document.getElementById(prefix + k);
+    if (el) el.style.display = k === tab ? '' : 'none';
+  });
+}
+
+function resetTabs(scr) {
+  document.querySelectorAll('#' + scr + ' .tab').forEach((t, i) => t.classList.toggle('on', i === 0));
+  const prefix = scr === 's-detail' ? 'p-' : 'c-';
+  const keys = scr === 's-detail' ? ['diet','train','prog'] : ['diet','train','log','prog'];
+  keys.forEach((k, i) => {
+    const el = document.getElementById(prefix + k);
+    if (el) el.style.display = i === 0 ? '' : 'none';
+  });
+}
+
+// ==============================
+// DIET
+// ==============================
+// Store per-panel quantity overrides: dietQty[panelId][mealIdx][itemIdx] = qty
+const dietQty = {};
+
+function renderDiet(panelId, goal) {
+  if (!dietQty[panelId]) dietQty[panelId] = {};
+  const p = document.getElementById(panelId);
+  const diet = DIETS[goal] || DIETS['لياقة عامة'];
+  p.innerHTML = '';
+
+  diet.forEach((meal, mi) => {
+    if (!dietQty[panelId][mi]) dietQty[panelId][mi] = {};
+    meal.items.forEach((it, ii) => {
+      if (dietQty[panelId][mi][ii] === undefined) dietQty[panelId][mi][ii] = it.q;
+    });
+
+    const sec = document.createElement('div');
+    sec.className = 'card';
+    sec.id = `meal-${panelId}-${mi}`;
+
+    const mealCal = meal.items.reduce((s, it, ii) => s + dietQty[panelId][mi][ii] * it.cpu, 0);
+
+    let rowsHtml = meal.items.map((it, ii) => {
+      const qty = dietQty[panelId][mi][ii];
+      const cal = qty * it.cpu;
+      return `<div class="meal-row" style="align-items:center">
+        <div style="flex:1">
+          <div style="font-size:13px">${it.n}</div>
+          <div style="font-size:10px;color:var(--mut)">${it.cpu} كال / ${it.u}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button onclick="changeQty('${panelId}','${goal}',${mi},${ii},-1)"
+            style="width:26px;height:26px;border-radius:50%;border:1px solid var(--bd);background:rgba(255,255,255,0.07);color:var(--txt);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">−</button>
+          <span style="min-width:18px;text-align:center;font-weight:500;font-size:14px">${qty}</span>
+          <button onclick="changeQty('${panelId}','${goal}',${mi},${ii},+1)"
+            style="width:26px;height:26px;border-radius:50%;border:1px solid var(--bd);background:rgba(255,255,255,0.07);color:var(--txt);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">+</button>
+          <span style="min-width:42px;text-align:left;color:var(--ac);font-size:12px;font-weight:500">${cal} كال</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    sec.innerHTML = `<div style="font-size:12px;color:var(--gold);font-weight:500;margin-bottom:9px;display:flex;align-items:center;gap:5px">
+      <i class="ti ti-bowl-spoon"></i>${meal.meal}
+      <span id="meal-cal-${panelId}-${mi}" style="color:var(--mut);font-size:11px;font-weight:400;margin-right:auto">${mealCal} كال</span>
+    </div>${rowsHtml}`;
+    p.appendChild(sec);
+  });
+
+  // total card
+  const totEl = document.createElement('div');
+  totEl.id = `diet-total-${panelId}`;
+  totEl.style.cssText = 'background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.25);border-radius:10px;padding:12px;text-align:center;margin-top:4px;margin-bottom:10px';
+  p.appendChild(totEl);
+  updateDietTotal(panelId, goal);
+}
+
+function changeQty(panelId, goal, mi, ii, delta) {
+  const diet = DIETS[goal] || DIETS['لياقة عامة'];
+  const cur = dietQty[panelId][mi][ii];
+  const newQ = Math.max(0, cur + delta);
+  dietQty[panelId][mi][ii] = newQ;
+
+  // recalc meal cal
+  const mealCal = diet[mi].items.reduce((s, it, idx) => s + dietQty[panelId][mi][idx] * it.cpu, 0);
+  const mealEl = document.getElementById(`meal-cal-${panelId}-${mi}`);
+  if (mealEl) mealEl.textContent = mealCal + ' كال';
+
+  // update the specific row display — re-render whole panel for simplicity
+  renderDiet(panelId, goal);
+}
+
+function updateDietTotal(panelId, goal) {
+  const diet = DIETS[goal] || DIETS['لياقة عامة'];
+  let total = 0;
+  diet.forEach((meal, mi) => {
+    meal.items.forEach((it, ii) => {
+      total += (dietQty[panelId][mi][ii] ?? it.q) * it.cpu;
+    });
+  });
+  const el = document.getElementById(`diet-total-${panelId}`);
+  if (el) el.innerHTML = `<div style="font-size:11px;color:var(--mut)">إجمالي السعرات اليومية</div><div style="font-size:24px;font-weight:500;color:var(--ac)">${total}</div><div style="font-size:10px;color:var(--mut)">سعرة حرارية / يوم</div>`;
+}
+
+// ==============================
+// TRAINING
+// ==============================
+function renderTrain(panelId, cliIdx, prefix) {
+  const p = document.getElementById(panelId);
+  p.innerHTML = '';
+  const days = Object.keys(TRAIN);
+  const dayRow = document.createElement('div');
+  dayRow.className = 'days';
+  days.forEach(day => {
+    const b = document.createElement('button');
+    b.className = 'day-btn' + (day === selDay ? ' on' : '');
+    b.textContent = day;
+    b.onclick = () => {
+      selDay = day;
+      document.querySelectorAll('#' + panelId + ' .day-btn').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      renderExercises(panelId + '-ex', TRAIN[day], cliIdx, day);
+    };
+    dayRow.appendChild(b);
+  });
+  p.appendChild(dayRow);
+  const exw = document.createElement('div');
+  exw.id = panelId + '-ex';
+  p.appendChild(exw);
+  renderExercises(panelId + '-ex', TRAIN[days[0]], cliIdx, days[0]);
+}
+
+function renderExercises(wid, exs, ci, day) {
+  const w = document.getElementById(wid);
+  if (!w) return;
+  w.innerHTML = '';
+  exs.forEach((ex, ei) => {
+    const card = document.createElement('div');
+    card.className = 'ex-card';
+    const setsHtml = [0,1,2,3].map(si => {
+      const key = `set-${ci}-${day}-${ei}-${si}`;
+      let saved = '';
+      try { saved = localStorage.getItem(key) || ''; } catch(e){}
+      return `<div class="set-box">
+        <div class="set-lbl">م${si+1}</div>
+        <input class="set-in" type="number" placeholder="--" value="${saved}" onchange="svSet('${key}',this.value)"/>
+        <div class="set-u">كج</div>
+      </div>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="ex-img" role="img" aria-label="${ex.name}">${ex.icon}</div>
+      <div class="ex-name">
+        <i class="ti ti-flame" style="color:var(--ac)"></i>${ex.name}
+        <span class="vid-badge"><i class="ti ti-player-play" style="font-size:9px"></i> فيديو</span>
+      </div>
+      <div class="sets">${setsHtml}</div>`;
+    w.appendChild(card);
+  });
+}
+
+function svSet(key, val) {
+  try { localStorage.setItem(key, val); } catch(e){}
+}
+
+// ==============================
+// FOOD LOG
+// ==============================
+function renderLog(panelId, cliIdx) {
+  const c = STATE.clients[cliIdx];
+  const diet = DIETS[c.goal] || DIETS['لياقة عامة'];
+  const p = document.getElementById(panelId);
+  p.innerHTML = '';
+
+  // load today's log from localStorage
+  const todayKey = `foodlog-${cliIdx}-${new Date().toDateString()}`;
+  let logged = {};
+  try { logged = JSON.parse(localStorage.getItem(todayKey)) || {}; } catch(e){}
+
+  // calc target calories
+  let target = 0;
+  diet.forEach(meal => meal.items.forEach(it => { target += it.q * it.cpu; }));
+
+  // header
+  const hdr = document.createElement('div');
+  hdr.className = 'card';
+  hdr.style.cssText = 'background:linear-gradient(135deg,#0f3460,#16213e);margin-bottom:12px';
+  hdr.innerHTML = `
+    <div style="font-size:13px;color:var(--gold);font-weight:500;margin-bottom:6px"><i class="ti ti-pencil"></i> سجل وجباتك اليوم</div>
+    <div style="font-size:11px;color:var(--mut)">ضع علامة ✓ على كل حاجة أكلتها وكتب الكمية</div>`;
+  p.appendChild(hdr);
+
+  // meals
+  diet.forEach((meal, mi) => {
+    const sec = document.createElement('div');
+    sec.className = 'card';
+    let itemsHtml = meal.items.map((it, ii) => {
+      const key = `${mi}-${ii}`;
+      const entry = logged[key] || {done: false, qty: it.q};
+      const cal = entry.qty * it.cpu;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bd)" id="logrow-${panelId}-${mi}-${ii}">
+        <div onclick="toggleLogItem('${panelId}',${cliIdx},${mi},${ii})"
+          style="width:22px;height:22px;border-radius:6px;border:2px solid ${entry.done?'var(--gr)':'var(--bd)'};
+          background:${entry.done?'rgba(46,204,113,0.2)':'transparent'};
+          display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:13px">
+          ${entry.done ? '✓' : ''}
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:${entry.done?'var(--txt)':'var(--mut)'};${entry.done?'':'text-decoration:line-through'}">${it.n}</div>
+          <div style="font-size:10px;color:var(--mut)">${it.cpu} كال / ${it.u}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <button onclick="changeLogQty('${panelId}',${cliIdx},${mi},${ii},-1)"
+            style="width:24px;height:24px;border-radius:50%;border:1px solid var(--bd);background:rgba(255,255,255,0.06);color:var(--txt);font-size:15px;cursor:pointer;line-height:1">−</button>
+          <span style="min-width:16px;text-align:center;font-size:13px;font-weight:500">${entry.qty}</span>
+          <button onclick="changeLogQty('${panelId}',${cliIdx},${mi},${ii},+1)"
+            style="width:24px;height:24px;border-radius:50%;border:1px solid var(--bd);background:rgba(255,255,255,0.06);color:var(--txt);font-size:15px;cursor:pointer;line-height:1">+</button>
+          <span style="min-width:40px;text-align:left;font-size:11px;color:${entry.done?'var(--ac)':'var(--mut)'}">${entry.done ? cal+' كال' : '--'}</span>
+        </div>
+      </div>`;
+    }).join('');
+    sec.innerHTML = `<div style="font-size:12px;color:var(--gold);font-weight:500;margin-bottom:4px"><i class="ti ti-bowl-spoon"></i> ${meal.meal}</div>${itemsHtml}`;
+    p.appendChild(sec);
+  });
+
+  // summary card
+  const sumCard = document.createElement('div');
+  sumCard.id = `log-summary-${panelId}`;
+  p.appendChild(sumCard);
+  updateLogSummary(panelId, cliIdx, target);
+}
+
+function getLogData(cliIdx) {
+  const todayKey = `foodlog-${cliIdx}-${new Date().toDateString()}`;
+  try { return JSON.parse(localStorage.getItem(todayKey)) || {}; } catch(e){ return {}; }
+}
+function saveLogData(cliIdx, data) {
+  const todayKey = `foodlog-${cliIdx}-${new Date().toDateString()}`;
+  try { localStorage.setItem(todayKey, JSON.stringify(data)); } catch(e){}
+}
+
+function toggleLogItem(panelId, cliIdx, mi, ii) {
+  const c = STATE.clients[cliIdx];
+  const diet = DIETS[c.goal] || DIETS['لياقة عامة'];
+  const it = diet[mi].items[ii];
+  const logged = getLogData(cliIdx);
+  const key = `${mi}-${ii}`;
+  if (!logged[key]) logged[key] = {done: false, qty: it.q};
+  logged[key].done = !logged[key].done;
+  saveLogData(cliIdx, logged);
+  let target = 0;
+  diet.forEach(m => m.items.forEach(i => { target += i.q * i.cpu; }));
+  renderLog(panelId, cliIdx);
+}
+
+function changeLogQty(panelId, cliIdx, mi, ii, delta) {
+  const c = STATE.clients[cliIdx];
+  const diet = DIETS[c.goal] || DIETS['لياقة عامة'];
+  const it = diet[mi].items[ii];
+  const logged = getLogData(cliIdx);
+  const key = `${mi}-${ii}`;
+  if (!logged[key]) logged[key] = {done: false, qty: it.q};
+  logged[key].qty = Math.max(0, logged[key].qty + delta);
+  saveLogData(cliIdx, logged);
+  renderLog(panelId, cliIdx);
+}
+
+function updateLogSummary(panelId, cliIdx, target) {
+  const c = STATE.clients[cliIdx];
+  const diet = DIETS[c.goal] || DIETS['لياقة عامة'];
+  const logged = getLogData(cliIdx);
+  let eaten = 0;
+  diet.forEach((meal, mi) => {
+    meal.items.forEach((it, ii) => {
+      const key = `${mi}-${ii}`;
+      const entry = logged[key];
+      if (entry && entry.done) eaten += entry.qty * it.cpu;
+    });
+  });
+  const pct = Math.min(100, Math.round(eaten / target * 100));
+  const remaining = target - eaten;
+  let statusColor, statusIcon, statusMsg;
+  if (eaten === 0) {
+    statusColor = 'var(--mut)'; statusIcon = '🍽️'; statusMsg = 'لسه ما أكلتش الدنيا بخير!';
+  } else if (eaten < target * 0.5) {
+    statusColor = 'var(--or)'; statusIcon = '⚡'; statusMsg = `باقي ${remaining} كالوري للهدف`;
+  } else if (eaten < target) {
+    statusColor = 'var(--gold)'; statusIcon = '🔥'; statusMsg = `تمام! باقي ${remaining} كالوري`;
+  } else if (eaten === target) {
+    statusColor = 'var(--gr)'; statusIcon = '✅'; statusMsg = 'وصلت للهدف بالظبط! عظيم 🎉';
+  } else {
+    statusColor = 'var(--ac)'; statusIcon = '⚠️'; statusMsg = `تجاوزت الهدف بـ ${eaten - target} كالوري`;
+  }
+  const el = document.getElementById(`log-summary-${panelId}`);
+  if (!el) return;
+  el.innerHTML = `<div style="background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-top:4px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:500;color:var(--txt)">ملخص اليوم</div>
+      <div style="font-size:11px;color:var(--mut)">${new Date().toLocaleDateString('ar-EG')}</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:600;color:var(--ac)">${eaten}</div>
+        <div style="font-size:10px;color:var(--mut)">أكلت</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:600;color:var(--mut)">/</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:600;color:var(--gold)">${target}</div>
+        <div style="font-size:10px;color:var(--mut)">الهدف</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:600;color:var(--gr)">${pct}%</div>
+        <div style="font-size:10px;color:var(--mut)">مكتمل</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.08);border-radius:6px;height:10px;margin-bottom:12px;overflow:hidden">
+      <div style="height:100%;border-radius:6px;background:${statusColor};width:${pct}%;transition:width 0.4s"></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:22px;margin-bottom:4px">${statusIcon}</div>
+      <div style="font-size:13px;font-weight:500;color:${statusColor}">${statusMsg}</div>
+    </div>
+  </div>`;
+}
+
+// ==============================
+// PROGRESS
+// ==============================
+function renderProgress(panelId, c, idx, prefix) {
+  const p = document.getElementById(panelId);
+  p.innerHTML = '';
+  const isAdmin = prefix === 'd';
+  const prog = c.progress;
+  const maxKg = Math.max(...prog.map(x => x.kg));
+  const minKg = Math.min(...prog.map(x => x.kg));
+  const range = maxKg - minKg || 1;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div style="font-size:13px;font-weight:500;margin-bottom:12px;color:var(--gold)"><i class="ti ti-chart-line"></i> تتبع الوزن الأسبوعي</div>
+    <div class="chart-area" id="ch-${idx}-${prefix}"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px">
+      <span style="font-size:11px;color:var(--mut)">البداية: ${prog[0].kg} كج</span>
+      <span style="font-size:11px;color:${prog[prog.length-1].kg <= prog[0].kg ? 'var(--gr)' : 'var(--ac)'}">الآن: ${prog[prog.length-1].kg} كج</span>
+    </div>`;
+  p.appendChild(card);
+
+  setTimeout(() => {
+    const ca = document.getElementById(`ch-${idx}-${prefix}`);
+    if (!ca) return;
+    ca.innerHTML = '';
+    prog.forEach(pt => {
+      const pct = Math.round(((pt.kg - minKg) / range) * 75 + 15);
+      const col = pt.kg <= prog[0].kg ? 'var(--gr)' : 'var(--ac)';
+      const col2 = document.createElement('div');
+      col2.className = 'bar-col';
+      col2.innerHTML = `<div class="bar-val">${pt.kg}</div><div class="bar" style="height:${pct}px;background:${col}"></div><div class="bar-lbl">${pt.w}</div>`;
+      ca.appendChild(col2);
+    });
+  }, 60);
+
+  if (!isAdmin) {
+    const addCard = document.createElement('div');
+    addCard.className = 'card';
+    addCard.innerHTML = `
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px;color:var(--gold)"><i class="ti ti-plus"></i> تسجيل وزن هذا الأسبوع</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input class="weight-in" id="new-wt-${idx}" type="number" step="0.1" placeholder="${c.wt}"/>
+        <span style="color:var(--mut);font-size:13px">كج</span>
+        <button style="background:var(--ac);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:inherit" onclick="addWeight(${idx})">حفظ</button>
+      </div>`;
+    p.appendChild(addCard);
+  }
+}
+
+function addWeight(idx) {
+  const inp = document.getElementById('new-wt-' + idx);
+  const val = parseFloat(inp.value);
+  if (!val) return;
+  const c = STATE.clients[idx];
+  const week = 'أ' + (c.progress.length + 1);
+  c.progress.push({w: week, kg: val});
+  saveState(STATE);
+  inp.value = '';
+  renderProgress('c-prog', c, idx, 'c');
+}
+
+// Enter key on login
+document.getElementById('p-in').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('u-in').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('p-in').focus(); });
+
+// Auto-login: restore session on page load
+restoreSession();
+</script>
+</body>
+</html>
