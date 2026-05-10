@@ -390,6 +390,146 @@ function renderAdmin() {
     d.innerHTML = `
       <div class="ava">${c.ava}</div>
       <div style="flex:1">
+        <div styl    {meal:'غداء', items:[{n:'صدر دجاج مشوي',cpu:165,q:2,u:'100ج'},{n:'أرز بني',cpu:140,q:1,u:'150ج'},{n:'سلطة خضراء',cpu:50,q:1,u:'طبق'}]},
+    {meal:'ما بعد التدريب', items:[{n:'بروتين واي',cpu:120,q:1,u:'سكوب'},{n:'تفاحة',cpu:80,q:1,u:'حبة'}]},
+    {meal:'عشاء', items:[{n:'سمك مشوي',cpu:120,q:2,u:'100ج'},{n:'خضروات مطبوخة',cpu:80,q:1,u:'طبق'},{n:'حساء عدس',cpu:130,q:1,u:'كوب'}]},
+  ],
+  'بناء عضل': [
+    {meal:'إفطار', items:[{n:'بيض كامل',cpu:70,q:5,u:'بيضة'},{n:'شوفان بموز',cpu:350,q:1,u:'وجبة'},{n:'عسل طبيعي',cpu:60,q:1,u:'ملعقة'}]},
+    {meal:'غداء', items:[{n:'صدر دجاج',cpu:165,q:3,u:'100ج'},{n:'أرز أبيض',cpu:130,q:2,u:'100ج'},{n:'خبز أسمر',cpu:120,q:1,u:'شريحتان'}]},
+    {meal:'ما بعد التدريب', items:[{n:'بروتين واي',cpu:120,q:2,u:'سكوب'},{n:'تمر',cpu:55,q:4,u:'حبة'}]},
+    {meal:'عشاء', items:[{n:'لحم مفروم',cpu:220,q:2,u:'100ج'},{n:'بطاطا مسلوقة',cpu:100,q:2,u:'حبة'},{n:'خضروات',cpu:60,q:1,u:'طبق'}]},
+  ],
+  'لياقة عامة': [
+    {meal:'إفطار', items:[{n:'بيض',cpu:70,q:2,u:'بيضة'},{n:'شوفان',cpu:150,q:1,u:'وجبة'},{n:'فاكهة موسمية',cpu:80,q:1,u:'حبة'}]},
+    {meal:'غداء', items:[{n:'صدر دجاج',cpu:165,q:1,u:'100ج'},{n:'أرز بني',cpu:140,q:1,u:'100ج'},{n:'سلطة',cpu:50,q:1,u:'طبق'}]},
+    {meal:'وجبة خفيفة', items:[{n:'زبادي يوناني',cpu:130,q:1,u:'كوب'},{n:'مكسرات',cpu:180,q:1,u:'30ج'}]},
+    {meal:'عشاء', items:[{n:'تونة بزيت',cpu:200,q:1,u:'علبة'},{n:'خبز أسمر',cpu:80,q:2,u:'شريحة'}]},
+  ],
+  'زيادة وزن': [
+    {meal:'إفطار', items:[{n:'بيض مقلي بزيت',cpu:120,q:4,u:'بيضة'},{n:'شوفان بحليب كامل',cpu:420,q:1,u:'وجبة'}]},
+    {meal:'غداء', items:[{n:'لحم بقر',cpu:220,q:3,u:'100ج'},{n:'أرز',cpu:130,q:3,u:'100ج'},{n:'خبز',cpu:100,q:2,u:'شريحة'}]},
+    {meal:'ما بعد التدريب', items:[{n:'بروتين واي',cpu:120,q:2,u:'سكوب'},{n:'موز',cpu:90,q:2,u:'حبة'}]},
+    {meal:'عشاء', items:[{n:'دجاج',cpu:165,q:2,u:'100ج'},{n:'مكرونة',cpu:150,q:2,u:'100ج'}]},
+  ],
+};
+
+const TRAIN = {
+  'السبت':    [{name:'بنش بريس (الصدر)',icon:'🏋️'},{name:'ضغط بالدمبل',icon:'💪'},{name:'كابل كروس',icon:'🔗'},{name:'فلاي على البنشة',icon:'🦋'}],
+  'الاثنين':  [{name:'سكوات بالبار',icon:'🦵'},{name:'ليغ بريس',icon:'🦿'},{name:'ليغ إكستنشن',icon:'🔩'},{name:'ليغ كيرل',icon:'🔄'}],
+  'الأربعاء': [{name:'ديدليفت',icon:'⚡'},{name:'سحب علوي',icon:'🎯'},{name:'رفرفة للظهر',icon:'🦅'},{name:'سحب بالكابل',icon:'🔀'}],
+  'الجمعة':   [{name:'ضغط عسكري',icon:'🎖️'},{name:'رفع جانبي',icon:'↗️'},{name:'كيرل بار',icon:'💥'},{name:'ترايسبس',icon:'🔱'}],
+};
+
+// ==============================
+// STATE - saved in localStorage
+// ==============================
+function loadState() {
+  try { return JSON.parse(localStorage.getItem('ironfit_state')) || {}; } catch(e){ return {}; }
+}
+function saveState(s) {
+  try { localStorage.setItem('ironfit_state', JSON.stringify(s)); } catch(e){}
+}
+
+let STATE = loadState();
+if (!STATE.clients) {
+  STATE.clients = [
+    {name:'محمد أحمد', user:'client1', pass:'1234', wt:88, ht:178, goal:'حرق دهون', ava:'م', subDays:5,  progress:[{w:'أ1',kg:88},{w:'أ2',kg:86.5},{w:'أ3',kg:85},{w:'أ4',kg:83.5}]},
+    {name:'سارة علي',  user:'client2', pass:'1234', wt:62, ht:164, goal:'بناء عضل',  ava:'س', subDays:22, progress:[{w:'أ1',kg:62},{w:'أ2',kg:62.5},{w:'أ3',kg:63},{w:'أ4',kg:63.8}]},
+    {name:'خالد إبراهيم',user:'client3',pass:'1234',wt:75, ht:180, goal:'لياقة عامة',ava:'خ', subDays:30, progress:[{w:'أ1',kg:75},{w:'أ2',kg:74.5},{w:'أ3',kg:74},{w:'أ4',kg:73.5}]},
+  ];
+  STATE.admin = {user:'admin', pass:'1234'};
+  saveState(STATE);
+}
+
+let cur = null;
+let selDay = 'السبت';
+let selCliIdx = null;
+
+// ==============================
+// SESSION helpers
+// ==============================
+function saveSession(data) {
+  try { localStorage.setItem('ironfit_session', JSON.stringify(data)); } catch(e){}
+}
+function clearSession() {
+  try { localStorage.removeItem('ironfit_session'); } catch(e){}
+}
+function restoreSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem('ironfit_session'));
+    if (!s) return false;
+    if (s.role === 'admin') {
+      cur = {role:'admin'};
+      renderAdmin();
+      show('s-admin');
+      return true;
+    }
+    if (s.role === 'client' && STATE.clients[s.id]) {
+      cur = {role:'client', id: s.id};
+      loadClient(s.id);
+      show('s-client');
+      return true;
+    }
+  } catch(e){}
+  return false;
+}
+
+// ==============================
+// NAVIGATION
+// ==============================
+function show(id) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function logout() { cur = null; clearSession(); show('s-login'); }
+function goBack() { renderAdmin(); show('s-admin'); }
+
+// ==============================
+// LOGIN
+// ==============================
+function doLogin() {
+  const u = document.getElementById('u-in').value.trim();
+  const p = document.getElementById('p-in').value.trim();
+  const err = document.getElementById('l-err');
+  err.style.display = 'none';
+
+  if (u === STATE.admin.user && p === STATE.admin.pass) {
+    cur = {role:'admin'};
+    saveSession({role:'admin'});
+    renderAdmin();
+    show('s-admin');
+    return;
+  }
+  const idx = STATE.clients.findIndex(c => c.user === u && c.pass === p);
+  if (idx >= 0) {
+    cur = {role:'client', id:idx};
+    saveSession({role:'client', id:idx});
+    loadClient(idx);
+    show('s-client');
+    return;
+  }
+  err.style.display = 'block';
+}
+
+// ==============================
+// ADMIN
+// ==============================
+function renderAdmin() {
+  renderNotifs();
+  document.getElementById('a-total').textContent = STATE.clients.length;
+  document.getElementById('a-active').textContent = STATE.clients.filter(c => c.subDays > 0).length;
+  const list = document.getElementById('cli-list');
+  list.innerHTML = '';
+  STATE.clients.forEach((c, i) => {
+    const pct = Math.round(Math.min(100, c.subDays / 30 * 100));
+    const col = c.subDays <= 5 ? 'var(--ac)' : c.subDays <= 10 ? 'var(--or)' : 'var(--gr)';
+    const d = document.createElement('div');
+    d.className = 'cli-row';
+    d.innerHTML = `
+      <div class="ava">${c.ava}</div>
+      <div style="flex:1">
         <div style="font-weight:500;font-size:14px;color:var(--txt)">${c.name}</div>
         <div style="font-size:11px;color:var(--mut);margin-top:1px">${c.wt}كج · ${c.ht}سم · ${c.goal}</div>
         <div class="sub-bar"><div class="sub-fill" style="width:${pct}%;background:${col}"></div></div>
