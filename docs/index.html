@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAo_3LfcNS0_vwGSVBH7zpjCUy7hmFBSe0",
-  authDomain: "ironfit-pro.firebaseapp.com",
-  databaseURL: "https://ironfit-pro-default-rtdb.firebaseio.com",
-  projectId: "ironfit-pro",
-  storageBucket: "ironfit-pro.firebasestorage.app",
-  messagingSenderId: "1021226051596",
-  appId: "1:1021226051596:web:1e1524d737a00d50dba629",
-  measurementId: "G-MKLGDFW4R4"
-};
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
@@ -17,6 +6,24 @@ const firebaseConfig = {
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <title>IronFit Pro</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  databaseURL: "https://ironfit-pro-default-rtdb.firebaseio.com"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+window._db = db;
+window._ref = ref;
+window._set = set;
+window._get = get;
+window._onValue = onValue;
+window._update = update;
+window._fbReady = true;
+window.dispatchEvent(new Event('fbReady'));
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#1a1a2e;font-family:'Segoe UI',Tahoma,sans-serif;overflow:hidden}
@@ -79,23 +86,30 @@ select.inp{-webkit-appearance:none}
 .chk.done{border-color:var(--gr);background:rgba(46,204,113,0.2);color:var(--gr)}
 .login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:var(--surf)}
 .logo-box{width:70px;height:70px;background:var(--ac);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
-/* Admin edit styles */
 .edit-in{background:rgba(255,255,255,0.06);border:1px solid var(--bd);border-radius:7px;padding:7px 10px;color:var(--txt);font-size:13px;outline:none;font-family:inherit}
 .edit-in:focus{border-color:var(--ac)}
 .del-btn{width:30px;height:30px;border-radius:7px;border:none;background:rgba(233,69,96,0.15);color:var(--ac);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit}
 .add-row-btn{width:100%;background:rgba(46,204,113,0.08);border:1px dashed rgba(46,204,113,0.35);border-radius:8px;padding:9px;color:var(--gr);font-size:12px;cursor:pointer;margin-top:8px;font-family:inherit}
 .meal-section{background:var(--surf);border-radius:12px;padding:14px;border:1px solid var(--bd);margin-bottom:10px}
-.meal-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
 .item-row{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--bd)}
 .item-row:last-of-type{border-bottom:none}
 .tot-card{background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.25);border-radius:10px;padding:12px;text-align:center;margin-bottom:12px}
+.loading{position:fixed;inset:0;background:var(--pr);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <div id="root">
 
-<!-- ═══════ LOGIN ═══════ -->
-<div class="scr on" id="s-login">
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div style="color:var(--mut);font-size:13px">جاري التحميل...</div>
+</div>
+
+<!-- LOGIN -->
+<div class="scr" id="s-login">
   <div class="scroll"><div class="login-wrap">
     <div style="text-align:center;margin-bottom:36px">
       <div class="logo-box"><i class="ti ti-barbell" style="color:#fff;font-size:36px"></i></div>
@@ -111,7 +125,7 @@ select.inp{-webkit-appearance:none}
   </div></div>
 </div>
 
-<!-- ═══════ ADMIN HOME ═══════ -->
+<!-- ADMIN HOME -->
 <div class="scr" id="s-admin">
   <div class="hdr">
     <div style="flex:1"><div style="font-size:11px;color:var(--mut)">لوحة المدرب</div><div style="font-weight:500;font-size:16px;color:var(--txt)">IronFit Pro</div></div>
@@ -147,7 +161,7 @@ select.inp{-webkit-appearance:none}
   </div>
 </div>
 
-<!-- ═══════ CLIENT DETAIL (Admin) ═══════ -->
+<!-- CLIENT DETAIL (Admin) -->
 <div class="scr" id="s-detail">
   <div class="hdr">
     <span class="back" onclick="goBack()"><i class="ti ti-arrow-right"></i></span>
@@ -166,8 +180,7 @@ select.inp{-webkit-appearance:none}
         </div>
       </div>
     </div>
-    <!-- Edit credentials -->
-    <div class="card" id="d-creds-wrap">
+    <div class="card">
       <div style="font-size:12px;color:var(--gold);font-weight:500;margin-bottom:10px"><i class="ti ti-key"></i> بيانات الدخول</div>
       <div style="display:flex;gap:8px;margin-bottom:8px">
         <div style="flex:1"><div style="font-size:10px;color:var(--mut);margin-bottom:4px">اسم المستخدم</div>
@@ -188,7 +201,7 @@ select.inp{-webkit-appearance:none}
   </div>
 </div>
 
-<!-- ═══════ CLIENT HOME ═══════ -->
+<!-- CLIENT HOME -->
 <div class="scr" id="s-client">
   <div class="hdr">
     <div style="flex:1"><div style="font-size:11px;color:var(--mut)">مرحباً 👋</div><div style="font-weight:500;font-size:16px;color:var(--txt)" id="c-name">-</div></div>
@@ -214,13 +227,10 @@ select.inp{-webkit-appearance:none}
   </div>
 </div>
 
-</div><!-- end #root -->
+</div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// DEFAULT DATA
-// ═══════════════════════════════════════════════════════
-const DD = {
+const DD={
   'حرق دهون':[
     {meal:'إفطار',items:[{n:'بيض مسلوق',cpu:70,q:3,u:'بيضة'},{n:'شوفان بحليب',cpu:180,q:1,u:'وجبة'},{n:'موزة',cpu:90,q:1,u:'حبة'}]},
     {meal:'غداء',items:[{n:'صدر دجاج مشوي',cpu:165,q:2,u:'100ج'},{n:'أرز بني',cpu:140,q:1,u:'150ج'},{n:'سلطة خضراء',cpu:50,q:1,u:'طبق'}]},
@@ -246,74 +256,92 @@ const DD = {
     {meal:'عشاء',items:[{n:'دجاج',cpu:165,q:2,u:'100ج'},{n:'مكرونة',cpu:150,q:2,u:'100ج'}]},
   ],
 };
-const DT = {
-  'السبت':    [{name:'بنش بريس (الصدر)',icon:'🏋️'},{name:'ضغط بالدمبل',icon:'💪'},{name:'كابل كروس',icon:'🔗'},{name:'فلاي على البنشة',icon:'🦋'}],
-  'الاثنين':  [{name:'سكوات بالبار',icon:'🦵'},{name:'ليغ بريس',icon:'🦿'},{name:'ليغ إكستنشن',icon:'🔩'},{name:'ليغ كيرل',icon:'🔄'}],
-  'الأربعاء': [{name:'ديدليفت',icon:'⚡'},{name:'سحب علوي',icon:'🎯'},{name:'رفرفة للظهر',icon:'🦅'},{name:'سحب بالكابل',icon:'🔀'}],
-  'الجمعة':   [{name:'ضغط عسكري',icon:'🎖️'},{name:'رفع جانبي',icon:'↗️'},{name:'كيرل بار',icon:'💥'},{name:'ترايسبس',icon:'🔱'}],
+const DT={
+  'السبت':[{name:'بنش بريس (الصدر)',icon:'🏋️'},{name:'ضغط بالدمبل',icon:'💪'},{name:'كابل كروس',icon:'🔗'},{name:'فلاي على البنشة',icon:'🦋'}],
+  'الاثنين':[{name:'سكوات بالبار',icon:'🦵'},{name:'ليغ بريس',icon:'🦿'},{name:'ليغ إكستنشن',icon:'🔩'},{name:'ليغ كيرل',icon:'🔄'}],
+  'الأربعاء':[{name:'ديدليفت',icon:'⚡'},{name:'سحب علوي',icon:'🎯'},{name:'رفرفة للظهر',icon:'🦅'},{name:'سحب بالكابل',icon:'🔀'}],
+  'الجمعة':[{name:'ضغط عسكري',icon:'🎖️'},{name:'رفع جانبي',icon:'↗️'},{name:'كيرل بار',icon:'💥'},{name:'ترايسبس',icon:'🔱'}],
 };
-
-// ═══════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════
-function ls(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}}
-function ss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-
-let S = ls('ifs')||{};
-if(!S.clients){
-  S={
-    admin:{user:'admin',pass:'1234'},
-    clients:[
-      {name:'محمد أحمد',user:'client1',pass:'1234',wt:88,ht:178,goal:'حرق دهون',ava:'م',subDays:5,
-       diet:clone(DD['حرق دهون']),train:clone(DT),progress:[{w:'أ1',kg:88},{w:'أ2',kg:86.5},{w:'أ3',kg:85}]},
-      {name:'سارة علي',user:'client2',pass:'1234',wt:62,ht:164,goal:'بناء عضل',ava:'س',subDays:22,
-       diet:clone(DD['بناء عضل']),train:clone(DT),progress:[{w:'أ1',kg:62},{w:'أ2',kg:62.5},{w:'أ3',kg:63}]},
-      {name:'خالد إبراهيم',user:'client3',pass:'1234',wt:75,ht:180,goal:'لياقة عامة',ava:'خ',subDays:30,
-       diet:clone(DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:75},{w:'أ2',kg:74.5},{w:'أ3',kg:74}]},
-    ]
-  };
-  save();
-}
-// ensure old clients have diet/train
-S.clients.forEach(c=>{
-  if(!c.diet) c.diet=clone(DD[c.goal]||DD['لياقة عامة']);
-  if(!c.train) c.train=clone(DT);
-});
+const ALL_DAYS=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
 
 function clone(o){return JSON.parse(JSON.stringify(o));}
-function save(){ss('ifs',S);}
 
-let cur=null, curIdx=null, selDay='السبت';
+// ── FIREBASE ─────────────────────────────────────────
+let S={admin:{user:'admin',pass:'1234'},clients:[]};
+let cur=null,curIdx=null,selDay='السبت';
+let fbReady=false;
 
-// ═══════════════════════════════════════════════════════
-// SESSION
-// ═══════════════════════════════════════════════════════
-function saveSession(d){ss('ifs_ses',d);}
-function clearSession(){try{localStorage.removeItem('ifs_ses');}catch(e){}}
-function restoreSession(){
-  const s=ls('ifs_ses');
-  if(!s) return;
-  if(s.role==='admin'){cur={role:'admin'};renderAdmin();show('s-admin');}
-  else if(s.role==='client'&&S.clients[s.id]){cur={role:'client',id:s.id};curIdx=s.id;loadClient(s.id);show('s-client');}
+async function fbGet(path){
+  const snap=await window._get(window._ref(window._db,path));
+  return snap.exists()?snap.val():null;
+}
+async function fbSet(path,val){
+  await window._set(window._ref(window._db,path),val);
+}
+async function fbUpdate(path,val){
+  await window._update(window._ref(window._db,path),val);
 }
 
-// ═══════════════════════════════════════════════════════
-// NAV
-// ═══════════════════════════════════════════════════════
+async function initData(){
+  // load from Firebase
+  const data=await fbGet('/');
+  if(!data||!data.admin){
+    // first time — init with defaults
+    const initState={
+      admin:{user:'admin',pass:'1234'},
+      clients:[
+        {name:'محمد أحمد',user:'client1',pass:'1234',wt:88,ht:178,goal:'حرق دهون',ava:'م',subDays:5,diet:clone(DD['حرق دهون']),train:clone(DT),progress:[{w:'أ1',kg:88},{w:'أ2',kg:86.5},{w:'أ3',kg:85}]},
+        {name:'سارة علي',user:'client2',pass:'1234',wt:62,ht:164,goal:'بناء عضل',ava:'س',subDays:22,diet:clone(DD['بناء عضل']),train:clone(DT),progress:[{w:'أ1',kg:62},{w:'أ2',kg:62.5},{w:'أ3',kg:63}]},
+        {name:'خالد إبراهيم',user:'client3',pass:'1234',wt:75,ht:180,goal:'لياقة عامة',ava:'خ',subDays:30,diet:clone(DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:75},{w:'أ2',kg:74.5},{w:'أ3',kg:74}]},
+      ]
+    };
+    await fbSet('/',initState);
+    S=initState;
+  } else {
+    S=data;
+    if(!S.clients) S.clients=[];
+    // ensure diet/train
+    S.clients.forEach(c=>{
+      if(!c.diet) c.diet=clone(DD[c.goal]||DD['لياقة عامة']);
+      if(!c.train) c.train=clone(DT);
+      if(!c.progress) c.progress=[];
+    });
+  }
+  document.getElementById('loading').style.display='none';
+  restoreSession();
+}
+
+async function save(){
+  await fbSet('/',S);
+}
+async function saveClient(idx){
+  await fbSet('/clients/'+idx, S.clients[idx]);
+}
+
+// ── SESSION ───────────────────────────────────────────
+function saveSession(d){try{localStorage.setItem('ifs_ses',JSON.stringify(d));}catch(e){}}
+function clearSession(){try{localStorage.removeItem('ifs_ses');}catch(e){}}
+function restoreSession(){
+  try{
+    const s=JSON.parse(localStorage.getItem('ifs_ses'));
+    if(!s)return show('s-login');
+    if(s.role==='admin'){cur={role:'admin'};renderAdmin();show('s-admin');}
+    else if(s.role==='client'&&S.clients[s.id]){cur={role:'client',id:s.id};curIdx=s.id;loadClient(s.id);show('s-client');}
+    else show('s-login');
+  }catch(e){show('s-login');}
+}
+
+// ── NAV ───────────────────────────────────────────────
 function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
 function logout(){cur=null;curIdx=null;clearSession();show('s-login');}
 function goBack(){renderAdmin();show('s-admin');}
 
-// ═══════════════════════════════════════════════════════
-// LOGIN
-// ═══════════════════════════════════════════════════════
+// ── LOGIN ─────────────────────────────────────────────
 function doLogin(){
   const u=document.getElementById('u-in').value.trim();
   const p=document.getElementById('p-in').value.trim();
   document.getElementById('l-err').style.display='none';
-  if(u===S.admin.user&&p===S.admin.pass){
-    cur={role:'admin'};saveSession({role:'admin'});renderAdmin();show('s-admin');return;
-  }
+  if(u===S.admin.user&&p===S.admin.pass){cur={role:'admin'};saveSession({role:'admin'});renderAdmin();show('s-admin');return;}
   const idx=S.clients.findIndex(c=>c.user===u&&c.pass===p);
   if(idx>=0){cur={role:'client',id:idx};curIdx=idx;saveSession({role:'client',id:idx});loadClient(idx);show('s-client');return;}
   document.getElementById('l-err').style.display='block';
@@ -321,9 +349,7 @@ function doLogin(){
 document.getElementById('p-in').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('u-in').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('p-in').focus();});
 
-// ═══════════════════════════════════════════════════════
-// ADMIN HOME
-// ═══════════════════════════════════════════════════════
+// ── ADMIN ─────────────────────────────────────────────
 function renderAdmin(){
   renderNotifs();
   document.getElementById('a-total').textContent=S.clients.length;
@@ -351,7 +377,7 @@ function renderNotifs(){
   });
 }
 function toggleAddForm(){const w=document.getElementById('add-wrap');w.style.display=w.style.display==='none'?'block':'none';}
-function addClient(){
+async function addClient(){
   const name=document.getElementById('n-name').value.trim();
   const user=document.getElementById('n-user').value.trim();
   const pass=document.getElementById('n-pass').value.trim();
@@ -361,20 +387,16 @@ function addClient(){
   const days=parseInt(document.getElementById('n-days').value)||30;
   if(!name||!user||!pass){alert('الرجاء تعبئة الاسم واليوزر والباسوورد');return;}
   if(S.clients.find(c=>c.user===user)){alert('اسم المستخدم موجود بالفعل');return;}
-  S.clients.push({name,user,pass,wt,ht,goal,ava:name[0],subDays:days,
-    diet:clone(DD[goal]||DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:wt}]});
-  save();
+  S.clients.push({name,user,pass,wt,ht,goal,ava:name[0],subDays:days,diet:clone(DD[goal]||DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:wt}]});
+  await save();
   document.getElementById('add-wrap').style.display='none';
   ['n-name','n-user','n-pass','n-wt','n-ht','n-days'].forEach(id=>document.getElementById(id).value='');
   renderAdmin();
 }
 
-// ═══════════════════════════════════════════════════════
-// CLIENT DETAIL — ADMIN VIEW
-// ═══════════════════════════════════════════════════════
+// ── CLIENT DETAIL ─────────────────────────────────────
 function openDetail(i){
-  curIdx=i;
-  const c=S.clients[i];
+  curIdx=i;const c=S.clients[i];
   document.getElementById('d-name').textContent=c.name;
   document.getElementById('d-full').textContent=c.name;
   document.getElementById('d-ava').textContent=c.ava;
@@ -385,36 +407,26 @@ function openDetail(i){
   badge.textContent=c.subDays>0?'نشط':'منتهي';
   badge.style.cssText=`font-size:10px;padding:3px 8px;border-radius:20px;background:${c.subDays>0?'rgba(46,204,113,0.15)':'rgba(233,69,96,0.15)'};color:${c.subDays>0?'var(--gr)':'var(--ac)'}`;
   document.getElementById('d-sub-info').textContent=`${c.subDays} يوم متبقي`;
-  // fill credentials
   document.getElementById('d-user-in').value=c.user;
   document.getElementById('d-pass-in').value=c.pass;
   renderAdminDiet('p-diet',i);
   renderAdminTrain('p-train',i);
   renderProgress('p-prog',c,i,'d');
-  resetTabs('s-detail');
-  show('s-detail');
+  resetTabs('s-detail');show('s-detail');
 }
-
-function saveCredentials(){
+async function saveCredentials(){
   const u=document.getElementById('d-user-in').value.trim();
   const p=document.getElementById('d-pass-in').value.trim();
   if(!u||!p){alert('الرجاء كتابة اليوزر والباسوورد');return;}
   if(S.clients.find((c,i)=>c.user===u&&i!==curIdx)){alert('اسم المستخدم موجود لعميل آخر');return;}
-  S.clients[curIdx].user=u;
-  S.clients[curIdx].pass=p;
-  save();
-  // update session if this is current user
-  const ses=ls('ifs_ses');
-  if(ses&&ses.role==='client'&&ses.id===curIdx) saveSession({role:'client',id:curIdx});
+  S.clients[curIdx].user=u;S.clients[curIdx].pass=p;
+  await saveClient(curIdx);
   alert('✓ تم حفظ بيانات الدخول');
 }
 
-// ═══════════════════════════════════════════════════════
-// TABS
-// ═══════════════════════════════════════════════════════
+// ── TABS ──────────────────────────────────────────────
 function swTab(tab,btn,scr){
-  document.querySelectorAll('#'+scr+' .tab').forEach(t=>t.classList.remove('on'));
-  btn.classList.add('on');
+  document.querySelectorAll('#'+scr+' .tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');
   const pre=scr==='s-detail'?'p-':'c-';
   const keys=scr==='s-detail'?['diet','train','prog']:['diet','train','log','prog'];
   keys.forEach(k=>{const el=document.getElementById(pre+k);if(el)el.style.display=k===tab?'':'none';});
@@ -426,207 +438,128 @@ function resetTabs(scr){
   keys.forEach((k,i)=>{const el=document.getElementById(pre+k);if(el)el.style.display=i===0?'':'none';});
 }
 
-// ═══════════════════════════════════════════════════════
-// ADMIN EDIT — DIET
-// ═══════════════════════════════════════════════════════
-function calcTotalCal(ci){
-  return S.clients[ci].diet.reduce((t,m)=>t+m.items.reduce((s,it)=>s+it.q*it.cpu,0),0);
-}
+// ── ADMIN DIET EDIT ───────────────────────────────────
+function calcTotalCal(ci){return S.clients[ci].diet.reduce((t,m)=>t+m.items.reduce((s,it)=>s+it.q*it.cpu,0),0);}
 
 function renderAdminDiet(panelId,ci){
-  const c=S.clients[ci];
-  const p=document.getElementById(panelId);
-  p.innerHTML='';
-
-  // total card
-  const tot=document.createElement('div');
-  tot.className='tot-card';
-  tot.id='adm-tot';
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
+  const tot=document.createElement('div');tot.className='tot-card';tot.id='adm-tot';
   tot.innerHTML=`<div style="font-size:11px;color:var(--mut)">إجمالي السعرات اليومية</div>
     <div style="font-size:26px;font-weight:600;color:var(--ac)">${calcTotalCal(ci)}</div>
     <div style="font-size:10px;color:var(--mut)">سعرة حرارية / يوم</div>`;
   p.appendChild(tot);
-
   c.diet.forEach((meal,mi)=>{
-    const sec=document.createElement('div');
-    sec.className='meal-section';
-    sec.id=`adm-meal-${ci}-${mi}`;
-
-    // meal header
-    let html=`<div class="meal-header">
+    const sec=document.createElement('div');sec.className='meal-section';
+    let html=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd)">
       <i class="ti ti-bowl-spoon" style="color:var(--gold);font-size:16px"></i>
-      <input class="edit-in" style="flex:1;font-weight:500" value="${meal.meal}"
-        onchange="S.clients[${ci}].diet[${mi}].meal=this.value;save();" placeholder="اسم الوجبة"/>
-      <button class="del-btn" onclick="delMeal(${ci},${mi})" title="حذف الوجبة">🗑</button>
-    </div>
+      <input class="edit-in" style="flex:1;font-weight:500" value="${meal.meal}" onchange="S.clients[${ci}].diet[${mi}].meal=this.value;saveClient(${ci});" placeholder="اسم الوجبة"/>
+      <button class="del-btn" onclick="delMeal(${ci},${mi})">🗑</button></div>
     <div style="display:grid;grid-template-columns:1fr 50px 55px 60px 28px;gap:5px;margin-bottom:6px">
       <div style="font-size:10px;color:var(--mut)">الصنف</div>
       <div style="font-size:10px;color:var(--mut);text-align:center">الكمية</div>
       <div style="font-size:10px;color:var(--mut);text-align:center">الوحدة</div>
       <div style="font-size:10px;color:var(--mut);text-align:center">كال/وحدة</div>
-      <div></div>
-    </div>`;
-
+      <div></div></div>`;
     meal.items.forEach((it,ii)=>{
-      const cal=it.q*it.cpu;
       html+=`<div class="item-row">
-        <input class="edit-in" style="flex:1" value="${it.n}"
-          onchange="S.clients[${ci}].diet[${mi}].items[${ii}].n=this.value;save();" placeholder="اسم الصنف"/>
-        <input class="edit-in" style="width:50px;text-align:center" type="number" min="0" step="0.5" value="${it.q}"
-          onchange="S.clients[${ci}].diet[${mi}].items[${ii}].q=parseFloat(this.value)||0;refreshDiet(${ci});" placeholder="ك"/>
-        <input class="edit-in" style="width:55px;text-align:center" value="${it.u}"
-          onchange="S.clients[${ci}].diet[${mi}].items[${ii}].u=this.value;save();" placeholder="وحدة"/>
-        <input class="edit-in" style="width:60px;text-align:center" type="number" min="0" value="${it.cpu}"
-          onchange="S.clients[${ci}].diet[${mi}].items[${ii}].cpu=parseFloat(this.value)||0;refreshDiet(${ci});" placeholder="كال"/>
+        <input class="edit-in" style="flex:1" value="${it.n}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].n=this.value;saveClient(${ci});" placeholder="اسم الصنف"/>
+        <input class="edit-in" style="width:50px;text-align:center" type="number" min="0" step="0.5" value="${it.q}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].q=parseFloat(this.value)||0;refreshDiet(${ci});" placeholder="ك"/>
+        <input class="edit-in" style="width:55px;text-align:center" value="${it.u}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].u=this.value;saveClient(${ci});" placeholder="وحدة"/>
+        <input class="edit-in" style="width:60px;text-align:center" type="number" min="0" value="${it.cpu}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].cpu=parseFloat(this.value)||0;refreshDiet(${ci});" placeholder="كال"/>
         <button class="del-btn" onclick="delItem(${ci},${mi},${ii})">×</button>
       </div>
-      <div style="font-size:10px;color:var(--mut);text-align:left;padding:2px 0 4px;border-bottom:1px solid var(--bd)">
-        إجمالي: <span style="color:var(--ac);font-weight:500">${cal}</span> كال
-      </div>`;
+      <div style="font-size:10px;color:var(--mut);padding:2px 0 5px">إجمالي: <span style="color:var(--ac);font-weight:500">${it.q*it.cpu}</span> كال</div>`;
     });
-
     html+=`<button class="add-row-btn" onclick="addItem(${ci},${mi})">+ إضافة صنف</button>`;
-    sec.innerHTML=html;
-    p.appendChild(sec);
+    sec.innerHTML=html;p.appendChild(sec);
   });
-
   const addMealBtn=document.createElement('button');
   addMealBtn.style.cssText='width:100%;background:rgba(245,166,35,0.08);border:1px dashed rgba(245,166,35,0.4);border-radius:8px;padding:10px;color:var(--gold);font-size:13px;cursor:pointer;margin-bottom:10px;font-family:inherit';
-  addMealBtn.innerHTML='+ إضافة وجبة جديدة';
-  addMealBtn.onclick=()=>addMeal(ci);
-  p.appendChild(addMealBtn);
+  addMealBtn.innerHTML='+ إضافة وجبة جديدة';addMealBtn.onclick=()=>addMeal(ci);p.appendChild(addMealBtn);
 }
+async function refreshDiet(ci){await saveClient(ci);renderAdminDiet('p-diet',ci);}
+async function delMeal(ci,mi){if(!confirm('حذف الوجبة؟'))return;S.clients[ci].diet.splice(mi,1);await saveClient(ci);renderAdminDiet('p-diet',ci);}
+async function delItem(ci,mi,ii){S.clients[ci].diet[mi].items.splice(ii,1);await saveClient(ci);renderAdminDiet('p-diet',ci);}
+async function addItem(ci,mi){S.clients[ci].diet[mi].items.push({n:'صنف جديد',cpu:100,q:1,u:'وحدة'});await saveClient(ci);renderAdminDiet('p-diet',ci);}
+async function addMeal(ci){S.clients[ci].diet.push({meal:'وجبة جديدة',items:[{n:'صنف جديد',cpu:100,q:1,u:'وحدة'}]});await saveClient(ci);renderAdminDiet('p-diet',ci);}
 
-function refreshDiet(ci){
-  save();
-  // update total only
-  const tot=document.getElementById('adm-tot');
-  if(tot) tot.querySelector('div:nth-child(2)').textContent=calcTotalCal(ci);
-  // re-render to update per-item cal display
-  renderAdminDiet('p-diet',ci);
-}
-function delMeal(ci,mi){if(!confirm('حذف الوجبة؟'))return;S.clients[ci].diet.splice(mi,1);save();renderAdminDiet('p-diet',ci);}
-function delItem(ci,mi,ii){S.clients[ci].diet[mi].items.splice(ii,1);save();renderAdminDiet('p-diet',ci);}
-function addItem(ci,mi){S.clients[ci].diet[mi].items.push({n:'صنف جديد',cpu:100,q:1,u:'وحدة'});save();renderAdminDiet('p-diet',ci);}
-function addMeal(ci){S.clients[ci].diet.push({meal:'وجبة جديدة',items:[{n:'صنف جديد',cpu:100,q:1,u:'وحدة'}]});save();renderAdminDiet('p-diet',ci);}
-
-// ═══════════════════════════════════════════════════════
-// ADMIN EDIT — TRAINING
-// ═══════════════════════════════════════════════════════
-const ALL_DAYS=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
-
+// ── ADMIN TRAIN EDIT ──────────────────────────────────
 function renderAdminTrain(panelId,ci){
-  const c=S.clients[ci];
-  const p=document.getElementById(panelId);
-  p.innerHTML='';
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
   const days=Object.keys(c.train);
-
-  // ensure selDay is valid
   if(!c.train[selDay]) selDay=days[0];
-
-  // days row with delete buttons
-  const dayWrap=document.createElement('div');
-  dayWrap.style.cssText='margin-bottom:12px';
-
-  const dayScroll=document.createElement('div');
-  dayScroll.className='days';
-  dayScroll.style.marginBottom='8px';
+  const dayWrap=document.createElement('div');dayWrap.style.marginBottom='12px';
+  const dayScroll=document.createElement('div');dayScroll.className='days';dayScroll.style.marginBottom='8px';
   days.forEach(day=>{
-    const wrap=document.createElement('div');
-    wrap.style.cssText='display:flex;align-items:center;gap:3px;flex-shrink:0';
-    const b=document.createElement('button');
-    b.className='day-btn'+(day===selDay?' on':'');
-    b.textContent=day;
+    const wrap=document.createElement('div');wrap.style.cssText='display:flex;align-items:center;gap:3px;flex-shrink:0';
+    const b=document.createElement('button');b.className='day-btn'+(day===selDay?' on':'');b.textContent=day;
     b.onclick=()=>{selDay=day;renderAdminTrain(panelId,ci);};
     const x=document.createElement('button');
-    x.style.cssText='width:20px;height:20px;border-radius:50%;border:none;background:rgba(233,69,96,0.2);color:var(--ac);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;padding:0';
-    x.textContent='×';
-    x.title='حذف اليوم';
-    x.onclick=()=>delDay(ci,day);
-    wrap.appendChild(b);wrap.appendChild(x);
-    dayScroll.appendChild(wrap);
+    x.style.cssText='width:20px;height:20px;border-radius:50%;border:none;background:rgba(233,69,96,0.2);color:var(--ac);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0';
+    x.textContent='×';x.onclick=()=>delDay(ci,day);
+    wrap.appendChild(b);wrap.appendChild(x);dayScroll.appendChild(wrap);
   });
   dayWrap.appendChild(dayScroll);
-
-  // add day button
   const missingDays=ALL_DAYS.filter(d=>!c.train[d]);
   if(missingDays.length>0){
-    const addDayWrap=document.createElement('div');
-    addDayWrap.style.cssText='display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px';
-    const sel=document.createElement('select');
-    sel.className='edit-in';sel.id='new-day-sel-'+ci;
-    sel.style.cssText='flex:1;padding:8px 10px';
+    const addDayWrap=document.createElement('div');addDayWrap.style.cssText='display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px';
+    const sel=document.createElement('select');sel.className='edit-in';sel.id='new-day-sel-'+ci;sel.style.cssText='flex:1;padding:8px 10px';
     missingDays.forEach(d=>{const opt=document.createElement('option');opt.value=d;opt.textContent=d;sel.appendChild(opt);});
     const addBtn=document.createElement('button');
     addBtn.style.cssText='background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);border-radius:8px;padding:8px 14px;color:var(--gr);font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap';
-    addBtn.innerHTML='+ إضافة يوم';
-    addBtn.onclick=()=>addDay(ci,sel.value);
-    addDayWrap.appendChild(sel);addDayWrap.appendChild(addBtn);
-    dayWrap.appendChild(addDayWrap);
+    addBtn.innerHTML='+ إضافة يوم';addBtn.onclick=()=>addDay(ci,sel.value);
+    addDayWrap.appendChild(sel);addDayWrap.appendChild(addBtn);dayWrap.appendChild(addDayWrap);
   }
-
   p.appendChild(dayWrap);
   const exw=document.createElement('div');exw.id='p-train-ex';p.appendChild(exw);
   renderAdminExEdit('p-train-ex',ci,selDay);
 }
-
-function addDay(ci,day){
+async function addDay(ci,day){
   if(S.clients[ci].train[day]){alert('اليوم موجود بالفعل');return;}
   S.clients[ci].train[day]=[{name:'تمرين جديد',icon:'🏋️'}];
-  save();selDay=day;renderAdminTrain('p-train',ci);
+  await saveClient(ci);selDay=day;renderAdminTrain('p-train',ci);
 }
-
-function delDay(ci,day){
+async function delDay(ci,day){
   const days=Object.keys(S.clients[ci].train);
   if(days.length<=1){alert('لازم يكون في يوم واحد على الأقل');return;}
   if(!confirm(`حذف يوم "${day}" وكل تمارينه؟`))return;
   delete S.clients[ci].train[day];
-  save();
-  const remaining=Object.keys(S.clients[ci].train);
-  selDay=remaining[0];
+  await saveClient(ci);
+  selDay=Object.keys(S.clients[ci].train)[0];
   renderAdminTrain('p-train',ci);
 }
-
 function renderAdminExEdit(wid,ci,day){
   const w=document.getElementById(wid);if(!w)return;
   const exs=S.clients[ci].train[day];w.innerHTML='';
-
-  // day title
   const ttl=document.createElement('div');
-  ttl.style.cssText='font-size:13px;color:var(--gold);font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px';
+  ttl.style.cssText='font-size:13px;color:var(--gold);font-weight:500;margin-bottom:10px';
   ttl.innerHTML=`<i class="ti ti-calendar"></i> تمارين يوم ${day}`;
   w.appendChild(ttl);
-
   exs.forEach((ex,ei)=>{
     const card=document.createElement('div');card.className='ex-card';
     card.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
       <span style="font-size:22px">${ex.icon||'🏋️'}</span>
       <input class="edit-in" style="flex:1;font-size:14px" value="${ex.name}"
-        onchange="S.clients[${ci}].train['${day}'][${ei}].name=this.value;save();" placeholder="اسم التمرين"/>
+        onchange="S.clients[${ci}].train['${day}'][${ei}].name=this.value;saveClient(${ci});" placeholder="اسم التمرين"/>
       <button class="del-btn" onclick="delEx(${ci},'${day}',${ei})">×</button>
     </div>
-    <div style="font-size:11px;color:var(--mut);background:rgba(255,255,255,0.04);border-radius:6px;padding:6px;text-align:center">
-      4 مجموعات — العميل يسجل الوزن بنفسه
-    </div>`;
+    <div style="font-size:11px;color:var(--mut);background:rgba(255,255,255,0.04);border-radius:6px;padding:6px;text-align:center">4 مجموعات — العميل يسجل الوزن بنفسه</div>`;
     w.appendChild(card);
   });
   const addBtn=document.createElement('button');addBtn.className='add-row-btn';addBtn.style.width='100%';
   addBtn.innerHTML='+ إضافة تمرين';addBtn.onclick=()=>addEx(ci,day);w.appendChild(addBtn);
 }
-
-function delEx(ci,day,ei){
+async function delEx(ci,day,ei){
   if(S.clients[ci].train[day].length<=1){alert('لازم يكون في تمرين واحد على الأقل');return;}
-  S.clients[ci].train[day].splice(ei,1);save();renderAdminExEdit('p-train-ex',ci,day);
+  S.clients[ci].train[day].splice(ei,1);await saveClient(ci);renderAdminExEdit('p-train-ex',ci,day);
 }
-function addEx(ci,day){
+async function addEx(ci,day){
   const icons=['🏋️','💪','🔗','🦵','⚡','🎯','🔥','💥','🎖️','🦴','🔄'];
   S.clients[ci].train[day].push({name:'تمرين جديد',icon:icons[Math.floor(Math.random()*icons.length)]});
-  save();renderAdminExEdit('p-train-ex',ci,day);
+  await saveClient(ci);renderAdminExEdit('p-train-ex',ci,day);
 }
 
-// ═══════════════════════════════════════════════════════
-// CLIENT HOME
-// ═══════════════════════════════════════════════════════
+// ── CLIENT HOME ───────────────────────────────────────
 function loadClient(idx){
   const c=S.clients[idx];
   document.getElementById('c-name').textContent=c.name;
@@ -639,17 +572,23 @@ function loadClient(idx){
       <span style="color:${col}">${c.subDays} يوم متبقي</span>
     </div><div class="pw"><div class="pf" style="width:${pct}%;background:${col}"></div></div>`;
   const cn=document.getElementById('c-notif');cn.innerHTML='';
-  if(c.subDays>0&&c.subDays<=5) cn.innerHTML=`<div class="alert-r" style="margin-bottom:12px"><div class="ndot"></div><div style="font-size:12px;color:var(--txt)">اشتراكك ينتهي خلال <strong>${c.subDays}</strong> أيام — تواصل مع المدرب ⚠️</div></div>`;
+  if(c.subDays>0&&c.subDays<=5) cn.innerHTML=`<div class="alert-r" style="margin-bottom:12px"><div class="ndot"></div><div style="font-size:12px;color:var(--txt)">اشتراكك ينتهي خلال <strong>${c.subDays}</strong> أيام ⚠️</div></div>`;
   else if(c.subDays<=10) cn.innerHTML=`<div class="alert-o" style="margin-bottom:12px"><div class="ndot or"></div><div style="font-size:12px;color:var(--txt)">اشتراكك ينتهي خلال <strong>${c.subDays}</strong> أيام</div></div>`;
   renderClientDiet('c-diet',idx);
   renderClientTrain('c-train',idx);
   renderProgress('c-prog',c,idx,'c');
   resetTabs('s-client');
+
+  // listen for real-time updates from admin
+  window._onValue(window._ref(window._db,'clients/'+idx),(snap)=>{
+    if(snap.exists()&&cur&&cur.role==='client'){
+      S.clients[idx]=snap.val();
+      loadClient(idx);
+    }
+  });
 }
 
-// ═══════════════════════════════════════════════════════
-// CLIENT — DIET (read only)
-// ═══════════════════════════════════════════════════════
+// ── CLIENT DIET ───────────────────────────────────────
 function renderClientDiet(panelId,ci){
   const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
   let total=0;
@@ -668,9 +607,7 @@ function renderClientDiet(panelId,ci){
   p.appendChild(tot);
 }
 
-// ═══════════════════════════════════════════════════════
-// CLIENT — TRAINING
-// ═══════════════════════════════════════════════════════
+// ── CLIENT TRAIN ──────────────────────────────────────
 function renderClientTrain(panelId,ci){
   const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
   const days=Object.keys(c.train);
@@ -684,7 +621,6 @@ function renderClientTrain(panelId,ci){
   const exw=document.createElement('div');exw.id=panelId+'-ex';p.appendChild(exw);
   renderClientExercises(panelId+'-ex',c.train[days[0]],ci,days[0]);
 }
-
 function renderClientExercises(wid,exs,ci,day){
   const w=document.getElementById(wid);if(!w)return;w.innerHTML='';
   exs.forEach((ex,ei)=>{
@@ -693,7 +629,7 @@ function renderClientExercises(wid,exs,ci,day){
       const key=`set-${ci}-${day}-${ei}-${si}`;
       let saved='';try{saved=localStorage.getItem(key)||'';}catch(e){}
       return `<div class="set-box"><div style="font-size:10px;color:var(--mut);margin-bottom:3px">م${si+1}</div>
-        <input class="set-in" type="number" placeholder="--" value="${saved}" onchange="svSet('${key}',this.value)"/>
+        <input class="set-in" type="number" placeholder="--" value="${saved}" onchange="try{localStorage.setItem('${key}',this.value)}catch(e){}"/>
         <div style="font-size:9px;color:var(--mut);margin-top:2px">كج</div></div>`;
     }).join('');
     card.innerHTML=`<div style="font-size:22px;margin-bottom:6px">${ex.icon||'🏋️'}</div>
@@ -702,58 +638,43 @@ function renderClientExercises(wid,exs,ci,day){
     w.appendChild(card);
   });
 }
-function svSet(key,val){try{localStorage.setItem(key,val);}catch(e){}}
 
-// ═══════════════════════════════════════════════════════
-// CLIENT — FOOD LOG
-// ═══════════════════════════════════════════════════════
-function todayKey(ci){return `flog-${ci}-${new Date().toDateString()}`;}
-function getLog(ci){return ls(todayKey(ci))||{};}
-function saveLog(ci,data){ss(todayKey(ci),data);}
+// ── FOOD LOG ──────────────────────────────────────────
+function todayKey(ci){return`flog-${ci}-${new Date().toDateString()}`;}
+function getLog(ci){try{return JSON.parse(localStorage.getItem(todayKey(ci)))||{};}catch(e){return{};}}
+function saveLog(ci,data){try{localStorage.setItem(todayKey(ci),JSON.stringify(data));}catch(e){}}
 
 function renderLog(ci){
-  const c=S.clients[ci];
-  const p=document.getElementById('c-log');p.innerHTML='';
+  const c=S.clients[ci];const p=document.getElementById('c-log');p.innerHTML='';
   const logged=getLog(ci);
   const target=c.diet.reduce((t,m)=>t+m.items.reduce((s,it)=>s+it.q*it.cpu,0),0);
-
-  // header
   const hdr=document.createElement('div');hdr.className='card';
   hdr.style.background='linear-gradient(135deg,#0f3460,#16213e)';
   hdr.innerHTML=`<div style="font-size:13px;color:var(--gold);font-weight:500;margin-bottom:4px"><i class="ti ti-pencil"></i> سجل وجباتك — ${new Date().toLocaleDateString('ar-EG')}</div>
-    <div style="font-size:11px;color:var(--mut)">اضغط ✓ على كل حاجة أكلتها وعدّل الكمية لو احتجت</div>`;
+    <div style="font-size:11px;color:var(--mut)">اضغط ✓ على كل حاجة أكلتها وعدّل الكمية</div>`;
   p.appendChild(hdr);
-
-  // meals
   c.diet.forEach((meal,mi)=>{
     const sec=document.createElement('div');sec.className='card';
     let rows=meal.items.map((it,ii)=>{
-      const k=`${mi}-${ii}`;
-      const entry=logged[k]||{done:false,qty:it.q};
+      const k=`${mi}-${ii}`;const entry=logged[k]||{done:false,qty:it.q};
       const cal=entry.done?Math.round(entry.qty*it.cpu):0;
       return `<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bd)">
         <div class="chk ${entry.done?'done':''}" onclick="toggleLog(${ci},${mi},${ii},${it.q})">${entry.done?'✓':''}</div>
-        <div style="flex:1">
-          <div style="font-size:13px;color:${entry.done?'var(--txt)':'var(--mut)'}">${it.n}</div>
-          <div style="font-size:10px;color:var(--mut)">${it.cpu} كال / ${it.u}</div>
-        </div>
+        <div style="flex:1"><div style="font-size:13px;color:${entry.done?'var(--txt)':'var(--mut)'}">${it.n}</div>
+          <div style="font-size:10px;color:var(--mut)">${it.cpu} كال / ${it.u}</div></div>
         <div style="display:flex;align-items:center;gap:5px">
           <button class="qbtn" onclick="changeLogQ(${ci},${mi},${ii},${it.q},-1)">−</button>
           <span style="min-width:20px;text-align:center;font-size:14px;font-weight:500">${entry.qty}</span>
           <button class="qbtn" onclick="changeLogQ(${ci},${mi},${ii},${it.q},1)">+</button>
           <span style="min-width:48px;text-align:left;font-size:11px;color:${entry.done?'var(--ac)':'var(--mut)'}">${entry.done?cal+' كال':'--'}</span>
-        </div>
-      </div>`;
+        </div></div>`;
     }).join('');
     sec.innerHTML=`<div style="font-size:12px;color:var(--gold);font-weight:500;margin-bottom:4px"><i class="ti ti-bowl-spoon"></i> ${meal.meal}</div>${rows}`;
     p.appendChild(sec);
   });
-
-  // summary
   let eaten=0;
   c.diet.forEach((meal,mi)=>meal.items.forEach((it,ii)=>{
-    const entry=logged[`${mi}-${ii}`];
-    if(entry&&entry.done) eaten+=entry.qty*it.cpu;
+    const e=logged[`${mi}-${ii}`];if(e&&e.done) eaten+=e.qty*it.cpu;
   }));
   const pct=Math.min(100,Math.round(eaten/target*100));
   const rem=Math.round(target-eaten);
@@ -763,7 +684,6 @@ function renderLog(ci){
   else if(eaten<target){col='var(--gold)';icon='🔥';msg=`تمام! باقي ${rem} كالوري`;}
   else if(Math.round(eaten)===Math.round(target)){col='var(--gr)';icon='✅';msg='وصلت للهدف بالظبط! عظيم 🎉';}
   else{col='var(--ac)';icon='⚠️';msg=`تجاوزت الهدف بـ ${Math.round(eaten-target)} كالوري`;}
-
   const sum=document.createElement('div');sum.className='card';
   sum.innerHTML=`<div style="font-size:13px;font-weight:500;color:var(--txt);margin-bottom:12px">📊 ملخص اليوم</div>
     <div style="display:flex;justify-content:space-between;margin-bottom:12px;text-align:center">
@@ -773,7 +693,7 @@ function renderLog(ci){
       <div><div style="font-size:24px;font-weight:600;color:var(--gr)">${pct}%</div><div style="font-size:10px;color:var(--mut)">مكتمل</div></div>
     </div>
     <div style="background:rgba(255,255,255,0.08);border-radius:8px;height:12px;margin-bottom:12px;overflow:hidden">
-      <div style="height:100%;border-radius:8px;background:${col};width:${pct}%;transition:width 0.4s"></div>
+      <div style="height:100%;border-radius:8px;background:${col};width:${pct}%"></div>
     </div>
     <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:14px;text-align:center">
       <div style="font-size:28px;margin-bottom:6px">${icon}</div>
@@ -781,39 +701,23 @@ function renderLog(ci){
     </div>`;
   p.appendChild(sum);
 }
-
 function toggleLog(ci,mi,ii,defQ){
-  const logged=getLog(ci);
-  const k=`${mi}-${ii}`;
+  const logged=getLog(ci);const k=`${mi}-${ii}`;
   if(!logged[k]) logged[k]={done:false,qty:defQ};
-  logged[k].done=!logged[k].done;
-  saveLog(ci,logged);renderLog(ci);
+  logged[k].done=!logged[k].done;saveLog(ci,logged);renderLog(ci);
 }
 function changeLogQ(ci,mi,ii,defQ,delta){
-  const logged=getLog(ci);
-  const k=`${mi}-${ii}`;
+  const logged=getLog(ci);const k=`${mi}-${ii}`;
   if(!logged[k]) logged[k]={done:false,qty:defQ};
-  logged[k].qty=Math.max(0,parseFloat((logged[k].qty+delta*0.5).toFixed(1)));
-  // round nicely
-  if(delta===1||delta===-1) logged[k].qty=Math.max(0,logged[k].qty+(delta>0?0.5:-0.5));
-  logged[k].qty=Math.max(0,Math.round((defQ+delta*(Math.round((logged[k].qty-defQ)*2)/2))*2)/2);
-  // simpler: just increment by 1
-  const log2=getLog(ci);
-  const k2=`${mi}-${ii}`;
-  if(!log2[k2]) log2[k2]={done:false,qty:defQ};
-  log2[k2].qty=Math.max(0,log2[k2].qty+delta);
-  saveLog(ci,log2);renderLog(ci);
+  logged[k].qty=Math.max(0,logged[k].qty+delta);
+  saveLog(ci,logged);renderLog(ci);
 }
 
-// ═══════════════════════════════════════════════════════
-// PROGRESS
-// ═══════════════════════════════════════════════════════
+// ── PROGRESS ──────────────────────────────────────────
 function renderProgress(panelId,c,idx,prefix){
   const p=document.getElementById(panelId);p.innerHTML='';
   const prog=c.progress;
-  const maxKg=Math.max(...prog.map(x=>x.kg));
-  const minKg=Math.min(...prog.map(x=>x.kg));
-  const range=maxKg-minKg||1;
+  const maxKg=Math.max(...prog.map(x=>x.kg));const minKg=Math.min(...prog.map(x=>x.kg));const range=maxKg-minKg||1;
   const card=document.createElement('div');card.className='card';
   card.innerHTML=`<div style="font-size:13px;font-weight:500;margin-bottom:12px;color:var(--gold)"><i class="ti ti-chart-line"></i> تتبع الوزن الأسبوعي</div>
     <div class="chart-area" id="ch-${idx}-${prefix}"></div>
@@ -825,8 +729,7 @@ function renderProgress(panelId,c,idx,prefix){
   setTimeout(()=>{
     const ca=document.getElementById(`ch-${idx}-${prefix}`);if(!ca)return;ca.innerHTML='';
     prog.forEach(pt=>{
-      const h=Math.round(((pt.kg-minKg)/range)*75+15);
-      const col=pt.kg<=prog[0].kg?'var(--gr)':'var(--ac)';
+      const h=Math.round(((pt.kg-minKg)/range)*75+15);const col=pt.kg<=prog[0].kg?'var(--gr)':'var(--ac)';
       const col2=document.createElement('div');col2.className='bar-col';
       col2.innerHTML=`<div style="font-size:10px;color:var(--txt)">${pt.kg}</div>
         <div class="bar" style="height:${h}px;background:${col}"></div>
@@ -846,17 +749,15 @@ function renderProgress(panelId,c,idx,prefix){
     p.appendChild(addCard);
   }
 }
-function addWeight(idx){
-  const inp=document.getElementById('new-wt-'+idx);
-  const val=parseFloat(inp.value);if(!val)return;
+async function addWeight(idx){
+  const inp=document.getElementById('new-wt-'+idx);const val=parseFloat(inp.value);if(!val)return;
   S.clients[idx].progress.push({w:'أ'+(S.clients[idx].progress.length+1),kg:val});
-  save();inp.value='';renderProgress('c-prog',S.clients[idx],idx,'c');
+  await saveClient(idx);inp.value='';renderProgress('c-prog',S.clients[idx],idx,'c');
 }
 
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-restoreSession();
+// ── INIT ──────────────────────────────────────────────
+if(window._fbReady){initData();}
+else{window.addEventListener('fbReady',initData);}
 </script>
 </body>
 </html>
