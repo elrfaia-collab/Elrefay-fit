@@ -163,10 +163,22 @@ select.inp{-webkit-appearance:none}
       </div>
     </div>
     <div id="cli-list"></div>
+    <div class="sec-t" style="margin-top:6px">سجل الأحداث <span onclick="show('s-logs');renderLogs()"><i class="ti ti-list"></i> عرض الكل</span></div>
+    <div id="admin-logs-preview"></div>
   </div>
 </div>
 
-<!-- CLIENT DETAIL (Admin) -->
+<!-- LOGS SCREEN -->
+<div class="scr" id="s-logs">
+  <div class="hdr">
+    <span class="back" onclick="show('s-admin');renderAdmin()"><i class="ti ti-arrow-right"></i></span>
+    <h2>سجل الأحداث</h2>
+    <span onclick="clearLogs()" style="font-size:11px;color:var(--ac);cursor:pointer">مسح الكل</span>
+  </div>
+  <div class="scroll p16">
+    <div id="logs-list"></div>
+  </div>
+</div>
 <div class="scr" id="s-detail">
   <div class="hdr">
     <span class="back" onclick="goBack()"><i class="ti ti-arrow-right"></i></span>
@@ -336,9 +348,84 @@ function restoreSession(){
   }catch(e){show('s-login');}
 }
 
+// ── LOGGING ───────────────────────────────────────────
+async function writeLog(type, msg, user){
+  try{
+    const now=new Date();
+    const entry={
+      type, msg, user,
+      time: now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}),
+      date: now.toLocaleDateString('ar-EG'),
+      ts: now.getTime()
+    };
+    const logsRef=window._ref(window._db,'logs');
+    const snap=await window._get(logsRef);
+    let logs=snap.exists()?snap.val():[];
+    if(!Array.isArray(logs)) logs=Object.values(logs);
+    logs.unshift(entry);
+    if(logs.length>200) logs=logs.slice(0,200);
+    await window._set(logsRef,logs);
+  }catch(e){}
+}
+
+async function renderLogs(){
+  const el=document.getElementById('logs-list');
+  if(!el) return;
+  el.innerHTML='<div style="color:var(--mut);font-size:13px;text-align:center;padding:20px">جاري التحميل...</div>';
+  try{
+    const snap=await window._get(window._ref(window._db,'logs'));
+    let logs=snap.exists()?snap.val():[];
+    if(!Array.isArray(logs)) logs=Object.values(logs);
+    if(logs.length===0){el.innerHTML='<div style="color:var(--mut);font-size:13px;text-align:center;padding:20px">لا يوجد أحداث مسجلة بعد</div>';return;}
+    el.innerHTML='';
+    logs.forEach(l=>{
+      const icons={login:'🔐',logout:'🚪',edit_diet:'🥗',edit_train:'🏋️',edit_creds:'🔑',add_client:'➕',del_item:'🗑️',add_item:'✏️',add_meal:'🍽️',add_day:'📅',del_day:'❌',add_weight:'⚖️'};
+      const colors={login:'var(--gr)',logout:'var(--mut)',edit_diet:'var(--gold)',edit_train:'var(--ac)',edit_creds:'var(--or)',add_client:'var(--gr)',del_item:'var(--ac)',add_item:'var(--gold)',add_meal:'var(--gold)',add_day:'var(--gr)',del_day:'var(--ac)',add_weight:'var(--gr)'};
+      const icon=icons[l.type]||'📌';
+      const col=colors[l.type]||'var(--txt)';
+      const d=document.createElement('div');
+      d.style.cssText='background:var(--surf);border-radius:10px;padding:12px;border:1px solid var(--bd);margin-bottom:8px;display:flex;align-items:center;gap:10px';
+      d.innerHTML=`<div style="font-size:22px;flex-shrink:0">${icon}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:${col};font-weight:500">${l.msg}</div>
+          <div style="font-size:11px;color:var(--mut);margin-top:3px">${l.user} · ${l.time} · ${l.date}</div>
+        </div>`;
+      el.appendChild(d);
+    });
+  }catch(e){el.innerHTML='<div style="color:var(--ac);font-size:13px;text-align:center;padding:20px">خطأ في التحميل</div>';}
+}
+
+async function renderLogsPreview(){
+  const el=document.getElementById('admin-logs-preview');if(!el)return;
+  try{
+    const snap=await window._get(window._ref(window._db,'logs'));
+    let logs=snap.exists()?snap.val():[];
+    if(!Array.isArray(logs)) logs=Object.values(logs);
+    el.innerHTML='';
+    logs.slice(0,3).forEach(l=>{
+      const icons={login:'🔐',logout:'🚪',edit_diet:'🥗',edit_train:'🏋️',edit_creds:'🔑',add_client:'➕'};
+      el.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:12px">
+        <span>${icons[l.type]||'📌'}</span>
+        <span style="flex:1;color:var(--txt)">${l.msg}</span>
+        <span style="color:var(--mut);font-size:10px">${l.time}</span>
+      </div>`;
+    });
+  }catch(e){}
+}
+
+async function clearLogs(){
+  if(!confirm('مسح كل السجلات؟'))return;
+  await window._set(window._ref(window._db,'logs'),[]);
+  renderLogs();
+}
+
 // ── NAV ───────────────────────────────────────────────
 function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
-function logout(){cur=null;curIdx=null;clearSession();show('s-login');}
+function logout(){
+  const user=cur?cur.role==='admin'?'المدرب':S.clients[cur.id]?.name||'عميل':'';
+  writeLog('logout',`${user} خرج من التطبيق`,user);
+  cur=null;curIdx=null;clearSession();show('s-login');
+}
 function goBack(){renderAdmin();show('s-admin');}
 
 // ── LOGIN ─────────────────────────────────────────────
@@ -346,10 +433,19 @@ function doLogin(){
   const u=document.getElementById('u-in').value.trim();
   const p=document.getElementById('p-in').value.trim();
   document.getElementById('l-err').style.display='none';
-  if(u===S.admin.user&&p===S.admin.pass){cur={role:'admin'};saveSession({role:'admin'});renderAdmin();show('s-admin');return;}
+  if(u===S.admin.user&&p===S.admin.pass){
+    cur={role:'admin'};saveSession({role:'admin'});
+    writeLog('login','المدرب دخل لوحة التحكم','المدرب');
+    renderAdmin();show('s-admin');return;
+  }
   const idx=S.clients.findIndex(c=>c.user===u&&c.pass===p);
-  if(idx>=0){cur={role:'client',id:idx};curIdx=idx;saveSession({role:'client',id:idx});loadClient(idx);show('s-client');return;}
+  if(idx>=0){
+    cur={role:'client',id:idx};curIdx=idx;saveSession({role:'client',id:idx});
+    writeLog('login',`${S.clients[idx].name} دخل التطبيق`,S.clients[idx].name);
+    loadClient(idx);show('s-client');return;
+  }
   document.getElementById('l-err').style.display='block';
+  writeLog('login',`محاولة دخول فاشلة بيوزر: ${u}`,'غير معروف');
 }
 document.getElementById('p-in').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('u-in').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('p-in').focus();});
@@ -357,6 +453,7 @@ document.getElementById('u-in').addEventListener('keydown',e=>{if(e.key==='Enter
 // ── ADMIN ─────────────────────────────────────────────
 function renderAdmin(){
   renderNotifs();
+  renderLogsPreview();
   document.getElementById('a-total').textContent=S.clients.length;
   document.getElementById('a-active').textContent=S.clients.filter(c=>c.subDays>0).length;
   const list=document.getElementById('cli-list');list.innerHTML='';
@@ -394,6 +491,7 @@ async function addClient(){
   if(S.clients.find(c=>c.user===user)){alert('اسم المستخدم موجود بالفعل');return;}
   S.clients.push({name,user,pass,wt,ht,goal,ava:name[0],subDays:days,diet:clone(DD[goal]||DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:wt}]});
   await save();
+  writeLog('add_client',`تم إضافة عميل جديد: ${name}`,'المدرب');
   document.getElementById('add-wrap').style.display='none';
   ['n-name','n-user','n-pass','n-wt','n-ht','n-days'].forEach(id=>document.getElementById(id).value='');
   renderAdmin();
@@ -426,6 +524,7 @@ async function saveCredentials(){
   if(S.clients.find((c,i)=>c.user===u&&i!==curIdx)){alert('اسم المستخدم موجود لعميل آخر');return;}
   S.clients[curIdx].user=u;S.clients[curIdx].pass=p;
   await saveClient(curIdx);
+  writeLog('edit_creds',`تعديل بيانات دخول ${S.clients[curIdx].name}`,'المدرب');
   alert('✓ تم حفظ بيانات الدخول');
 }
 
@@ -482,11 +581,11 @@ function renderAdminDiet(panelId,ci){
   addMealBtn.style.cssText='width:100%;background:rgba(245,166,35,0.08);border:1px dashed rgba(245,166,35,0.4);border-radius:8px;padding:10px;color:var(--gold);font-size:13px;cursor:pointer;margin-bottom:10px;font-family:inherit';
   addMealBtn.innerHTML='+ إضافة وجبة جديدة';addMealBtn.onclick=()=>addMeal(ci);p.appendChild(addMealBtn);
 }
-async function refreshDiet(ci){await saveClient(ci);renderAdminDiet('p-diet',ci);}
-async function delMeal(ci,mi){if(!confirm('حذف الوجبة؟'))return;S.clients[ci].diet.splice(mi,1);await saveClient(ci);renderAdminDiet('p-diet',ci);}
-async function delItem(ci,mi,ii){S.clients[ci].diet[mi].items.splice(ii,1);await saveClient(ci);renderAdminDiet('p-diet',ci);}
-async function addItem(ci,mi){S.clients[ci].diet[mi].items.push({n:'صنف جديد',cpu:100,q:1,u:'وحدة'});await saveClient(ci);renderAdminDiet('p-diet',ci);}
-async function addMeal(ci){S.clients[ci].diet.push({meal:'وجبة جديدة',items:[{n:'صنف جديد',cpu:100,q:1,u:'وحدة'}]});await saveClient(ci);renderAdminDiet('p-diet',ci);}
+async function refreshDiet(ci){await saveClient(ci);writeLog('edit_diet',`تعديل النظام الغذائي لـ ${S.clients[ci].name}`,'المدرب');renderAdminDiet('p-diet',ci);}
+async function delMeal(ci,mi){if(!confirm('حذف الوجبة؟'))return;const mn=S.clients[ci].diet[mi].meal;S.clients[ci].diet.splice(mi,1);await saveClient(ci);writeLog('edit_diet',`حذف وجبة "${mn}" من نظام ${S.clients[ci].name}`,'المدرب');renderAdminDiet('p-diet',ci);}
+async function delItem(ci,mi,ii){const n=S.clients[ci].diet[mi].items[ii].n;S.clients[ci].diet[mi].items.splice(ii,1);await saveClient(ci);writeLog('del_item',`حذف "${n}" من نظام ${S.clients[ci].name}`,'المدرب');renderAdminDiet('p-diet',ci);}
+async function addItem(ci,mi){S.clients[ci].diet[mi].items.push({n:'صنف جديد',cpu:100,q:1,u:'وحدة'});await saveClient(ci);writeLog('add_item',`إضافة صنف جديد لنظام ${S.clients[ci].name}`,'المدرب');renderAdminDiet('p-diet',ci);}
+async function addMeal(ci){S.clients[ci].diet.push({meal:'وجبة جديدة',items:[{n:'صنف جديد',cpu:100,q:1,u:'وحدة'}]});await saveClient(ci);writeLog('add_meal',`إضافة وجبة جديدة لنظام ${S.clients[ci].name}`,'المدرب');renderAdminDiet('p-diet',ci);}
 
 // ── ADMIN TRAIN EDIT ──────────────────────────────────
 function renderAdminTrain(panelId,ci){
@@ -522,14 +621,15 @@ function renderAdminTrain(panelId,ci){
 async function addDay(ci,day){
   if(S.clients[ci].train[day]){alert('اليوم موجود بالفعل');return;}
   S.clients[ci].train[day]=[{name:'تمرين جديد',icon:'🏋️'}];
-  await saveClient(ci);selDay=day;renderAdminTrain('p-train',ci);
+  await saveClient(ci);writeLog('add_day',`إضافة يوم "${day}" لتدريب ${S.clients[ci].name}`,'المدرب');
+  selDay=day;renderAdminTrain('p-train',ci);
 }
 async function delDay(ci,day){
   const days=Object.keys(S.clients[ci].train);
   if(days.length<=1){alert('لازم يكون في يوم واحد على الأقل');return;}
   if(!confirm(`حذف يوم "${day}" وكل تمارينه؟`))return;
   delete S.clients[ci].train[day];
-  await saveClient(ci);
+  await saveClient(ci);writeLog('del_day',`حذف يوم "${day}" من تدريب ${S.clients[ci].name}`,'المدرب');
   selDay=Object.keys(S.clients[ci].train)[0];
   renderAdminTrain('p-train',ci);
 }
@@ -758,7 +858,9 @@ function renderProgress(panelId,c,idx,prefix){
 async function addWeight(idx){
   const inp=document.getElementById('new-wt-'+idx);const val=parseFloat(inp.value);if(!val)return;
   S.clients[idx].progress.push({w:'أ'+(S.clients[idx].progress.length+1),kg:val});
-  await saveClient(idx);inp.value='';renderProgress('c-prog',S.clients[idx],idx,'c');
+  await saveClient(idx);
+  writeLog('add_weight',`${S.clients[idx].name} سجّل وزن جديد: ${val} كج`,S.clients[idx].name);
+  inp.value='';renderProgress('c-prog',S.clients[idx],idx,'c');
 }
 
 // ── INIT ──────────────────────────────────────────────
