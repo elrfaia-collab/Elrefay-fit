@@ -358,14 +358,11 @@ async function writeLog(type, msg, user){
       date: now.toLocaleDateString('ar-EG'),
       ts: now.getTime()
     };
+    // use push to generate unique key — avoids array corruption in Firebase
     const logsRef=window._ref(window._db,'logs');
-    const snap=await window._get(logsRef);
-    let logs=snap.exists()?snap.val():[];
-    if(!Array.isArray(logs)) logs=Object.values(logs);
-    logs.unshift(entry);
-    if(logs.length>200) logs=logs.slice(0,200);
-    await window._set(logsRef,logs);
-  }catch(e){}
+    const {push}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    await push(logsRef, entry);
+  }catch(e){console.log('log error',e);}
 }
 
 async function renderLogs(){
@@ -374,9 +371,10 @@ async function renderLogs(){
   el.innerHTML='<div style="color:var(--mut);font-size:13px;text-align:center;padding:20px">جاري التحميل...</div>';
   try{
     const snap=await window._get(window._ref(window._db,'logs'));
-    let logs=snap.exists()?snap.val():[];
-    if(!Array.isArray(logs)) logs=Object.values(logs);
-    if(logs.length===0){el.innerHTML='<div style="color:var(--mut);font-size:13px;text-align:center;padding:20px">لا يوجد أحداث مسجلة بعد</div>';return;}
+    if(!snap.exists()){el.innerHTML='<div style="color:var(--mut);font-size:13px;text-align:center;padding:20px">لا يوجد أحداث مسجلة بعد</div>';return;}
+    const data=snap.val();
+    // convert object of push keys to array sorted by ts desc
+    let logs=Object.values(data).sort((a,b)=>b.ts-a.ts);
     el.innerHTML='';
     logs.forEach(l=>{
       const icons={login:'🔐',logout:'🚪',edit_diet:'🥗',edit_train:'🏋️',edit_creds:'🔑',add_client:'➕',del_item:'🗑️',add_item:'✏️',add_meal:'🍽️',add_day:'📅',del_day:'❌',add_weight:'⚖️'};
@@ -399,11 +397,12 @@ async function renderLogsPreview(){
   const el=document.getElementById('admin-logs-preview');if(!el)return;
   try{
     const snap=await window._get(window._ref(window._db,'logs'));
-    let logs=snap.exists()?snap.val():[];
-    if(!Array.isArray(logs)) logs=Object.values(logs);
+    if(!snap.exists()){el.innerHTML='';return;}
+    const data=snap.val();
+    let logs=Object.values(data).sort((a,b)=>b.ts-a.ts).slice(0,3);
     el.innerHTML='';
-    logs.slice(0,3).forEach(l=>{
-      const icons={login:'🔐',logout:'🚪',edit_diet:'🥗',edit_train:'🏋️',edit_creds:'🔑',add_client:'➕'};
+    const icons={login:'🔐',logout:'🚪',edit_diet:'🥗',edit_train:'🏋️',edit_creds:'🔑',add_client:'➕',del_item:'🗑️',add_item:'✏️',add_meal:'🍽️',add_day:'📅',del_day:'❌',add_weight:'⚖️'};
+    logs.forEach(l=>{
       el.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:12px">
         <span>${icons[l.type]||'📌'}</span>
         <span style="flex:1;color:var(--txt)">${l.msg}</span>
@@ -415,7 +414,7 @@ async function renderLogsPreview(){
 
 async function clearLogs(){
   if(!confirm('مسح كل السجلات؟'))return;
-  await window._set(window._ref(window._db,'logs'),[]);
+  await window._set(window._ref(window._db,'logs'),null);
   renderLogs();
 }
 
