@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>IronFit Pro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  databaseURL: "https://ironfit-pro-default-rtdb.firebaseio.com"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+window._db = db;
+window._ref = ref;
+window._set = set;
+window._get = get;
+window._onValue = onValue;
+window._update = update;
+window._fbReady = true;
+window.dispatchEvent(new Event('fbReady'));
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#1a1a2e;font-family:'Segoe UI',Tahoma,sans-serif;overflow:hidden}
+:root{--pr:#1a1a2e;--ac:#e94560;--gold:#f5a623;--surf:#16213e;--card:#0f3460;--txt:#eaeaea;--mut:#8892a4;--bd:rgba(255,255,255,0.08);--gr:#2ecc71;--or:#f39c12}
+#root{height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;background:var(--pr);overflow:hidden}
+.scr{display:none;flex:1;flex-direction:column;overflow:hidden}.scr.on{display:flex}
+.scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}.scroll::-webkit-scrollbar{display:none}
+.hdr{background:var(--surf);padding:14px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hdr h2{font-size:15px;font-weight:500;flex:1;color:var(--txt)}
+.back{color:var(--ac);font-size:22px;cursor:pointer;padding:4px}
+.inp{width:100%;background:rgba(255,255,255,0.07);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;color:var(--txt);font-size:15px;margin-bottom:10px;outline:none;font-family:inherit}
+.inp:focus{border-color:var(--ac)}
+select.inp{-webkit-appearance:none}
+.btn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px;font-family:inherit}
+.btn:active{opacity:0.85}
+.p16{padding:16px}
+.card{background:var(--surf);border-radius:12px;padding:14px;border:1px solid var(--bd);margin-bottom:10px}
+.hero{background:linear-gradient(135deg,#c1121f,#e94560);border-radius:12px;padding:18px;margin-bottom:14px}
+.hero h3{font-size:17px;font-weight:500;color:#fff}
+.hero p{color:rgba(255,255,255,0.82);font-size:12px;margin-top:3px}
+.hero-c{background:linear-gradient(135deg,#1a2535,#1e2d40);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:18px;margin-bottom:12px}
+.meal-card{background:#1e2d40;border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.1);margin-bottom:10px}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:13px;color:#e2eaf4}
+.mrow:last-child{border-bottom:none}
+.log-card{background:#1e2d40;border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.1);margin-bottom:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:var(--surf);border-radius:10px;padding:13px;border:1px solid var(--bd)}
+.stat .n{font-size:22px;font-weight:500;color:var(--gold)}.stat .l{font-size:11px;color:var(--mut);margin-top:2px}
+.sec-t{font-size:14px;font-weight:500;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;color:var(--txt)}
+.sec-t span{font-size:12px;color:var(--ac);cursor:pointer}
+.cli-row{background:var(--surf);border-radius:10px;padding:13px;border:1px solid var(--bd);display:flex;align-items:center;gap:11px;margin-bottom:8px;cursor:pointer}
+.cli-row:active{opacity:0.8}
+.ava{width:42px;height:42px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--gold);flex-shrink:0}
+.tabs{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap}
+.tab{flex:1;min-width:55px;padding:9px 4px;border-radius:8px;border:1px solid var(--bd);background:transparent;color:var(--mut);font-size:11px;cursor:pointer;font-family:inherit;text-align:center}
+.tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.ex-card{background:var(--card);border-radius:10px;padding:12px;margin-bottom:10px}
+.sets{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.set-box{background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 3px;text-align:center}
+.set-in{width:100%;background:transparent;border:none;color:var(--txt);font-size:14px;font-weight:500;text-align:center;outline:none;font-family:inherit}
+.set-in::placeholder{color:rgba(255,255,255,0.2);font-size:11px}
+.days{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.day-btn{flex-shrink:0;padding:8px 13px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:var(--mut);font-size:12px;cursor:pointer;font-family:inherit}
+.day-btn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.alert-r{background:rgba(233,69,96,0.12);border:1px solid rgba(233,69,96,0.3);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:9px}
+.alert-o{background:rgba(243,156,18,0.12);border:1px solid rgba(243,156,18,0.3);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:9px}
+.ndot{width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0}
+.ndot.or{background:var(--or)}
+.tag{background:rgba(245,166,35,0.15);color:var(--gold);font-size:11px;padding:3px 8px;border-radius:20px}
+.sub-bar{height:6px;border-radius:3px;background:rgba(255,255,255,0.08);margin-top:5px;overflow:hidden}
+.sub-fill{height:100%;border-radius:3px}
+.pw{height:6px;border-radius:3px;background:rgba(255,255,255,0.08);margin-top:4px;overflow:hidden}
+.pf{height:100%;border-radius:3px;background:var(--gr)}
+.chart-area{height:110px;display:flex;align-items:flex-end;gap:6px;padding:6px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar{width:100%;border-radius:4px 4px 0 0;min-height:4px}
+.add-form{background:var(--surf);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--bd)}
+.add-form label{font-size:11px;color:var(--mut);display:block;margin-bottom:4px;margin-top:10px}
+.add-form label:first-child{margin-top:0}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sbtn{background:var(--ac);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;cursor:pointer;width:100%;margin-top:12px;font-weight:500;font-family:inherit}
+.qbtn{width:28px;height:28px;border-radius:50%;border:1px solid var(--bd);background:rgba(255,255,255,0.07);color:var(--txt);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;line-height:1}
+.chk{width:26px;height:26px;border-radius:7px;border:2px solid var(--bd);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:15px;transition:all .2s}
+.chk.done{border-color:var(--gr);background:rgba(46,204,113,0.2);color:var(--gr)}
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:var(--surf)}
+.logo-box{width:70px;height:70px;background:var(--ac);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.edit-in{background:rgba(255,255,255,0.06);border:1px solid var(--bd);border-radius:7px;padding:7px 10px;color:var(--txt);font-size:13px;outline:none;font-family:inherit}
+.edit-in:focus{border-color:var(--ac)}
+.del-btn{width:30px;height:30px;border-radius:7px;border:none;background:rgba(233,69,96,0.15);color:var(--ac);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit}
+.add-row-btn{width:100%;background:rgba(46,204,113,0.08);border:1px dashed rgba(46,204,113,0.35);border-radius:8px;padding:9px;color:var(--gr);font-size:12px;cursor:pointer;margin-top:8px;font-family:inherit}
+.meal-section{background:var(--surf);border-radius:12px;padding:14px;border:1px solid var(--bd);margin-bottom:10px}
+.item-row{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--bd)}
+.item-row:last-of-type{border-bottom:none}
+.tot-card{background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.25);border-radius:10px;padding:12px;text-align:center;margin-bottom:12px}
+.loading{position:fixed;inset:0;background:var(--pr);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="root">
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div style="color:var(--mut);font-size:13px">جاري التحميل...</div>
+</div>
+
+<!-- LOGIN -->
+<div class="scr" id="s-login">
+  <div class="scroll"><div class="login-wrap">
+    <div style="text-align:center;margin-bottom:36px">
+      <div class="logo-box"><i class="ti ti-barbell" style="color:#fff;font-size:36px"></i></div>
+      <div style="font-size:24px;font-weight:600;letter-spacing:1px;color:var(--txt)">IRONFIT PRO</div>
+      <div style="color:var(--mut);font-size:13px;margin-top:4px">نظام إدارة الجيم الاحترافي</div>
+    </div>
+    <div style="width:100%">
+      <input class="inp" id="u-in" placeholder="اسم المستخدم" autocomplete="username"/>
+      <input class="inp" id="p-in" type="password" placeholder="كلمة المرور" autocomplete="current-password"/>
+      <button class="btn" onclick="doLogin()">دخول</button>
+      <div id="l-err" style="color:var(--ac);font-size:12px;text-align:center;margin-top:10px;display:none">اسم المستخدم أو كلمة المرور غلط</div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ADMIN HOME -->
+<div class="scr" id="s-admin">
+  <div class="hdr">
+    <div style="flex:1"><div style="font-size:11px;color:var(--mut)">لوحة المدرب</div><div style="font-weight:500;font-size:16px;color:var(--txt)">IronFit Pro</div></div>
+    <i class="ti ti-logout" style="font-size:22px;color:var(--ac);cursor:pointer" onclick="logout()"></i>
+  </div>
+  <div class="scroll p16">
+    <div class="hero"><h3>💪 إدارة العملاء</h3><p>عدّل الأنظمة الغذائية والتدريبية وتتبع تقدم عملائك</p></div>
+    <div id="notifs-area"></div>
+    <div class="g2">
+      <div class="stat"><div class="n" id="a-total">0</div><div class="l">إجمالي العملاء</div></div>
+      <div class="stat"><div class="n" style="color:var(--gr)" id="a-active">0</div><div class="l">اشتراك نشط</div></div>
+    </div>
+    <div class="sec-t">العملاء <span onclick="toggleAddForm()">+ إضافة عميل</span></div>
+    <div id="add-wrap" style="display:none">
+      <div class="add-form">
+        <label>اسم العميل</label><input class="inp" id="n-name" placeholder="محمد أحمد" style="margin-bottom:0"/>
+        <label>اسم المستخدم (يوزر)</label><input class="inp" id="n-user" placeholder="client4" style="margin-bottom:0"/>
+        <label>كلمة المرور</label><input class="inp" id="n-pass" type="password" placeholder="****" style="margin-bottom:0"/>
+        <div class="r2" style="margin-top:10px">
+          <div><label style="margin-top:0">الوزن (كج)</label><input class="inp" id="n-wt" type="number" placeholder="80" style="margin-bottom:0"/></div>
+          <div><label style="margin-top:0">الطول (سم)</label><input class="inp" id="n-ht" type="number" placeholder="175" style="margin-bottom:0"/></div>
+        </div>
+        <label>الهدف</label>
+        <select class="inp" id="n-goal" style="margin-bottom:0">
+          <option>حرق دهون</option><option>بناء عضل</option><option>لياقة عامة</option><option>زيادة وزن</option>
+        </select>
+        <label>مدة الاشتراك (أيام)</label>
+        <input class="inp" id="n-days" type="number" placeholder="30" style="margin-bottom:0"/>
+        <button class="sbtn" onclick="addClient()">✓ حفظ العميل</button>
+      </div>
+    </div>
+    <div id="cli-list"></div>
+  </div>
+</div>
+
+<!-- CLIENT DETAIL (Admin) -->
+<div class="scr" id="s-detail">
+  <div class="hdr">
+    <span class="back" onclick="goBack()"><i class="ti ti-arrow-right"></i></span>
+    <h2 id="d-name">عميل</h2>
+    <span id="d-badge" style="font-size:10px;padding:3px 8px;border-radius:20px"></span>
+  </div>
+  <div class="scroll p16">
+    <div class="card" style="display:flex;gap:13px;align-items:center;margin-bottom:12px">
+      <div class="ava" id="d-ava" style="width:52px;height:52px;font-size:20px">م</div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:15px;color:var(--txt)" id="d-full">-</div>
+        <div style="font-size:12px;color:var(--mut);margin-top:2px" id="d-stats">-</div>
+        <div style="margin-top:5px;display:flex;gap:6px;align-items:center">
+          <span class="tag" id="d-goal">-</span>
+          <span id="d-sub-info" style="font-size:11px;color:var(--mut)"></span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:12px;color:var(--gold);font-weight:500;margin-bottom:10px"><i class="ti ti-key"></i> بيانات الدخول</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <div style="flex:1"><div style="font-size:10px;color:var(--mut);margin-bottom:4px">اسم المستخدم</div>
+          <input class="edit-in" id="d-user-in" style="width:100%" placeholder="username"/></div>
+        <div style="flex:1"><div style="font-size:10px;color:var(--mut);margin-bottom:4px">كلمة المرور</div>
+          <input class="edit-in" id="d-pass-in" style="width:100%" placeholder="password"/></div>
+      </div>
+      <button onclick="saveCredentials()" style="width:100%;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);border-radius:8px;padding:9px;color:var(--gr);font-size:13px;cursor:pointer;font-family:inherit">✓ حفظ بيانات الدخول</button>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="swTab('diet',this,'s-detail')"><i class="ti ti-salad"></i> الغذاء</button>
+      <button class="tab" onclick="swTab('train',this,'s-detail')"><i class="ti ti-barbell"></i> التدريب</button>
+      <button class="tab" onclick="swTab('prog',this,'s-detail')"><i class="ti ti-chart-line"></i> التقدم</button>
+    </div>
+    <div id="p-diet"></div>
+    <div id="p-train" style="display:none"></div>
+    <div id="p-prog" style="display:none"></div>
+  </div>
+</div>
+
+<!-- CLIENT HOME -->
+<div class="scr" id="s-client">
+  <div class="hdr">
+    <div style="flex:1"><div style="font-size:11px;color:var(--mut)">مرحباً 👋</div><div style="font-weight:500;font-size:16px;color:var(--txt)" id="c-name">-</div></div>
+    <i class="ti ti-logout" style="font-size:22px;color:var(--ac);cursor:pointer" onclick="logout()"></i>
+  </div>
+  <div class="scroll p16">
+    <div class="hero-c" style="margin-bottom:12px">
+      <div style="font-size:11px;color:#8892a4">هدفك 🎯</div>
+      <div style="font-size:20px;font-weight:700;margin-top:4px;color:#ffffff" id="c-goal">-</div>
+      <div id="c-sub-wrap" style="margin-top:10px"></div>
+    </div>
+    <div id="c-notif"></div>
+    <div class="tabs">
+      <button class="tab on" onclick="swTab('diet',this,'s-client')"><i class="ti ti-salad"></i> الغذاء</button>
+      <button class="tab" onclick="swTab('train',this,'s-client')"><i class="ti ti-barbell"></i> التدريب</button>
+      <button class="tab" onclick="swTab('log',this,'s-client');renderLog(curIdx)"><i class="ti ti-pencil"></i> سجلي</button>
+      <button class="tab" onclick="swTab('prog',this,'s-client')"><i class="ti ti-chart-line"></i> تقدمي</button>
+    </div>
+    <div id="c-diet"></div>
+    <div id="c-train" style="display:none"></div>
+    <div id="c-log" style="display:none"></div>
+    <div id="c-prog" style="display:none"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const DD={
+  'حرق دهون':[
+    {meal:'إفطار',items:[{n:'بيض مسلوق',cpu:70,q:3,u:'بيضة'},{n:'شوفان بحليب',cpu:180,q:1,u:'وجبة'},{n:'موزة',cpu:90,q:1,u:'حبة'}]},
+    {meal:'غداء',items:[{n:'صدر دجاج مشوي',cpu:165,q:2,u:'100ج'},{n:'أرز بني',cpu:140,q:1,u:'150ج'},{n:'سلطة خضراء',cpu:50,q:1,u:'طبق'}]},
+    {meal:'ما بعد التدريب',items:[{n:'بروتين واي',cpu:120,q:1,u:'سكوب'},{n:'تفاحة',cpu:80,q:1,u:'حبة'}]},
+    {meal:'عشاء',items:[{n:'سمك مشوي',cpu:120,q:2,u:'100ج'},{n:'خضروات مطبوخة',cpu:80,q:1,u:'طبق'},{n:'حساء عدس',cpu:130,q:1,u:'كوب'}]},
+  ],
+  'بناء عضل':[
+    {meal:'إفطار',items:[{n:'بيض كامل',cpu:70,q:5,u:'بيضة'},{n:'شوفان بموز',cpu:350,q:1,u:'وجبة'},{n:'عسل طبيعي',cpu:60,q:1,u:'ملعقة'}]},
+    {meal:'غداء',items:[{n:'صدر دجاج',cpu:165,q:3,u:'100ج'},{n:'أرز أبيض',cpu:130,q:2,u:'100ج'},{n:'خبز أسمر',cpu:120,q:1,u:'شريحتان'}]},
+    {meal:'ما بعد التدريب',items:[{n:'بروتين واي',cpu:120,q:2,u:'سكوب'},{n:'تمر',cpu:55,q:4,u:'حبة'}]},
+    {meal:'عشاء',items:[{n:'لحم مفروم',cpu:220,q:2,u:'100ج'},{n:'بطاطا مسلوقة',cpu:100,q:2,u:'حبة'},{n:'خضروات',cpu:60,q:1,u:'طبق'}]},
+  ],
+  'لياقة عامة':[
+    {meal:'إفطار',items:[{n:'بيض',cpu:70,q:2,u:'بيضة'},{n:'شوفان',cpu:150,q:1,u:'وجبة'},{n:'فاكهة موسمية',cpu:80,q:1,u:'حبة'}]},
+    {meal:'غداء',items:[{n:'صدر دجاج',cpu:165,q:1,u:'100ج'},{n:'أرز بني',cpu:140,q:1,u:'100ج'},{n:'سلطة',cpu:50,q:1,u:'طبق'}]},
+    {meal:'وجبة خفيفة',items:[{n:'زبادي يوناني',cpu:130,q:1,u:'كوب'},{n:'مكسرات',cpu:180,q:1,u:'30ج'}]},
+    {meal:'عشاء',items:[{n:'تونة بزيت',cpu:200,q:1,u:'علبة'},{n:'خبز أسمر',cpu:80,q:2,u:'شريحة'}]},
+  ],
+  'زيادة وزن':[
+    {meal:'إفطار',items:[{n:'بيض مقلي بزيت',cpu:120,q:4,u:'بيضة'},{n:'شوفان بحليب كامل',cpu:420,q:1,u:'وجبة'}]},
+    {meal:'غداء',items:[{n:'لحم بقر',cpu:220,q:3,u:'100ج'},{n:'أرز',cpu:130,q:3,u:'100ج'},{n:'خبز',cpu:100,q:2,u:'شريحة'}]},
+    {meal:'ما بعد التدريب',items:[{n:'بروتين واي',cpu:120,q:2,u:'سكوب'},{n:'موز',cpu:90,q:2,u:'حبة'}]},
+    {meal:'عشاء',items:[{n:'دجاج',cpu:165,q:2,u:'100ج'},{n:'مكرونة',cpu:150,q:2,u:'100ج'}]},
+  ],
+};
+const DT={
+  'السبت':[{name:'بنش بريس (الصدر)',icon:'🏋️'},{name:'ضغط بالدمبل',icon:'💪'},{name:'كابل كروس',icon:'🔗'},{name:'فلاي على البنشة',icon:'🦋'}],
+  'الاثنين':[{name:'سكوات بالبار',icon:'🦵'},{name:'ليغ بريس',icon:'🦿'},{name:'ليغ إكستنشن',icon:'🔩'},{name:'ليغ كيرل',icon:'🔄'}],
+  'الأربعاء':[{name:'ديدليفت',icon:'⚡'},{name:'سحب علوي',icon:'🎯'},{name:'رفرفة للظهر',icon:'🦅'},{name:'سحب بالكابل',icon:'🔀'}],
+  'الجمعة':[{name:'ضغط عسكري',icon:'🎖️'},{name:'رفع جانبي',icon:'↗️'},{name:'كيرل بار',icon:'💥'},{name:'ترايسبس',icon:'🔱'}],
+};
+const ALL_DAYS=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
+
+function clone(o){return JSON.parse(JSON.stringify(o));}
+
+// ── FIREBASE ─────────────────────────────────────────
+let S={admin:{user:'admin',pass:'1234'},clients:[]};
+let cur=null,curIdx=null,selDay='السبت';
+let fbReady=false;
+
+async function fbGet(path){
+  const snap=await window._get(window._ref(window._db,path));
+  return snap.exists()?snap.val():null;
+}
+async function fbSet(path,val){
+  await window._set(window._ref(window._db,path),val);
+}
+async function fbUpdate(path,val){
+  await window._update(window._ref(window._db,path),val);
+}
+
+async function initData(){
+  // load from Firebase
+  const data=await fbGet('/');
+  if(!data||!data.admin){
+    // first time — init with defaults
+    const initState={
+      admin:{user:'admin',pass:'1234'},
+      clients:[
+        {name:'محمد أحمد',user:'client1',pass:'1234',wt:88,ht:178,goal:'حرق دهون',ava:'م',subDays:5,diet:clone(DD['حرق دهون']),train:clone(DT),progress:[{w:'أ1',kg:88},{w:'أ2',kg:86.5},{w:'أ3',kg:85}]},
+        {name:'سارة علي',user:'client2',pass:'1234',wt:62,ht:164,goal:'بناء عضل',ava:'س',subDays:22,diet:clone(DD['بناء عضل']),train:clone(DT),progress:[{w:'أ1',kg:62},{w:'أ2',kg:62.5},{w:'أ3',kg:63}]},
+        {name:'خالد إبراهيم',user:'client3',pass:'1234',wt:75,ht:180,goal:'لياقة عامة',ava:'خ',subDays:30,diet:clone(DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:75},{w:'أ2',kg:74.5},{w:'أ3',kg:74}]},
+      ]
+    };
+    await fbSet('/',initState);
+    S=initState;
+  } else {
+    S=data;
+    if(!S.clients) S.clients=[];
+    // ensure diet/train
+    S.clients.forEach(c=>{
+      if(!c.diet) c.diet=clone(DD[c.goal]||DD['لياقة عامة']);
+      if(!c.train) c.train=clone(DT);
+      if(!c.progress) c.progress=[];
+    });
+  }
+  document.getElementById('loading').style.display='none';
+  restoreSession();
+}
+
+async function save(){
+  await fbSet('/',S);
+}
+async function saveClient(idx){
+  await fbSet('/clients/'+idx, S.clients[idx]);
+}
+
+// ── SESSION ───────────────────────────────────────────
+function saveSession(d){try{localStorage.setItem('ifs_ses',JSON.stringify(d));}catch(e){}}
+function clearSession(){try{localStorage.removeItem('ifs_ses');}catch(e){}}
+function restoreSession(){
+  try{
+    const s=JSON.parse(localStorage.getItem('ifs_ses'));
+    if(!s)return show('s-login');
+    if(s.role==='admin'){cur={role:'admin'};renderAdmin();show('s-admin');}
+    else if(s.role==='client'&&S.clients[s.id]){cur={role:'client',id:s.id};curIdx=s.id;loadClient(s.id);show('s-client');}
+    else show('s-login');
+  }catch(e){show('s-login');}
+}
+
+// ── NAV ───────────────────────────────────────────────
+function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
+function logout(){cur=null;curIdx=null;clearSession();show('s-login');}
+function goBack(){renderAdmin();show('s-admin');}
+
+// ── LOGIN ─────────────────────────────────────────────
+function doLogin(){
+  const u=document.getElementById('u-in').value.trim();
+  const p=document.getElementById('p-in').value.trim();
+  document.getElementById('l-err').style.display='none';
+  if(u===S.admin.user&&p===S.admin.pass){cur={role:'admin'};saveSession({role:'admin'});renderAdmin();show('s-admin');return;}
+  const idx=S.clients.findIndex(c=>c.user===u&&c.pass===p);
+  if(idx>=0){cur={role:'client',id:idx};curIdx=idx;saveSession({role:'client',id:idx});loadClient(idx);show('s-client');return;}
+  document.getElementById('l-err').style.display='block';
+}
+document.getElementById('p-in').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('u-in').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('p-in').focus();});
+
+// ── ADMIN ─────────────────────────────────────────────
+function renderAdmin(){
+  renderNotifs();
+  document.getElementById('a-total').textContent=S.clients.length;
+  document.getElementById('a-active').textContent=S.clients.filter(c=>c.subDays>0).length;
+  const list=document.getElementById('cli-list');list.innerHTML='';
+  S.clients.forEach((c,i)=>{
+    const pct=Math.round(Math.min(100,c.subDays/30*100));
+    const col=c.subDays<=5?'var(--ac)':c.subDays<=10?'var(--or)':'var(--gr)';
+    const d=document.createElement('div');d.className='cli-row';
+    d.innerHTML=`<div class="ava">${c.ava}</div><div style="flex:1">
+      <div style="font-weight:500;font-size:14px;color:var(--txt)">${c.name}</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:1px">${c.wt}كج · ${c.ht}سم · ${c.goal}</div>
+      <div class="sub-bar"><div class="sub-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div style="font-size:10px;color:${col};margin-top:2px">${c.subDays} يوم متبقي</div>
+    </div><i class="ti ti-chevron-left" style="color:var(--mut);font-size:16px"></i>`;
+    d.onclick=()=>openDetail(i);list.appendChild(d);
+  });
+}
+function renderNotifs(){
+  const a=document.getElementById('notifs-area');a.innerHTML='';
+  S.clients.forEach(c=>{
+    if(c.subDays<=0)return;
+    if(c.subDays<=5) a.innerHTML+=`<div class="alert-r"><div class="ndot"></div><div><div style="font-size:12px;font-weight:500;color:var(--txt)">${c.name}</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">ينتهي اشتراكه خلال ${c.subDays} أيام ⚠️</div></div></div>`;
+    else if(c.subDays<=10) a.innerHTML+=`<div class="alert-o"><div class="ndot or"></div><div><div style="font-size:12px;font-weight:500;color:var(--txt)">${c.name}</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">ينتهي اشتراكه خلال ${c.subDays} أيام</div></div></div>`;
+  });
+}
+function toggleAddForm(){const w=document.getElementById('add-wrap');w.style.display=w.style.display==='none'?'block':'none';}
+async function addClient(){
+  const name=document.getElementById('n-name').value.trim();
+  const user=document.getElementById('n-user').value.trim();
+  const pass=document.getElementById('n-pass').value.trim();
+  const wt=parseInt(document.getElementById('n-wt').value)||70;
+  const ht=parseInt(document.getElementById('n-ht').value)||170;
+  const goal=document.getElementById('n-goal').value;
+  const days=parseInt(document.getElementById('n-days').value)||30;
+  if(!name||!user||!pass){alert('الرجاء تعبئة الاسم واليوزر والباسوورد');return;}
+  if(S.clients.find(c=>c.user===user)){alert('اسم المستخدم موجود بالفعل');return;}
+  S.clients.push({name,user,pass,wt,ht,goal,ava:name[0],subDays:days,diet:clone(DD[goal]||DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:wt}]});
+  await save();
+  document.getElementById('add-wrap').style.display='none';
+  ['n-name','n-user','n-pass','n-wt','n-ht','n-days'].forEach(id=>document.getElementById(id).value='');
+  renderAdmin();
+}
+
+// ── CLIENT DETAIL ─────────────────────────────────────
+function openDetail(i){
+  curIdx=i;const c=S.clients[i];
+  document.getElementById('d-name').textContent=c.name;
+  document.getElementById('d-full').textContent=c.name;
+  document.getElementById('d-ava').textContent=c.ava;
+  document.getElementById('d-stats').textContent=`${c.wt}كج · ${c.ht}سم`;
+  document.getElementById('d-goal').textContent=c.goal;
+  const col=c.subDays<=5?'var(--ac)':c.subDays<=10?'var(--or)':'var(--gr)';
+  const badge=document.getElementById('d-badge');
+  badge.textContent=c.subDays>0?'نشط':'منتهي';
+  badge.style.cssText=`font-size:10px;padding:3px 8px;border-radius:20px;background:${c.subDays>0?'rgba(46,204,113,0.15)':'rgba(233,69,96,0.15)'};color:${c.subDays>0?'var(--gr)':'var(--ac)'}`;
+  document.getElementById('d-sub-info').textContent=`${c.subDays} يوم متبقي`;
+  document.getElementById('d-user-in').value=c.user;
+  document.getElementById('d-pass-in').value=c.pass;
+  renderAdminDiet('p-diet',i);
+  renderAdminTrain('p-train',i);
+  renderProgress('p-prog',c,i,'d');
+  resetTabs('s-detail');show('s-detail');
+}
+async function saveCredentials(){
+  const u=document.getElementById('d-user-in').value.trim();
+  const p=document.getElementById('d-pass-in').value.trim();
+  if(!u||!p){alert('الرجاء كتابة اليوزر والباسوورد');return;}
+  if(S.clients.find((c,i)=>c.user===u&&i!==curIdx)){alert('اسم المستخدم موجود لعميل آخر');return;}
+  S.clients[curIdx].user=u;S.clients[curIdx].pass=p;
+  await saveClient(curIdx);
+  alert('✓ تم حفظ بيانات الدخول');
+}
+
+// ── TABS ──────────────────────────────────────────────
+function swTab(tab,btn,scr){
+  document.querySelectorAll('#'+scr+' .tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');
+  const pre=scr==='s-detail'?'p-':'c-';
+  const keys=scr==='s-detail'?['diet','train','prog']:['diet','train','log','prog'];
+  keys.forEach(k=>{const el=document.getElementById(pre+k);if(el)el.style.display=k===tab?'':'none';});
+}
+function resetTabs(scr){
+  document.querySelectorAll('#'+scr+' .tab').forEach((t,i)=>t.classList.toggle('on',i===0));
+  const pre=scr==='s-detail'?'p-':'c-';
+  const keys=scr==='s-detail'?['diet','train','prog']:['diet','train','log','prog'];
+  keys.forEach((k,i)=>{const el=document.getElementById(pre+k);if(el)el.style.display=i===0?'':'none';});
+}
+
+// ── ADMIN DIET EDIT ───────────────────────────────────
+function calcTotalCal(ci){return S.clients[ci].diet.reduce((t,m)=>t+m.items.reduce((s,it)=>s+it.q*it.cpu,0),0);}
+
+function renderAdminDiet(panelId,ci){
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
+  const tot=document.createElement('div');tot.className='tot-card';tot.id='adm-tot';
+  tot.innerHTML=`<div style="font-size:11px;color:var(--mut)">إجمالي السعرات اليومية</div>
+    <div style="font-size:26px;font-weight:600;color:var(--ac)">${calcTotalCal(ci)}</div>
+    <div style="font-size:10px;color:var(--mut)">سعرة حرارية / يوم</div>`;
+  p.appendChild(tot);
+  c.diet.forEach((meal,mi)=>{
+    const sec=document.createElement('div');sec.className='meal-section';
+    let html=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd)">
+      <i class="ti ti-bowl-spoon" style="color:var(--gold);font-size:16px"></i>
+      <input class="edit-in" style="flex:1;font-weight:500" value="${meal.meal}" onchange="S.clients[${ci}].diet[${mi}].meal=this.value;saveClient(${ci});" placeholder="اسم الوجبة"/>
+      <button class="del-btn" onclick="delMeal(${ci},${mi})">🗑</button></div>
+    <div style="display:grid;grid-template-columns:1fr 50px 55px 60px 28px;gap:5px;margin-bottom:6px">
+      <div style="font-size:10px;color:var(--mut)">الصنف</div>
+      <div style="font-size:10px;color:var(--mut);text-align:center">الكمية</div>
+      <div style="font-size:10px;color:var(--mut);text-align:center">الوحدة</div>
+      <div style="font-size:10px;color:var(--mut);text-align:center">كال/وحدة</div>
+      <div></div></div>`;
+    meal.items.forEach((it,ii)=>{
+      html+=`<div class="item-row">
+        <input class="edit-in" style="flex:1" value="${it.n}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].n=this.value;saveClient(${ci});" placeholder="اسم الصنف"/>
+        <input class="edit-in" style="width:50px;text-align:center" type="number" min="0" step="0.5" value="${it.q}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].q=parseFloat(this.value)||0;refreshDiet(${ci});" placeholder="ك"/>
+        <input class="edit-in" style="width:55px;text-align:center" value="${it.u}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].u=this.value;saveClient(${ci});" placeholder="وحدة"/>
+        <input class="edit-in" style="width:60px;text-align:center" type="number" min="0" value="${it.cpu}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].cpu=parseFloat(this.value)||0;refreshDiet(${ci});" placeholder="كال"/>
+        <button class="del-btn" onclick="delItem(${ci},${mi},${ii})">×</button>
+      </div>
+      <div style="font-size:10px;color:var(--mut);padding:2px 0 5px">إجمالي: <span style="color:var(--ac);font-weight:500">${it.q*it.cpu}</span> كال</div>`;
+    });
+    html+=`<button class="add-row-btn" onclick="addItem(${ci},${mi})">+ إضافة صنف</button>`;
+    sec.innerHTML=html;p.appendChild(sec);
+  });
+  const addMealBtn=document.createElement('button');
+  addMealBtn.style.cssText='width:100%;background:rgba(245,166,35,0.08);border:1px dashed rgba(245,166,35,0.4);border-radius:8px;padding:10px;color:var(--gold);font-size:13px;cursor:pointer;margin-bottom:10px;font-family:inherit';
+  addMealBtn.innerHTML='+ إضافة وجبة جديدة';addMealBtn.onclick=()=>addMeal(ci);p.appendChild(addMealBtn);
+}
+async function refreshDiet(ci){await saveClient(ci);renderAdminDiet('p-diet',ci);}
+async function delMeal(ci,mi){if(!confirm('حذف الوجبة؟'))return;S.clients[ci].diet.splice(mi,1);await saveClient(ci);renderAdminDiet('p-diet',ci);}
+async function delItem(ci,mi,ii){S.clients[ci].diet[mi].items.splice(ii,1);await saveClient(ci);renderAdminDiet('p-diet',ci);}
+async function addItem(ci,mi){S.clients[ci].diet[mi].items.push({n:'صنف جديد',cpu:100,q:1,u:'وحدة'});await saveClient(ci);renderAdminDiet('p-diet',ci);}
+async function addMeal(ci){S.clients[ci].diet.push({meal:'وجبة جديدة',items:[{n:'صنف جديد',cpu:100,q:1,u:'وحدة'}]});await saveClient(ci);renderAdminDiet('p-diet',ci);}
+
+// ── ADMIN TRAIN EDIT ──────────────────────────────────
+function renderAdminTrain(panelId,ci){
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
+  const days=Object.keys(c.train);
+  if(!c.train[selDay]) selDay=days[0];
+  const dayWrap=document.createElement('div');dayWrap.style.marginBottom='12px';
+  const dayScroll=document.createElement('div');dayScroll.className='days';dayScroll.style.marginBottom='8px';
+  days.forEach(day=>{
+    const wrap=document.createElement('div');wrap.style.cssText='display:flex;align-items:center;gap:3px;flex-shrink:0';
+    const b=document.createElement('button');b.className='day-btn'+(day===selDay?' on':'');b.textContent=day;
+    b.onclick=()=>{selDay=day;renderAdminTrain(panelId,ci);};
+    const x=document.createElement('button');
+    x.style.cssText='width:20px;height:20px;border-radius:50%;border:none;background:rgba(233,69,96,0.2);color:var(--ac);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0';
+    x.textContent='×';x.onclick=()=>delDay(ci,day);
+    wrap.appendChild(b);wrap.appendChild(x);dayScroll.appendChild(wrap);
+  });
+  dayWrap.appendChild(dayScroll);
+  const missingDays=ALL_DAYS.filter(d=>!c.train[d]);
+  if(missingDays.length>0){
+    const addDayWrap=document.createElement('div');addDayWrap.style.cssText='display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px';
+    const sel=document.createElement('select');sel.className='edit-in';sel.id='new-day-sel-'+ci;sel.style.cssText='flex:1;padding:8px 10px';
+    missingDays.forEach(d=>{const opt=document.createElement('option');opt.value=d;opt.textContent=d;sel.appendChild(opt);});
+    const addBtn=document.createElement('button');
+    addBtn.style.cssText='background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);border-radius:8px;padding:8px 14px;color:var(--gr);font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap';
+    addBtn.innerHTML='+ إضافة يوم';addBtn.onclick=()=>addDay(ci,sel.value);
+    addDayWrap.appendChild(sel);addDayWrap.appendChild(addBtn);dayWrap.appendChild(addDayWrap);
+  }
+  p.appendChild(dayWrap);
+  const exw=document.createElement('div');exw.id='p-train-ex';p.appendChild(exw);
+  renderAdminExEdit('p-train-ex',ci,selDay);
+}
+async function addDay(ci,day){
+  if(S.clients[ci].train[day]){alert('اليوم موجود بالفعل');return;}
+  S.clients[ci].train[day]=[{name:'تمرين جديد',icon:'🏋️'}];
+  await saveClient(ci);selDay=day;renderAdminTrain('p-train',ci);
+}
+async function delDay(ci,day){
+  const days=Object.keys(S.clients[ci].train);
+  if(days.length<=1){alert('لازم يكون في يوم واحد على الأقل');return;}
+  if(!confirm(`حذف يوم "${day}" وكل تمارينه؟`))return;
+  delete S.clients[ci].train[day];
+  await saveClient(ci);
+  selDay=Object.keys(S.clients[ci].train)[0];
+  renderAdminTrain('p-train',ci);
+}
+function renderAdminExEdit(wid,ci,day){
+  const w=document.getElementById(wid);if(!w)return;
+  const exs=S.clients[ci].train[day];w.innerHTML='';
+  const ttl=document.createElement('div');
+  ttl.style.cssText='font-size:13px;color:var(--gold);font-weight:500;margin-bottom:10px';
+  ttl.innerHTML=`<i class="ti ti-calendar"></i> تمارين يوم ${day}`;
+  w.appendChild(ttl);
+  exs.forEach((ex,ei)=>{
+    const card=document.createElement('div');card.className='ex-card';
+    card.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:22px">${ex.icon||'🏋️'}</span>
+      <input class="edit-in" style="flex:1;font-size:14px" value="${ex.name}"
+        onchange="S.clients[${ci}].train['${day}'][${ei}].name=this.value;saveClient(${ci});" placeholder="اسم التمرين"/>
+      <button class="del-btn" onclick="delEx(${ci},'${day}',${ei})">×</button>
+    </div>
+    <div style="font-size:11px;color:var(--mut);background:rgba(255,255,255,0.04);border-radius:6px;padding:6px;text-align:center">4 مجموعات — العميل يسجل الوزن بنفسه</div>`;
+    w.appendChild(card);
+  });
+  const addBtn=document.createElement('button');addBtn.style.cssText='width:100%;background:rgba(233,69,96,0.15);border:1px solid rgba(233,69,96,0.4);border-radius:10px;padding:12px;color:#ff6b85;font-size:13px;font-weight:500;cursor:pointer;margin-top:4px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
+  addBtn.innerHTML='<span style="font-size:18px">+</span> إضافة تمرين جديد';addBtn.onclick=()=>addEx(ci,day);w.appendChild(addBtn);
+}
+async function delEx(ci,day,ei){
+  if(S.clients[ci].train[day].length<=1){alert('لازم يكون في تمرين واحد على الأقل');return;}
+  S.clients[ci].train[day].splice(ei,1);await saveClient(ci);renderAdminExEdit('p-train-ex',ci,day);
+}
+async function addEx(ci,day){
+  const icons=['🏋️','💪','🔗','🦵','⚡','🎯','🔥','💥','🎖️','🦴','🔄'];
+  S.clients[ci].train[day].push({name:'تمرين جديد',icon:icons[Math.floor(Math.random()*icons.length)]});
+  await saveClient(ci);renderAdminExEdit('p-train-ex',ci,day);
+}
+
+// ── CLIENT HOME ───────────────────────────────────────
+function loadClient(idx){
+  const c=S.clients[idx];
+  document.getElementById('c-name').textContent=c.name;
+  document.getElementById('c-goal').textContent=c.goal;
+  const pct=Math.round(Math.min(100,c.subDays/30*100));
+  const col=c.subDays<=5?'var(--ac)':c.subDays<=10?'var(--or)':'var(--gr)';
+  document.getElementById('c-sub-wrap').innerHTML=`
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+      <span style="color:rgba(255,255,255,0.6)">الاشتراك</span>
+      <span style="color:${col}">${c.subDays} يوم متبقي</span>
+    </div><div class="pw"><div class="pf" style="width:${pct}%;background:${col}"></div></div>`;
+  const cn=document.getElementById('c-notif');cn.innerHTML='';
+  if(c.subDays>0&&c.subDays<=5) cn.innerHTML=`<div class="alert-r" style="margin-bottom:12px"><div class="ndot"></div><div style="font-size:12px;color:var(--txt)">اشتراكك ينتهي خلال <strong>${c.subDays}</strong> أيام ⚠️</div></div>`;
+  else if(c.subDays<=10) cn.innerHTML=`<div class="alert-o" style="margin-bottom:12px"><div class="ndot or"></div><div style="font-size:12px;color:var(--txt)">اشتراكك ينتهي خلال <strong>${c.subDays}</strong> أيام</div></div>`;
+  renderClientDiet('c-diet',idx);
+  renderClientTrain('c-train',idx);
+  renderProgress('c-prog',c,idx,'c');
+  resetTabs('s-client');
+
+  // listen for real-time updates from admin
+  window._onValue(window._ref(window._db,'clients/'+idx),(snap)=>{
+    if(snap.exists()&&cur&&cur.role==='client'){
+      S.clients[idx]=snap.val();
+      loadClient(idx);
+    }
+  });
+}
+
+// ── CLIENT DIET ───────────────────────────────────────
+function renderClientDiet(panelId,ci){
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
+  let total=0;
+  c.diet.forEach(meal=>{
+    const mc=meal.items.reduce((s,it)=>s+it.q*it.cpu,0);total+=mc;
+    const sec=document.createElement('div');sec.className='meal-card';
+    sec.innerHTML=`<div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+      <i class="ti ti-bowl-spoon"></i>${meal.meal}
+      <span style="color:var(--mut);font-size:11px;font-weight:400;margin-right:auto">${mc} كال</span></div>`+
+      meal.items.map(it=>`<div class="mrow"><span style="color:#dde6f0">${it.n} <span style="color:var(--mut);font-size:11px">(${it.q} ${it.u})</span></span><span style="color:var(--ac);font-size:12px;font-weight:500">${it.q*it.cpu} كال</span></div>`).join('');
+    p.appendChild(sec);
+  });
+  const tot=document.createElement('div');
+  tot.style.cssText='background:rgba(233,69,96,0.12);border:1px solid rgba(233,69,96,0.3);border-radius:10px;padding:14px;text-align:center;margin-bottom:10px';
+  tot.innerHTML=`<div style="font-size:11px;color:rgba(255,255,255,0.6)">إجمالي السعرات اليومية</div><div style="font-size:28px;font-weight:700;color:#ff6b85;margin:4px 0">${total}</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">سعرة حرارية / يوم</div>`;
+  p.appendChild(tot);
+}
+
+// ── CLIENT TRAIN ──────────────────────────────────────
+function renderClientTrain(panelId,ci){
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
+  const days=Object.keys(c.train);
+  const dayRow=document.createElement('div');dayRow.className='days';
+  days.forEach(day=>{
+    const b=document.createElement('button');b.className='day-btn'+(day===selDay?' on':'');b.textContent=day;
+    b.onclick=()=>{selDay=day;document.querySelectorAll('#'+panelId+' .day-btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderClientExercises(panelId+'-ex',c.train[day],ci,day);};
+    dayRow.appendChild(b);
+  });
+  p.appendChild(dayRow);
+  const exw=document.createElement('div');exw.id=panelId+'-ex';p.appendChild(exw);
+  renderClientExercises(panelId+'-ex',c.train[days[0]],ci,days[0]);
+}
+function renderClientExercises(wid,exs,ci,day){
+  const w=document.getElementById(wid);if(!w)return;w.innerHTML='';
+  exs.forEach((ex,ei)=>{
+    const card=document.createElement('div');card.className='ex-card';
+    const setsHtml=[0,1,2,3].map(si=>{
+      const key=`set-${ci}-${day}-${ei}-${si}`;
+      let saved='';try{saved=localStorage.getItem(key)||'';}catch(e){}
+      return `<div class="set-box"><div style="font-size:10px;color:var(--mut);margin-bottom:3px">م${si+1}</div>
+        <input class="set-in" type="number" placeholder="--" value="${saved}" onchange="try{localStorage.setItem('${key}',this.value)}catch(e){}"/>
+        <div style="font-size:9px;color:var(--mut);margin-top:2px">كج</div></div>`;
+    }).join('');
+    card.innerHTML=`<div style="font-size:22px;margin-bottom:6px">${ex.icon||'🏋️'}</div>
+      <div style="font-weight:500;font-size:13px;margin-bottom:8px;color:var(--txt)">${ex.name}</div>
+      <div class="sets">${setsHtml}</div>`;
+    w.appendChild(card);
+  });
+}
+
+// ── FOOD LOG ──────────────────────────────────────────
+function todayKey(ci){return`flog-${ci}-${new Date().toDateString()}`;}
+function getLog(ci){try{return JSON.parse(localStorage.getItem(todayKey(ci)))||{};}catch(e){return{};}}
+function saveLog(ci,data){try{localStorage.setItem(todayKey(ci),JSON.stringify(data));}catch(e){}}
+
+function renderLog(ci){
+  const c=S.clients[ci];const p=document.getElementById('c-log');p.innerHTML='';
+  const logged=getLog(ci);
+  const target=c.diet.reduce((t,m)=>t+m.items.reduce((s,it)=>s+it.q*it.cpu,0),0);
+  const hdr=document.createElement('div');hdr.className='log-card';
+  hdr.innerHTML=`<div style="font-size:14px;color:var(--gold);font-weight:600;margin-bottom:6px"><i class="ti ti-pencil"></i> سجل وجباتك — ${new Date().toLocaleDateString('ar-EG')}</div>
+    <div style="font-size:12px;color:#aab8cc">اضغط ✓ على كل حاجة أكلتها وعدّل الكمية</div>`;
+  p.appendChild(hdr);
+  c.diet.forEach((meal,mi)=>{
+    const sec=document.createElement('div');sec.className='log-card';
+    let rows=meal.items.map((it,ii)=>{
+      const k=`${mi}-${ii}`;const entry=logged[k]||{done:false,qty:it.q};
+      const cal=entry.done?Math.round(entry.qty*it.cpu):0;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <div class="chk ${entry.done?'done':''}" onclick="toggleLog(${ci},${mi},${ii},${it.q})">${entry.done?'✓':''}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:${entry.done?'#dde6f0':'#7a8fa6'};${entry.done?'':'text-decoration:line-through'}">${it.n}</div>
+          <div style="font-size:10px;color:#6a7d94;margin-top:2px">${it.cpu} كال / ${it.u}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="qbtn" onclick="changeLogQ(${ci},${mi},${ii},${it.q},-1)">−</button>
+          <span style="min-width:22px;text-align:center;font-size:14px;font-weight:600;color:#dde6f0">${entry.qty}</span>
+          <button class="qbtn" onclick="changeLogQ(${ci},${mi},${ii},${it.q},1)">+</button>
+          <span style="min-width:52px;text-align:left;font-size:11px;color:${entry.done?'#ff6b85':'#6a7d94'};font-weight:500">${entry.done?cal+' كال':'-- كال'}</span>
+        </div></div>`;
+    }).join('');
+    sec.innerHTML=`<div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:6px"><i class="ti ti-bowl-spoon"></i> ${meal.meal}</div>${rows}`;
+    p.appendChild(sec);
+  });
+  let eaten=0;
+  c.diet.forEach((meal,mi)=>meal.items.forEach((it,ii)=>{
+    const e=logged[`${mi}-${ii}`];if(e&&e.done) eaten+=e.qty*it.cpu;
+  }));
+  const pct=Math.min(100,Math.round(eaten/target*100));
+  const rem=Math.round(target-eaten);
+  let col,icon,msg;
+  if(eaten===0){col='#8892a4';icon='🍽️';msg='لسه ما أكلتش — الدنيا بخير!';}
+  else if(eaten<target*0.5){col='#f39c12';icon='⚡';msg=`باقي ${rem} كالوري للهدف`;}
+  else if(eaten<target){col='#f5a623';icon='🔥';msg=`تمام! باقي ${rem} كالوري`;}
+  else if(Math.round(eaten)===Math.round(target)){col='#2ecc71';icon='✅';msg='وصلت للهدف بالظبط! عظيم 🎉';}
+  else{col='#ff6b85';icon='⚠️';msg=`تجاوزت الهدف بـ ${Math.round(eaten-target)} كالوري`;}
+  const sum=document.createElement('div');sum.className='log-card';
+  sum.innerHTML=`<div style="font-size:14px;font-weight:600;color:#dde6f0;margin-bottom:12px">📊 ملخص اليوم</div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px;text-align:center">
+      <div><div style="font-size:24px;font-weight:700;color:#ff6b85">${Math.round(eaten)}</div><div style="font-size:10px;color:#8892a4;margin-top:2px">أكلت</div></div>
+      <div style="align-self:center;font-size:18px;color:#4a5568">/</div>
+      <div><div style="font-size:24px;font-weight:700;color:#f5a623">${target}</div><div style="font-size:10px;color:#8892a4;margin-top:2px">الهدف</div></div>
+      <div><div style="font-size:24px;font-weight:700;color:#2ecc71">${pct}%</div><div style="font-size:10px;color:#8892a4;margin-top:2px">مكتمل</div></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.08);border-radius:8px;height:12px;margin-bottom:14px;overflow:hidden">
+      <div style="height:100%;border-radius:8px;background:${col};width:${pct}%;transition:width 0.4s"></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,0.08)">
+      <div style="font-size:28px;margin-bottom:6px">${icon}</div>
+      <div style="font-size:14px;font-weight:600;color:${col}">${msg}</div>
+    </div>`;
+  p.appendChild(sum);
+}
+function toggleLog(ci,mi,ii,defQ){
+  const logged=getLog(ci);const k=`${mi}-${ii}`;
+  if(!logged[k]) logged[k]={done:false,qty:defQ};
+  logged[k].done=!logged[k].done;saveLog(ci,logged);renderLog(ci);
+}
+function changeLogQ(ci,mi,ii,defQ,delta){
+  const logged=getLog(ci);const k=`${mi}-${ii}`;
+  if(!logged[k]) logged[k]={done:false,qty:defQ};
+  logged[k].qty=Math.max(0,logged[k].qty+delta);
+  saveLog(ci,logged);renderLog(ci);
+}
+
+// ── PROGRESS ──────────────────────────────────────────
+function renderProgress(panelId,c,idx,prefix){
+  const p=document.getElementById(panelId);p.innerHTML='';
+  const prog=c.progress;
+  const maxKg=Math.max(...prog.map(x=>x.kg));const minKg=Math.min(...prog.map(x=>x.kg));const range=maxKg-minKg||1;
+  const card=document.createElement('div');card.className='card';
+  card.innerHTML=`<div style="font-size:13px;font-weight:500;margin-bottom:12px;color:var(--gold)"><i class="ti ti-chart-line"></i> تتبع الوزن الأسبوعي</div>
+    <div class="chart-area" id="ch-${idx}-${prefix}"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px">
+      <span style="font-size:11px;color:var(--mut)">البداية: ${prog[0].kg} كج</span>
+      <span style="font-size:11px;color:${prog[prog.length-1].kg<=prog[0].kg?'var(--gr)':'var(--ac)'}">الآن: ${prog[prog.length-1].kg} كج</span>
+    </div>`;
+  p.appendChild(card);
+  setTimeout(()=>{
+    const ca=document.getElementById(`ch-${idx}-${prefix}`);if(!ca)return;ca.innerHTML='';
+    prog.forEach(pt=>{
+      const h=Math.round(((pt.kg-minKg)/range)*75+15);const col=pt.kg<=prog[0].kg?'var(--gr)':'var(--ac)';
+      const col2=document.createElement('div');col2.className='bar-col';
+      col2.innerHTML=`<div style="font-size:10px;color:var(--txt)">${pt.kg}</div>
+        <div class="bar" style="height:${h}px;background:${col}"></div>
+        <div style="font-size:10px;color:var(--mut)">${pt.w}</div>`;
+      ca.appendChild(col2);
+    });
+  },60);
+  if(prefix==='c'){
+    const addCard=document.createElement('div');addCard.className='card';
+    addCard.innerHTML=`<div style="font-size:13px;font-weight:500;margin-bottom:10px;color:var(--gold)"><i class="ti ti-plus"></i> تسجيل وزن هذا الأسبوع</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input id="new-wt-${idx}" type="number" step="0.1" placeholder="${c.wt}"
+          style="flex:1;background:rgba(255,255,255,0.07);border:1px solid var(--bd);border-radius:8px;padding:10px;color:var(--txt);font-size:15px;outline:none;text-align:center;font-family:inherit"/>
+        <span style="color:var(--mut)">كج</span>
+        <button onclick="addWeight(${idx})" style="background:var(--ac);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:inherit">حفظ</button>
+      </div>`;
+    p.appendChild(addCard);
+  }
+}
+async function addWeight(idx){
+  const inp=document.getElementById('new-wt-'+idx);const val=parseFloat(inp.value);if(!val)return;
+  S.clients[idx].progress.push({w:'أ'+(S.clients[idx].progress.length+1),kg:val});
+  await saveClient(idx);inp.value='';renderProgress('c-prog',S.clients[idx],idx,'c');
+}
+
+// ── INIT ──────────────────────────────────────────────
+if(window._fbReady){initData();}
+else{window.addEventListener('fbReady',initData);}
+</script>
+</body>
+</html>
