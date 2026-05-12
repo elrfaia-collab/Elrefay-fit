@@ -43,7 +43,12 @@ select.inp{-webkit-appearance:none}
 .card{background:var(--surf);border-radius:12px;padding:14px;border:1px solid var(--bd);margin-bottom:10px}
 .hero{background:linear-gradient(135deg,#c1121f,#e94560);border-radius:12px;padding:18px;margin-bottom:14px}
 .hero h3{font-size:17px;font-weight:500;color:#fff}
-.hero p{color:rgba(255,255,255,0.75);font-size:12px;margin-top:3px}
+.hero p{color:rgba(255,255,255,0.82);font-size:12px;margin-top:3px}
+.hero-c{background:linear-gradient(135deg,#0f2744,#1a2f50);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:18px;margin-bottom:12px}
+.meal-card{background:#1a2b42;border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.1);margin-bottom:10px}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:13px;color:#dde6f0}
+.mrow:last-child{border-bottom:none}
+.log-card{background:#1a2b42;border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.1);margin-bottom:10px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .stat{background:var(--surf);border-radius:10px;padding:13px;border:1px solid var(--bd)}
 .stat .n{font-size:22px;font-weight:500;color:var(--gold)}.stat .l{font-size:11px;color:var(--mut);margin-top:2px}
@@ -208,9 +213,9 @@ select.inp{-webkit-appearance:none}
     <i class="ti ti-logout" style="font-size:22px;color:var(--ac);cursor:pointer" onclick="logout()"></i>
   </div>
   <div class="scroll p16">
-    <div class="hero" style="margin-bottom:12px">
-      <div style="font-size:12px;color:rgba(255,255,255,0.7)">هدفك</div>
-      <div style="font-size:18px;font-weight:500;margin-top:2px;color:#fff" id="c-goal">-</div>
+    <div class="hero-c" style="margin-bottom:12px">
+      <div style="font-size:11px;color:var(--mut)">هدفك 🎯</div>
+      <div style="font-size:18px;font-weight:600;margin-top:4px;color:var(--txt)" id="c-goal">-</div>
       <div id="c-sub-wrap" style="margin-top:10px"></div>
     </div>
     <div id="c-notif"></div>
@@ -546,8 +551,8 @@ function renderAdminExEdit(wid,ci,day){
     <div style="font-size:11px;color:var(--mut);background:rgba(255,255,255,0.04);border-radius:6px;padding:6px;text-align:center">4 مجموعات — العميل يسجل الوزن بنفسه</div>`;
     w.appendChild(card);
   });
-  const addBtn=document.createElement('button');addBtn.className='add-row-btn';addBtn.style.width='100%';
-  addBtn.innerHTML='+ إضافة تمرين';addBtn.onclick=()=>addEx(ci,day);w.appendChild(addBtn);
+  const addBtn=document.createElement('button');addBtn.style.cssText='width:100%;background:rgba(233,69,96,0.15);border:1px solid rgba(233,69,96,0.4);border-radius:10px;padding:12px;color:#ff6b85;font-size:13px;font-weight:500;cursor:pointer;margin-top:4px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
+  addBtn.innerHTML='<span style="font-size:18px">+</span> إضافة تمرين جديد';addBtn.onclick=()=>addEx(ci,day);w.appendChild(addBtn);
 }
 async function delEx(ci,day,ei){
   if(S.clients[ci].train[day].length<=1){alert('لازم يكون في تمرين واحد على الأقل');return;}
@@ -594,16 +599,16 @@ function renderClientDiet(panelId,ci){
   let total=0;
   c.diet.forEach(meal=>{
     const mc=meal.items.reduce((s,it)=>s+it.q*it.cpu,0);total+=mc;
-    const sec=document.createElement('div');sec.className='card';
-    sec.innerHTML=`<div style="font-size:12px;color:var(--gold);font-weight:500;margin-bottom:9px;display:flex;align-items:center;gap:5px">
+    const sec=document.createElement('div');sec.className='meal-card';
+    sec.innerHTML=`<div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px">
       <i class="ti ti-bowl-spoon"></i>${meal.meal}
-      <span style="color:var(--mut);font-size:11px;margin-right:auto">${mc} كال</span></div>`+
-      meal.items.map(it=>`<div class="meal-row"><span>${it.n} (${it.q} ${it.u})</span><span style="color:var(--mut);font-size:12px">${it.q*it.cpu} كال</span></div>`).join('');
+      <span style="color:var(--mut);font-size:11px;font-weight:400;margin-right:auto">${mc} كال</span></div>`+
+      meal.items.map(it=>`<div class="mrow"><span style="color:#dde6f0">${it.n} <span style="color:var(--mut);font-size:11px">(${it.q} ${it.u})</span></span><span style="color:var(--ac);font-size:12px;font-weight:500">${it.q*it.cpu} كال</span></div>`).join('');
     p.appendChild(sec);
   });
   const tot=document.createElement('div');
-  tot.style.cssText='background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.25);border-radius:10px;padding:12px;text-align:center;margin-bottom:10px';
-  tot.innerHTML=`<div style="font-size:11px;color:var(--mut)">إجمالي السعرات اليومية</div><div style="font-size:26px;font-weight:600;color:var(--ac)">${total}</div><div style="font-size:10px;color:var(--mut)">سعرة حرارية / يوم</div>`;
+  tot.style.cssText='background:rgba(233,69,96,0.12);border:1px solid rgba(233,69,96,0.3);border-radius:10px;padding:14px;text-align:center;margin-bottom:10px';
+  tot.innerHTML=`<div style="font-size:11px;color:rgba(255,255,255,0.6)">إجمالي السعرات اليومية</div><div style="font-size:28px;font-weight:700;color:#ff6b85;margin:4px 0">${total}</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">سعرة حرارية / يوم</div>`;
   p.appendChild(tot);
 }
 
@@ -648,28 +653,29 @@ function renderLog(ci){
   const c=S.clients[ci];const p=document.getElementById('c-log');p.innerHTML='';
   const logged=getLog(ci);
   const target=c.diet.reduce((t,m)=>t+m.items.reduce((s,it)=>s+it.q*it.cpu,0),0);
-  const hdr=document.createElement('div');hdr.className='card';
-  hdr.style.background='linear-gradient(135deg,#0f3460,#16213e)';
-  hdr.innerHTML=`<div style="font-size:13px;color:var(--gold);font-weight:500;margin-bottom:4px"><i class="ti ti-pencil"></i> سجل وجباتك — ${new Date().toLocaleDateString('ar-EG')}</div>
-    <div style="font-size:11px;color:var(--mut)">اضغط ✓ على كل حاجة أكلتها وعدّل الكمية</div>`;
+  const hdr=document.createElement('div');hdr.className='log-card';
+  hdr.innerHTML=`<div style="font-size:14px;color:var(--gold);font-weight:600;margin-bottom:6px"><i class="ti ti-pencil"></i> سجل وجباتك — ${new Date().toLocaleDateString('ar-EG')}</div>
+    <div style="font-size:12px;color:#aab8cc">اضغط ✓ على كل حاجة أكلتها وعدّل الكمية</div>`;
   p.appendChild(hdr);
   c.diet.forEach((meal,mi)=>{
-    const sec=document.createElement('div');sec.className='card';
+    const sec=document.createElement('div');sec.className='log-card';
     let rows=meal.items.map((it,ii)=>{
       const k=`${mi}-${ii}`;const entry=logged[k]||{done:false,qty:it.q};
       const cal=entry.done?Math.round(entry.qty*it.cpu):0;
-      return `<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bd)">
+      return `<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
         <div class="chk ${entry.done?'done':''}" onclick="toggleLog(${ci},${mi},${ii},${it.q})">${entry.done?'✓':''}</div>
-        <div style="flex:1"><div style="font-size:13px;color:${entry.done?'var(--txt)':'var(--mut)'}">${it.n}</div>
-          <div style="font-size:10px;color:var(--mut)">${it.cpu} كال / ${it.u}</div></div>
-        <div style="display:flex;align-items:center;gap:5px">
+        <div style="flex:1">
+          <div style="font-size:13px;color:${entry.done?'#dde6f0':'#7a8fa6'};${entry.done?'':'text-decoration:line-through'}">${it.n}</div>
+          <div style="font-size:10px;color:#6a7d94;margin-top:2px">${it.cpu} كال / ${it.u}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
           <button class="qbtn" onclick="changeLogQ(${ci},${mi},${ii},${it.q},-1)">−</button>
-          <span style="min-width:20px;text-align:center;font-size:14px;font-weight:500">${entry.qty}</span>
+          <span style="min-width:22px;text-align:center;font-size:14px;font-weight:600;color:#dde6f0">${entry.qty}</span>
           <button class="qbtn" onclick="changeLogQ(${ci},${mi},${ii},${it.q},1)">+</button>
-          <span style="min-width:48px;text-align:left;font-size:11px;color:${entry.done?'var(--ac)':'var(--mut)'}">${entry.done?cal+' كال':'--'}</span>
+          <span style="min-width:52px;text-align:left;font-size:11px;color:${entry.done?'#ff6b85':'#6a7d94'};font-weight:500">${entry.done?cal+' كال':'-- كال'}</span>
         </div></div>`;
     }).join('');
-    sec.innerHTML=`<div style="font-size:12px;color:var(--gold);font-weight:500;margin-bottom:4px"><i class="ti ti-bowl-spoon"></i> ${meal.meal}</div>${rows}`;
+    sec.innerHTML=`<div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:6px"><i class="ti ti-bowl-spoon"></i> ${meal.meal}</div>${rows}`;
     p.appendChild(sec);
   });
   let eaten=0;
@@ -679,25 +685,25 @@ function renderLog(ci){
   const pct=Math.min(100,Math.round(eaten/target*100));
   const rem=Math.round(target-eaten);
   let col,icon,msg;
-  if(eaten===0){col='var(--mut)';icon='🍽️';msg='لسه ما أكلتش — الدنيا بخير!';}
-  else if(eaten<target*0.5){col='var(--or)';icon='⚡';msg=`باقي ${rem} كالوري للهدف`;}
-  else if(eaten<target){col='var(--gold)';icon='🔥';msg=`تمام! باقي ${rem} كالوري`;}
-  else if(Math.round(eaten)===Math.round(target)){col='var(--gr)';icon='✅';msg='وصلت للهدف بالظبط! عظيم 🎉';}
-  else{col='var(--ac)';icon='⚠️';msg=`تجاوزت الهدف بـ ${Math.round(eaten-target)} كالوري`;}
-  const sum=document.createElement('div');sum.className='card';
-  sum.innerHTML=`<div style="font-size:13px;font-weight:500;color:var(--txt);margin-bottom:12px">📊 ملخص اليوم</div>
+  if(eaten===0){col='#8892a4';icon='🍽️';msg='لسه ما أكلتش — الدنيا بخير!';}
+  else if(eaten<target*0.5){col='#f39c12';icon='⚡';msg=`باقي ${rem} كالوري للهدف`;}
+  else if(eaten<target){col='#f5a623';icon='🔥';msg=`تمام! باقي ${rem} كالوري`;}
+  else if(Math.round(eaten)===Math.round(target)){col='#2ecc71';icon='✅';msg='وصلت للهدف بالظبط! عظيم 🎉';}
+  else{col='#ff6b85';icon='⚠️';msg=`تجاوزت الهدف بـ ${Math.round(eaten-target)} كالوري`;}
+  const sum=document.createElement('div');sum.className='log-card';
+  sum.innerHTML=`<div style="font-size:14px;font-weight:600;color:#dde6f0;margin-bottom:12px">📊 ملخص اليوم</div>
     <div style="display:flex;justify-content:space-between;margin-bottom:12px;text-align:center">
-      <div><div style="font-size:24px;font-weight:600;color:var(--ac)">${Math.round(eaten)}</div><div style="font-size:10px;color:var(--mut)">أكلت</div></div>
-      <div style="align-self:center;font-size:20px;color:var(--mut)">/</div>
-      <div><div style="font-size:24px;font-weight:600;color:var(--gold)">${target}</div><div style="font-size:10px;color:var(--mut)">الهدف</div></div>
-      <div><div style="font-size:24px;font-weight:600;color:var(--gr)">${pct}%</div><div style="font-size:10px;color:var(--mut)">مكتمل</div></div>
+      <div><div style="font-size:24px;font-weight:700;color:#ff6b85">${Math.round(eaten)}</div><div style="font-size:10px;color:#8892a4;margin-top:2px">أكلت</div></div>
+      <div style="align-self:center;font-size:18px;color:#4a5568">/</div>
+      <div><div style="font-size:24px;font-weight:700;color:#f5a623">${target}</div><div style="font-size:10px;color:#8892a4;margin-top:2px">الهدف</div></div>
+      <div><div style="font-size:24px;font-weight:700;color:#2ecc71">${pct}%</div><div style="font-size:10px;color:#8892a4;margin-top:2px">مكتمل</div></div>
     </div>
-    <div style="background:rgba(255,255,255,0.08);border-radius:8px;height:12px;margin-bottom:12px;overflow:hidden">
-      <div style="height:100%;border-radius:8px;background:${col};width:${pct}%"></div>
+    <div style="background:rgba(255,255,255,0.08);border-radius:8px;height:12px;margin-bottom:14px;overflow:hidden">
+      <div style="height:100%;border-radius:8px;background:${col};width:${pct}%;transition:width 0.4s"></div>
     </div>
-    <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:14px;text-align:center">
+    <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,0.08)">
       <div style="font-size:28px;margin-bottom:6px">${icon}</div>
-      <div style="font-size:14px;font-weight:500;color:${col}">${msg}</div>
+      <div style="font-size:14px;font-weight:600;color:${col}">${msg}</div>
     </div>`;
   p.appendChild(sum);
 }
