@@ -823,9 +823,8 @@ async function doLogin(){
     const u=document.getElementById('u-in').value.trim();
     const p=document.getElementById('p-in').value.trim();
 
-    // ── يوزر أحمد — أدمن ومتدرب في نفس الوقت ──
-    const uNorm=u.replace(/[أإآا]/g,'ا');
-    if((uNorm==='احمد'||u==='احمد'||u==='أحمد'||u==='Ahmed'||u==='ahmed')&&p==='2003'){
+    // ── يوزر ahmed — أدمن ومتدرب في نفس الوقت ──
+    if(u==='ahmed'&&p==='2003'){
       btn.disabled=false;btn.innerHTML=originalContent;
       writeLog('login','أحمد دخل التطبيق','أحمد');
       showRoleSelector();
@@ -892,8 +891,8 @@ async function loginAsRole(role){
     showToast('✅ مرحباً أحمد! دخلت كمدرب','success');
     renderAdmin();show('s-admin');
   } else {
-    // دور المتدرب — ندور على يوزر احمد بالظبط
-    const ahmedUsers=['احمد','أحمد','ahmed','Ahmed'];
+    // دور على يوزر ahmed بالظبط في قائمة العملاء
+    const ahmedUsers=['ahmed'];
     let idx=S.clients.findIndex(c=>ahmedUsers.includes(c.user));
     if(idx<0){
       // ضيف أحمد كعميل لو مش موجود
