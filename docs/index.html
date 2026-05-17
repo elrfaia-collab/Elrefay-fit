@@ -824,7 +824,8 @@ async function doLogin(){
     const p=document.getElementById('p-in').value.trim();
 
     // ── يوزر أحمد — أدمن ومتدرب في نفس الوقت ──
-    if(u==='احمد'&&p==='2003'){
+    const uNorm=u.replace(/[أإآا]/g,'ا');
+    if((uNorm==='احمد'||u==='احمد'||u==='أحمد'||u==='Ahmed'||u==='ahmed')&&p==='2003'){
       btn.disabled=false;btn.innerHTML=originalContent;
       writeLog('login','أحمد دخل التطبيق','أحمد');
       showRoleSelector();
@@ -891,8 +892,9 @@ async function loginAsRole(role){
     showToast('✅ مرحباً أحمد! دخلت كمدرب','success');
     renderAdmin();show('s-admin');
   } else {
-    // دور المتدرب — ندور على يوزر أحمد في العملاء أو نضيفه لو مش موجود
-    let idx=S.clients.findIndex(c=>c.user==='احمد');
+    // دور المتدرب — ندور على يوزر احمد بالظبط
+    const ahmedUsers=['احمد','أحمد','ahmed','Ahmed'];
+    let idx=S.clients.findIndex(c=>ahmedUsers.includes(c.user));
     if(idx<0){
       // ضيف أحمد كعميل لو مش موجود
       S.clients.push({
