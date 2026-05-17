@@ -379,6 +379,15 @@ html,body{height:100%;background:#0a0e27;font-family:'Cairo','Segoe UI',sans-ser
       </div>
 
       <div id="cli-list"></div>
+
+      <!-- زرار تحديث الماكروز -->
+      <div style="margin-top:8px;background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.25);border-radius:14px;padding:14px">
+        <div style="font-size:12px;color:#4ecdc4;font-weight:700;margin-bottom:6px">🔄 تحديث بيانات الماكروز</div>
+        <div style="font-size:11px;color:var(--mut);margin-bottom:10px">لو الكارب والبروتين بيظهروا أصفار، اضغط الزرار ده لتحديث بيانات الماكروز لكل العملاء</div>
+        <button onclick="fixMacros()" style="width:100%;background:linear-gradient(135deg,rgba(78,205,196,0.25),rgba(78,205,196,0.1));border:1px solid rgba(78,205,196,0.4);border-radius:10px;padding:12px;color:#4ecdc4;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
+          💪 تحديث الماكروز لكل العملاء
+        </button>
+      </div>
     </div>
   </div>
 
@@ -460,12 +469,14 @@ html,body{height:100%;background:#0a0e27;font-family:'Cairo','Segoe UI',sans-ser
         <button class="tab on" onclick="swTab('diet',this,'s-client')">🍽️ الغذاء</button>
         <button class="tab" onclick="swTab('train',this,'s-client')">🏋️ التمارين</button>
         <button class="tab" onclick="swTab('log',this,'s-client')">📝 السجل</button>
-        <button class="tab" onclick="swTab('prog',this,'s-client')">📊 التقدم</button>
+        <button class="tab" onclick="swTab('hist',this,'s-client');renderTrainHistory(curIdx)">📈 تقدمي</button>
+        <button class="tab" onclick="swTab('prog',this,'s-client')">📊 الوزن</button>
       </div>
 
       <div id="c-diet"></div>
       <div id="c-train" style="display:none"></div>
       <div id="c-log" style="display:none"></div>
+      <div id="c-hist" style="display:none"></div>
       <div id="c-prog" style="display:none"></div>
 
       <button class="btn" style="margin-top:16px;background:linear-gradient(135deg,#ff6b6b,#ff4757)" onclick="printClientReport()">🖨️ طباعة تقريري</button>
@@ -674,6 +685,50 @@ async function initData(){
 async function save(){await fbSet('/',S);}
 async function saveClient(idx){await fbSet('/clients/'+idx,S.clients[idx]);}
 
+// ── FIX MACROS ────────────────────────────────────────
+async function fixMacros(){
+  if(!confirm('هيتم تحديث الماكروز (بروتين/كارب/دهون) لكل الأصناف الموجودة في بيانات العملاء. هيحافظ على كل البيانات التانية. تكمل؟')) return;
+
+  // build lookup map from DD: name → {p,c,f}
+  const macroMap={};
+  Object.values(DD).forEach(meals=>{
+    meals.forEach(meal=>{
+      meal.items.forEach(it=>{
+        macroMap[it.n]={p:it.p||0,c:it.c||0,f:it.f||0,cpu:it.cpu};
+      });
+    });
+  });
+
+  let updated=0;
+  S.clients.forEach((client,ci)=>{
+    client.diet.forEach((meal,mi)=>{
+      meal.items.forEach((it,ii)=>{
+        // update macros if found in map or if missing
+        const ref=macroMap[it.n];
+        if(ref){
+          S.clients[ci].diet[mi].items[ii].p=ref.p;
+          S.clients[ci].diet[mi].items[ii].c=ref.c;
+          S.clients[ci].diet[mi].items[ii].f=ref.f;
+          updated++;
+        } else if(!it.p&&!it.c&&!it.f){
+          // estimate from calories if not in map
+          S.clients[ci].diet[mi].items[ii].p=Math.round(it.cpu*0.25/4);
+          S.clients[ci].diet[mi].items[ii].c=Math.round(it.cpu*0.5/4);
+          S.clients[ci].diet[mi].items[ii].f=Math.round(it.cpu*0.25/9);
+          updated++;
+        }
+      });
+    });
+  });
+
+  // save all clients to Firebase
+  for(let i=0;i<S.clients.length;i++){
+    await saveClient(i);
+  }
+
+  showToast(`✅ تم تحديث الماكروز لـ ${updated} صنف بنجاح`,'success');
+}
+
 // ── SESSION ───────────────────────────────────────────
 function saveSession(d){
   try{
@@ -768,13 +823,19 @@ async function doLogin(){
     const u=document.getElementById('u-in').value.trim();
     const p=document.getElementById('p-in').value.trim();
 
+    // ── يوزر أحمد — أدمن ومتدرب في نفس الوقت ──
+    if(u==='احمد'&&p==='2003'){
+      btn.disabled=false;btn.innerHTML=originalContent;
+      writeLog('login','أحمد دخل التطبيق','أحمد');
+      showRoleSelector();
+      return;
+    }
+
     if(u===S.admin.user&&p===S.admin.pass){
       cur={role:'admin'};saveSession(cur);writeLog('login','دخول المدرب','المدرب');
       showToast('✅ مرحباً بك أيها المدرب!','success');
       renderAdmin();show('s-admin');
-      btn.disabled=false;
-      btn.innerHTML=originalContent;
-      return;
+      btn.disabled=false;btn.innerHTML=originalContent;return;
     }
 
     const idx=S.clients.findIndex(c=>c.user===u&&c.pass===p);
@@ -783,17 +844,69 @@ async function doLogin(){
       writeLog('login',`${S.clients[idx].name} دخل التطبيق`,S.clients[idx].name);
       showToast(`✅ مرحباً بك ${S.clients[idx].name}!`,'success');
       loadClient(idx);show('s-client');
-      btn.disabled=false;
-      btn.innerHTML=originalContent;
-      return;
+      btn.disabled=false;btn.innerHTML=originalContent;return;
     }
 
     document.getElementById('l-err').style.display='block';
     writeLog('login',`محاولة دخول فاشلة بيوزر: ${u}`,'غير معروف');
     showToast('❌ بيانات الدخول غير صحيحة','error');
-    btn.disabled=false;
-    btn.innerHTML=originalContent;
+    btn.disabled=false;btn.innerHTML=originalContent;
   },800);
+}
+
+function showRoleSelector(){
+  // إزالة أي modal قديم
+  const old=document.getElementById('role-modal');if(old)old.remove();
+
+  const overlay=document.createElement('div');
+  overlay.id='role-modal';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
+
+  overlay.innerHTML=`<div style="background:#16213e;border-radius:20px;padding:28px;width:100%;max-width:360px;border:1px solid rgba(255,255,255,0.1);text-align:center">
+    <div style="font-size:36px;margin-bottom:12px">👋</div>
+    <div style="font-size:18px;font-weight:800;color:var(--txt);margin-bottom:6px">مرحباً أحمد!</div>
+    <div style="font-size:13px;color:var(--mut);margin-bottom:24px">اختار تدخل بأي صفة</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <button onclick="loginAsRole('admin')"
+        style="background:linear-gradient(135deg,var(--ac),#c1121f);border:none;border-radius:14px;padding:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px">
+        <i class="ti ti-shield-check" style="font-size:20px"></i> دخول كمدرب / أدمن
+      </button>
+      <button onclick="loginAsRole('client')"
+        style="background:linear-gradient(135deg,#0f3460,#16213e);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px">
+        <i class="ti ti-user" style="font-size:20px"></i> دخول كمتدرب
+      </button>
+      <button onclick="document.getElementById('role-modal').remove()"
+        style="background:transparent;border:1px solid var(--bd);border-radius:14px;padding:12px;color:var(--mut);font-size:13px;cursor:pointer;font-family:inherit">
+        إلغاء
+      </button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function loginAsRole(role){
+  document.getElementById('role-modal').remove();
+  if(role==='admin'){
+    cur={role:'admin'};saveSession(cur);
+    showToast('✅ مرحباً أحمد! دخلت كمدرب','success');
+    renderAdmin();show('s-admin');
+  } else {
+    // دور المتدرب — ندور على يوزر أحمد في العملاء أو نضيفه لو مش موجود
+    let idx=S.clients.findIndex(c=>c.user==='احمد');
+    if(idx<0){
+      // ضيف أحمد كعميل لو مش موجود
+      S.clients.push({
+        name:'أحمد',user:'احمد',pass:'2003',wt:80,ht:175,
+        goal:'لياقة عامة',ava:'أ',subDays:365,
+        diet:clone(DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:80}]
+      });
+      await save();
+      idx=S.clients.length-1;
+    }
+    cur={role:'client',id:idx};curIdx=idx;saveSession({role:'client',id:idx});
+    showToast('✅ مرحباً أحمد! دخلت كمتدرب','success');
+    loadClient(idx);show('s-client');
+  }
 }
 
 function logout(){
@@ -897,18 +1010,156 @@ async function saveCredentials(){
 function swTab(tab,btn,scr){
   document.querySelectorAll('#'+scr+' .tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');
   const pre=scr==='s-detail'?'p-':'c-';
-  const keys=scr==='s-detail'?['diet','train','prog']:['diet','train','log','prog'];
+  const keys=scr==='s-detail'?['diet','train','prog']:['diet','train','log','hist','prog'];
   keys.forEach(k=>{const el=document.getElementById(pre+k);if(el)el.style.display=k===tab?'':'none';});
 }
 
 function resetTabs(scr){
   document.querySelectorAll('#'+scr+' .tab').forEach((t,i)=>t.classList.toggle('on',i===0));
   const pre=scr==='s-detail'?'p-':'c-';
-  const keys=scr==='s-detail'?['diet','train','prog']:['diet','train','log','prog'];
+  const keys=scr==='s-detail'?['diet','train','prog']:['diet','train','log','hist','prog'];
   keys.forEach((k,i)=>{const el=document.getElementById(pre+k);if(el)el.style.display=i===0?'':'none';});
 }
 
-// ── ADMIN DIET EDIT ───────────────────────────────────
+// ── TRAIN HISTORY & PROGRESS ─────────────────────────
+function renderTrainHistory(ci){
+  const c=S.clients[ci];
+  const p=document.getElementById('c-hist');
+  p.innerHTML='';
+
+  // header
+  const hdr=document.createElement('div');
+  hdr.className='card';
+  hdr.style.background='linear-gradient(135deg,rgba(78,205,196,0.1),rgba(78,205,196,0.05))';
+  hdr.style.border='1px solid rgba(78,205,196,0.2)';
+  hdr.innerHTML=`<div style="font-size:15px;font-weight:800;color:#4ecdc4;margin-bottom:4px">📈 سجل تقدم التمارين</div>
+    <div style="font-size:12px;color:var(--mut)">مقارنة الأوزان والتكرارات بين الجلسات</div>`;
+  p.appendChild(hdr);
+
+  // loop through all days and exercises
+  const days=Object.keys(c.train);
+  let hasAny=false;
+
+  days.forEach(day=>{
+    const exs=c.train[day]||[];
+    const dayExsWithHist=[];
+
+    exs.forEach((ex,ei)=>{
+      const histKey=`hist-${ci}-${day}-${ei}`;
+      let hist=[];try{hist=JSON.parse(localStorage.getItem(histKey))||[];}catch(e){}
+      if(hist.length>0) dayExsWithHist.push({ex,ei,hist});
+    });
+
+    if(dayExsWithHist.length===0) return;
+    hasAny=true;
+
+    // day header
+    const dayHdr=document.createElement('div');
+    dayHdr.style.cssText='font-size:13px;font-weight:700;color:var(--gold);margin:12px 0 8px;display:flex;align-items:center;gap:6px';
+    dayHdr.innerHTML=`<i class="ti ti-calendar"></i> ${day}`;
+    p.appendChild(dayHdr);
+
+    dayExsWithHist.forEach(({ex,ei,hist})=>{
+      const card=document.createElement('div');
+      card.className='card';
+      card.style.marginBottom='10px';
+
+      const last=hist[hist.length-1];
+      const prev=hist.length>=2?hist[hist.length-2]:null;
+      const SET_R=[12,15,6,20];
+
+      // calc max weight per session
+      const lastMax=Math.max(...last.sets.map(w=>parseFloat(w)||0));
+      const prevMax=prev?Math.max(...prev.sets.map(w=>parseFloat(w)||0)):0;
+      const diff=prev?lastMax-prevMax:0;
+      const diffColor=diff>0?'#2ecc71':diff<0?'#e94560':'#8892a4';
+      const diffIcon=diff>0?'📈':diff<0?'📉':'➡️';
+
+      // progress bar
+      const allMaxes=hist.map(s=>Math.max(...s.sets.map(w=>parseFloat(w)||0)));
+      const globalMax=Math.max(...allMaxes)||1;
+      const globalMin=Math.min(...allMaxes.filter(x=>x>0))||0;
+
+      let setsCompare='';
+      SET_R.forEach((reps,si)=>{
+        const lastW=parseFloat(last.sets[si])||0;
+        const prevW=prev?parseFloat(prev.sets[si])||0:0;
+        const d=prev?lastW-prevW:0;
+        const dColor=d>0?'#2ecc71':d<0?'#e94560':'#8892a4';
+        setsCompare+=`<div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:var(--gold);font-weight:700">م${si+1}</div>
+          <div style="font-size:9px;color:var(--mut);margin-bottom:4px">${reps} تك</div>
+          <div style="font-size:16px;font-weight:800;color:#dde6f0">${lastW||'-'}</div>
+          <div style="font-size:9px;color:var(--mut)">كج</div>
+          ${prev?`<div style="font-size:10px;color:${dColor};font-weight:700;margin-top:3px">${d>0?'+':''}${d?d+'كج':'='}</div>`:''}
+        </div>`;
+      });
+
+      // mini chart
+      let chartBars='';
+      const chartSessions=hist.slice(-6);
+      const chartMax=Math.max(...chartSessions.map(s=>Math.max(...s.sets.map(w=>parseFloat(w)||0))))||1;
+      chartSessions.forEach((s,idx)=>{
+        const mx=Math.max(...s.sets.map(w=>parseFloat(w)||0));
+        const h=Math.round((mx/chartMax)*50)+10;
+        const isLast=idx===chartSessions.length-1;
+        chartBars+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div style="font-size:9px;color:${isLast?'#4ecdc4':'var(--mut)'};">${mx||'-'}</div>
+          <div style="width:100%;height:${h}px;background:${isLast?'linear-gradient(180deg,#4ecdc4,#2ecc71)':'rgba(255,255,255,0.12)'};border-radius:4px 4px 0 0;"></div>
+          <div style="font-size:8px;color:var(--mut)">${s.date.split('/').slice(0,2).join('/')}</div>
+        </div>`;
+      });
+
+      card.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:20px">${ex.icon||'🏋️'}</span>
+            <div>
+              <div style="font-weight:700;color:var(--txt);font-size:13px">${ex.name}</div>
+              <div style="font-size:10px;color:var(--mut)">${hist.length} جلسة مسجلة</div>
+            </div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:${diffColor}">${diffIcon} ${diff>0?'+':''}${diff?diff+'كج':''}</div>
+            ${prev?`<div style="font-size:9px;color:var(--mut)">مقارنة بالجلسة السابقة</div>`:'<div style="font-size:9px;color:var(--mut)">أول جلسة</div>'}
+          </div>
+        </div>
+
+        ${hist.length>=2?`
+        <!-- Mini Chart -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;color:var(--mut);margin-bottom:6px">📊 مسار الأوزان (آخر ${chartSessions.length} جلسات)</div>
+          <div style="display:flex;align-items:flex-end;gap:4px;height:70px;padding:0 4px">
+            ${chartBars}
+          </div>
+        </div>`:''  }
+
+        <!-- Last session sets -->
+        <div style="font-size:10px;color:var(--mut);margin-bottom:6px">آخر جلسة — ${last.date}</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:${prev?'10px':'0'}">
+          ${setsCompare}
+        </div>
+
+        ${prev?`
+        <!-- Previous session -->
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:10px;color:var(--mut)">الجلسة السابقة — ${prev.date}</div>
+          <div style="font-size:11px;color:var(--mut)">${prev.sets.map((w,i)=>`م${i+1}:${w||'-'}كج`).join(' · ')}</div>
+        </div>`:''}`;
+
+      p.appendChild(card);
+    });
+  });
+
+  if(!hasAny){
+    const empty=document.createElement('div');
+    empty.style.cssText='text-align:center;padding:40px 20px;color:var(--mut)';
+    empty.innerHTML=`<div style="font-size:48px;margin-bottom:12px">🏋️</div>
+      <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:6px">ابدأ سجل تمارينك!</div>
+      <div style="font-size:12px">اذهب لتبويب التمارين وسجّل الأوزان في كل جلسة<br>وهيظهر هنا تقدمك أوتوماتيك 💪</div>`;
+    p.appendChild(empty);
+  }
+}
 function calcTotalCal(ci){return S.clients[ci].diet.reduce((t,m)=>t+m.items.reduce((s,it)=>s+it.q*it.cpu,0),0);}
 
 function renderAdminDiet(panelId,ci){
@@ -1189,10 +1440,14 @@ function renderClientDiet(panelId,ci){
       </div>`;
     });
     // meal macros summary
-    html+=`<div style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)">
-      <div style="flex:1;text-align:center;font-size:10px;color:var(--mut)">💪 <span style="color:#4ecdc4;font-weight:700">${mealP}ج</span></div>
-      <div style="flex:1;text-align:center;font-size:10px;color:var(--mut)">🌾 <span style="color:#ffc107;font-weight:700">${mealC}ج</span></div>
-      <div style="flex:1;text-align:center;font-size:10px;color:var(--mut)">🧈 <span style="color:#ff6b35;font-weight:700">${mealF}ج</span></div>
+    html+=`<div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:8px 10px;margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:10px;color:var(--mut)">إجمالي الوجبة:</div>
+      <div style="display:flex;gap:8px">
+        <span style="font-size:11px;color:#4ecdc4;font-weight:700">💪${mealP}ج</span>
+        <span style="font-size:11px;color:#ffc107;font-weight:700">🌾${mealC}ج</span>
+        <span style="font-size:11px;color:#ff6b35;font-weight:700">🧈${mealF}ج</span>
+        <span style="font-size:11px;color:var(--ac);font-weight:700">🔥${mealCal}</span>
+      </div>
     </div>`;
     card.innerHTML=html;p.appendChild(card);
   });
