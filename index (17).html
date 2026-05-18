@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>IronFit Pro - نظام إدارة الجيم الاحترافي</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  databaseURL: "https://ironfit-pro-default-rtdb.firebaseio.com"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+window._db = db;
+window._ref = ref;
+window._set = set;
+window._get = get;
+window._onValue = onValue;
+window._update = update;
+window._fbReady = true;
+window.dispatchEvent(new Event('fbReady'));
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{height:100%;background:#0a0e27;font-family:'Cairo','Segoe UI',sans-serif;overflow:hidden;color:#f5f5f5}
+:root{
+  --pr:#0a0e27;--ac:#ff6b35;--gold:#ffd60a;--surf:#1a1f3a;--card:#242d4d;--txt:#f5f5f5;--mut:#8892a4;--bd:rgba(255,255,255,0.08);
+  --gr:#06d6a0;--or:#ff9500;--red:#ff6b6b;--blue:#4ecdc4;--purple:#9d4edd;--pink:#ff006e;--cyan:#00f5ff;
+  --transition:all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);--shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+
+#root{height:100vh;display:flex;flex-direction:column;max-width:100%;margin:0 auto;background:var(--pr);overflow:hidden;position:relative}
+
+/* Animated Background */
+.bg-animated{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg-animated::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,#0a0e27,#1a1f3a,#0a0e27);animation:bgShift 15s ease-in-out infinite}
+.bg-animated::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 50%,rgba(255,107,53,0.1) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(6,214,160,0.1) 0%,transparent 50%);animation:bgPulse 8s ease-in-out infinite}
+@keyframes bgShift{0%,100%{filter:hue-rotate(0deg)}50%{filter:hue-rotate(10deg)}}
+@keyframes bgPulse{0%,100%{opacity:0.5}50%{opacity:1}}
+
+/* Floating Particles */
+.particles{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.particle{position:absolute;width:4px;height:4px;background:rgba(255,107,53,0.6);border-radius:50%;animation:float 20s infinite;opacity:0.3}
+@keyframes float{0%{transform:translateY(100vh) translateX(0) rotate(0deg);opacity:0}50%{opacity:0.6}100%{transform:translateY(-100vh) translateX(100px) rotate(360deg);opacity:0}}
+
+.scr{display:none;flex:1;flex-direction:column;overflow:hidden;animation:screenFadeIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)}.scr.on{display:flex}
+@keyframes screenFadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInDown{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.05)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(255,107,53,0.3),inset 0 0 20px rgba(255,107,53,0.1)}50%{box-shadow:0 0 40px rgba(255,107,53,0.6),inset 0 0 30px rgba(255,107,53,0.2)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes rotate{to{transform:rotate(360deg)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}.scroll::-webkit-scrollbar{width:6px}.scroll::-webkit-scrollbar-track{background:transparent}.scroll::-webkit-scrollbar-thumb{background:rgba(255,107,53,0.3);border-radius:3px}.scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,107,53,0.6)}
+
+.hdr{
+  background:linear-gradient(135deg,rgba(26,31,58,0.95),rgba(36,45,77,0.95));
+  backdrop-filter:blur(20px);
+  padding:12px 16px;
+  border-bottom:1px solid var(--bd);
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-shrink:0;
+  box-shadow:0 8px 32px rgba(0,0,0,0.3);
+  animation:slideInDown 0.6s var(--transition);
+  border-radius:0 0 16px 16px;
+}
+.hdr h2{font-size:16px;font-weight:700;flex:1;color:var(--txt);letter-spacing:0.5px}
+.back{
+  color:var(--ac);font-size:24px;cursor:pointer;padding:6px;transition:var(--transition);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;width:36px;height:36px;
+}
+.back:hover{background:rgba(255,107,53,0.15);transform:scale(1.1);color:var(--gold)}
+.back:active{transform:scale(0.95)}
+
+.inp-wrapper{position:relative;margin-bottom:12px}
+.inp{
+  width:100%;background:rgba(255,255,255,0.06);border:1.5px solid var(--bd);border-radius:14px;padding:13px 16px;color:var(--txt);
+  font-size:15px;outline:none;font-family:inherit;transition:var(--transition);
+  box-shadow:inset 0 2px 8px rgba(0,0,0,0.2);
+}
+.inp:focus{border-color:var(--ac);background:rgba(255,107,53,0.08);box-shadow:0 0 20px rgba(255,107,53,0.3),inset 0 2px 8px rgba(0,0,0,0.2)}
+.inp::placeholder{color:rgba(255,255,255,0.3)}
+
+/* Password Toggle Button */
+.pwd-toggle{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:none;
+  color:var(--mut);
+  cursor:pointer;
+  font-size:18px;
+  transition:var(--transition);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:32px;
+  height:32px;
+  border-radius:8px;
+}
+.pwd-toggle:hover{color:var(--ac);background:rgba(255,107,53,0.1)}
+.pwd-toggle:active{transform:translateY(-50%) scale(0.9)}
+
+.inp-with-toggle{padding-right:50px}
+
+.btn{
+  width:100%;background:linear-gradient(135deg,#ff6b35,#ff9500);color:#fff;border:none;border-radius:14px;padding:14px;
+  font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;font-family:inherit;transition:var(--transition);position:relative;overflow:hidden;
+  box-shadow:0 8px 24px rgba(255,107,53,0.3);letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);transition:left 0.6s ease}
+.btn:hover::before{left:100%}
+.btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 12px 32px rgba(255,107,53,0.5)}
+.btn:active:not(:disabled){opacity:0.9;transform:scale(0.98)}
+.btn:disabled{opacity:0.6;cursor:not-allowed}
+
+.spinner{
+  width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;
+}
+
+.p16{padding:16px}
+.p20{padding:20px}
+
+.card{
+  background:linear-gradient(135deg,rgba(36,45,77,0.7),rgba(26,31,58,0.7));border-radius:16px;padding:16px;border:1px solid var(--bd);
+  margin-bottom:12px;backdrop-filter:blur(10px);animation:slideInRight 0.6s var(--transition);transition:var(--transition);
+  box-shadow:0 8px 24px rgba(0,0,0,0.2);
+}
+.card:hover{border-color:rgba(255,107,53,0.4);transform:translateY(-4px);box-shadow:0 12px 32px rgba(255,107,53,0.2)}
+
+.hero{
+  background:linear-gradient(135deg,#ff6b35,#ff9500,#ffd60a);border-radius:16px;padding:20px;margin-bottom:16px;
+  position:relative;overflow:hidden;animation:slideInRight 0.6s var(--transition);box-shadow:0 12px 40px rgba(255,107,53,0.4);
+}
+.hero::before{
+  content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.15) 0%,transparent 70%);
+  animation:rotate 30s linear infinite;
+}
+.hero::after{
+  content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,0.1) 50%,transparent 70%);animation:shimmer 3s infinite;
+}
+.hero h3{font-size:18px;font-weight:700;color:#fff;position:relative;z-index:1;letter-spacing:0.5px}
+.hero p{color:rgba(255,255,255,0.9);font-size:13px;margin-top:4px;position:relative;z-index:1;line-height:1.5}
+
+.stat{
+  background:linear-gradient(135deg,rgba(255,107,53,0.12),rgba(255,149,0,0.08));border-radius:14px;padding:16px;
+  border:1.5px solid rgba(255,107,53,0.25);transition:var(--transition);animation:slideInRight 0.6s var(--transition);
+  box-shadow:0 8px 24px rgba(255,107,53,0.1);
+}
+.stat:hover{border-color:var(--ac);transform:translateY(-6px);box-shadow:0 12px 32px rgba(255,107,53,0.25)}
+.stat .n{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat .l{font-size:12px;color:var(--mut);margin-top:4px;font-weight:500}
+
+.cli-row{
+  background:linear-gradient(135deg,rgba(26,31,58,0.8),rgba(36,45,77,0.8));border-radius:14px;padding:14px;border:1.5px solid var(--bd);
+  display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer;transition:var(--transition);animation:slideInRight 0.6s var(--transition);
+  box-shadow:0 8px 24px rgba(0,0,0,0.2);
+}
+.cli-row:hover{border-color:var(--ac);background:linear-gradient(135deg,rgba(26,31,58,0.95),rgba(36,45,77,0.95));transform:translateX(-6px);box-shadow:0 12px 32px rgba(255,107,53,0.25)}
+.cli-row:active{transform:scale(0.98)}
+
+.ava{
+  width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--ac),var(--gold));
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;
+  box-shadow:0 8px 20px rgba(255,107,53,0.4);border:2px solid rgba(255,255,255,0.1);
+}
+
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;animation:slideInRight 0.6s var(--transition)}
+.tab{
+  flex:1;min-width:60px;padding:10px 6px;border-radius:12px;border:1.5px solid var(--bd);background:rgba(255,255,255,0.03);
+  color:var(--mut);font-size:12px;cursor:pointer;font-family:inherit;text-align:center;transition:var(--transition);position:relative;overflow:hidden;
+  font-weight:600;
+}
+.tab::before{
+  content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+  transform:translateX(-100%);transition:transform 0.6s ease;
+}
+.tab:hover::before{transform:translateX(100%)}
+.tab:hover{border-color:rgba(255,107,53,0.4);background:rgba(255,107,53,0.1)}
+.tab.on{
+  background:linear-gradient(135deg,#ff6b35,#ff9500);color:#fff;border-color:var(--ac);
+  box-shadow:0 8px 20px rgba(255,107,53,0.4);
+}
+
+.alert-r{
+  background:rgba(255,107,53,0.15);border:1.5px solid rgba(255,107,53,0.4);border-radius:14px;padding:14px;margin-bottom:12px;
+  display:flex;align-items:center;gap:12px;animation:slideInRight 0.6s var(--transition);box-shadow:0 8px 24px rgba(255,107,53,0.15);
+}
+.alert-o{
+  background:rgba(255,149,0,0.15);border:1.5px solid rgba(255,149,0,0.4);border-radius:14px;padding:14px;margin-bottom:12px;
+  display:flex;align-items:center;gap:12px;animation:slideInRight 0.6s var(--transition);box-shadow:0 8px 24px rgba(255,149,0,0.15);
+}
+.alert-g{
+  background:rgba(6,214,160,0.15);border:1.5px solid rgba(6,214,160,0.4);border-radius:14px;padding:14px;margin-bottom:12px;
+  display:flex;align-items:center;gap:12px;animation:slideInRight 0.6s var(--transition);box-shadow:0 8px 24px rgba(6,214,160,0.15);
+}
+.ndot{width:8px;height:8px;border-radius:50%;background:var(--ac);animation:pulse 2s infinite;flex-shrink:0}
+.ndot.or{background:var(--or)}
+.ndot.gr{background:var(--gr)}
+
+/* Remember Me Checkbox */
+.checkbox-wrapper{display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer}
+.checkbox{
+  width:18px;height:18px;border:1.5px solid var(--ac);border-radius:6px;background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:var(--transition);
+}
+.checkbox.checked{background:linear-gradient(135deg,#ff6b35,#ff9500);border-color:var(--ac)}
+.checkbox i{color:#fff;font-size:12px;display:none}
+.checkbox.checked i{display:block}
+.checkbox-label{font-size:13px;color:var(--mut);user-select:none;font-weight:500}
+
+/* Validation Messages */
+.error-msg{
+  color:var(--red);font-size:11px;margin-top:4px;display:none;animation:slideInUp 0.3s var(--transition);
+}
+.error-msg.show{display:block}
+
+/* Toast Notifications */
+.toast{
+  position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,rgba(36,45,77,0.95),rgba(26,31,58,0.95));
+  border:1.5px solid var(--bd);border-radius:12px;padding:16px 20px;color:var(--txt);font-size:13px;
+  box-shadow:0 12px 32px rgba(0,0,0,0.4);animation:slideInUp 0.4s var(--transition);
+  backdrop-filter:blur(20px);z-index:1000;max-width:300px;
+}
+.toast.success{border-color:rgba(6,214,160,0.4)}
+.toast.error{border-color:rgba(255,107,53,0.4)}
+.toast.info{border-color:rgba(255,149,0,0.4)}
+
+/* Print Styles */
+@media print{
+  body{background:#fff;color:#000}
+  .scr{display:none}
+  #print-area{display:block !important;background:#fff;color:#000}
+  .no-print{display:none}
+  .print-page{page-break-after:always;padding:20mm;background:#fff;color:#000;font-family:'Arial',sans-serif}
+  .print-header{border-bottom:2px solid #333;padding-bottom:15px;margin-bottom:20px;text-align:center}
+  .print-logo{font-size:24px;font-weight:700;color:#ff6b35;margin-bottom:5px}
+  .print-title{font-size:18px;font-weight:700;color:#333;margin-bottom:10px}
+  .print-date{font-size:11px;color:#666}
+  .print-section{margin-bottom:20px}
+  .print-section-title{font-size:14px;font-weight:700;color:#333;margin-bottom:10px;border-bottom:1px solid #ddd;padding-bottom:5px}
+  .print-table{width:100%;border-collapse:collapse;margin-bottom:15px}
+  .print-table th{background:#f0f0f0;color:#333;padding:8px;text-align:right;border:1px solid #ddd;font-weight:700}
+  .print-table td{padding:8px;border:1px solid #ddd;text-align:right}
+  .print-row{display:flex;justify-content:space-between;margin-bottom:8px;padding:8px;border-bottom:1px solid #eee}
+  .print-label{font-weight:700;color:#333}
+  .print-value{color:#666}
+  .print-footer{border-top:2px solid #333;padding-top:15px;margin-top:20px;text-align:center;font-size:10px;color:#666}
+}
+
+#print-area{display:none}
+</style>
+</head>
+<body>
+<div class="bg-animated"></div>
+<div id="particles-container" class="particles"></div>
+
+<div id="root">
+  <div id="loading" style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:20px">
+    <div style="width:50px;height:50px;border:3px solid rgba(255,107,53,0.3);border-top-color:var(--ac);border-radius:50%;animation:spin 1s linear infinite"></div>
+    <div style="color:var(--ac);font-weight:700;font-size:14px">جاري التحميل...</div>
+  </div>
+
+  <!-- Login Screen -->
+  <div class="scr" id="s-login">
+    <div style="display:flex;align-items:center;justify-content:center;height:100%;padding:20px;background:linear-gradient(135deg,rgba(26,31,58,0.5),rgba(36,45,77,0.5))">
+      <div style="width:100%;max-width:380px;animation:scaleIn 0.6s var(--transition)">
+        <div style="text-align:center;margin-bottom:30px">
+          <div style="font-size:48px;margin-bottom:10px">🏋️</div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--txt);margin-bottom:6px">IronFit Pro</h1>
+          <p style="font-size:13px;color:var(--mut)">نظام إدارة الجيم الاحترافي</p>
+        </div>
+
+        <div style="background:linear-gradient(135deg,rgba(36,45,77,0.8),rgba(26,31,58,0.8));border-radius:20px;padding:24px;border:1px solid var(--bd);backdrop-filter:blur(20px);box-shadow:0 12px 40px rgba(0,0,0,0.3)">
+          <div id="l-err" style="display:none" class="alert-r">
+            <div class="ndot"></div>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--txt)">❌ خطأ في تسجيل الدخول</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.7)">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <label style="display:block;font-size:12px;color:var(--mut);font-weight:700;margin-bottom:8px">👤 اسم المستخدم</label>
+            <input class="inp" id="u-in" type="text" placeholder="أدخل اسم المستخدم" autocomplete="username"/>
+            <div class="error-msg" id="u-err">الرجاء إدخال اسم المستخدم</div>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <label style="display:block;font-size:12px;color:var(--mut);font-weight:700;margin-bottom:8px">🔐 كلمة المرور</label>
+            <div class="inp-wrapper">
+              <input class="inp inp-with-toggle" id="p-in" type="password" placeholder="أدخل كلمة المرور" autocomplete="current-password"/>
+              <button class="pwd-toggle" type="button" onclick="togglePasswordVisibility()">
+                <i class="ti ti-eye" id="pwd-icon"></i>
+              </button>
+            </div>
+            <div class="error-msg" id="p-err">الرجاء إدخال كلمة المرور</div>
+          </div>
+
+          <div class="checkbox-wrapper" onclick="toggleRememberMe()">
+            <div class="checkbox" id="remember-checkbox">
+              <i class="ti ti-check"></i>
+            </div>
+            <label class="checkbox-label">تذكرني في المرة القادمة</label>
+          </div>
+
+          <button class="btn" id="login-btn" onclick="doLogin()">
+            <span>🚀 دخول</span>
+          </button>
+
+          <div style="text-align:center;margin-top:16px;font-size:11px;color:var(--mut)">
+            <p>حسابات تجريبية:</p>
+            <p style="margin-top:4px"><strong>مدرب:</strong> admin / 1234</p>
+            <p style="margin-top:4px"><strong>عميل:</strong> client1 / 1234</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Screen -->
+  <div class="scr" id="s-admin">
+    <div class="hdr">
+      <h2>📊 لوحة تحكم المدرب</h2>
+      <button class="back" onclick="logout()" style="width:auto;padding:8px 12px;font-size:12px;gap:6px;display:flex;align-items:center">
+        <span>🚪 خروج</span>
+      </button>
+    </div>
+    <div class="scroll p16">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="stat">
+          <div class="n" id="a-total">0</div>
+          <div class="l">👥 إجمالي العملاء</div>
+        </div>
+        <div class="stat">
+          <div class="n" id="a-active">0</div>
+          <div class="l">✅ اشتراكات نشطة</div>
+        </div>
+      </div>
+
+      <div id="notifs-area"></div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="btn" style="flex:1" onclick="toggleAddForm()">➕ إضافة عميل جديد</button>
+        <button class="btn" style="flex:1" onclick="show('s-logs');renderLogs()">📋 سجل الأحداث</button>
+        <button class="btn" style="flex:1" onclick="backupData()">💾 نسخة احتياطية</button>
+      </div>
+      <button onclick="show('s-foodlog-admin');renderAdminFoodLog()" style="width:100%;background:linear-gradient(135deg,rgba(46,204,113,0.2),rgba(46,204,113,0.1));border:1px solid rgba(46,204,113,0.35);border-radius:12px;padding:13px;color:#2ecc71;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px">
+        🍽️ متابعة سجل الغذاء اليومي
+      </button>
+
+      <div id="add-wrap" style="display:none;background:linear-gradient(135deg,rgba(36,45,77,0.8),rgba(26,31,58,0.8));border-radius:16px;padding:16px;border:1px solid var(--bd);margin-bottom:16px;backdrop-filter:blur(10px)">
+        <div style="font-weight:700;color:var(--txt);margin-bottom:12px;font-size:14px">➕ إضافة عميل جديد</div>
+        <input class="inp" id="n-name" placeholder="الاسم الكامل"/>
+        <input class="inp" id="n-user" placeholder="اسم المستخدم"/>
+        <input class="inp" id="n-pass" type="password" placeholder="كلمة المرور"/>
+        <input class="inp" id="n-wt" type="number" placeholder="الوزن (كج)" value="70"/>
+        <input class="inp" id="n-ht" type="number" placeholder="الطول (سم)" value="170"/>
+        <select class="inp" id="n-goal">
+          <option value="حرق دهون">🔥 حرق دهون</option>
+          <option value="بناء عضل">💪 بناء عضل</option>
+          <option value="لياقة عامة">⚡ لياقة عامة</option>
+          <option value="زيادة وزن">📈 زيادة وزن</option>
+        </select>
+        <input class="inp" id="n-days" type="number" placeholder="أيام الاشتراك" value="30"/>
+        <button class="btn" onclick="addClient()">✅ إضافة</button>
+      </div>
+
+      <div id="cli-list"></div>
+
+      <!-- زرار تحديث الماكروز -->
+      <div style="margin-top:8px;background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.25);border-radius:14px;padding:14px">
+        <div style="font-size:12px;color:#4ecdc4;font-weight:700;margin-bottom:6px">🔄 تحديث بيانات الماكروز</div>
+        <div style="font-size:11px;color:var(--mut);margin-bottom:10px">لو الكارب والبروتين بيظهروا أصفار، اضغط الزرار ده لتحديث بيانات الماكروز لكل العملاء</div>
+        <button onclick="fixMacros()" style="width:100%;background:linear-gradient(135deg,rgba(78,205,196,0.25),rgba(78,205,196,0.1));border:1px solid rgba(78,205,196,0.4);border-radius:10px;padding:12px;color:#4ecdc4;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
+          💪 تحديث الماكروز لكل العملاء
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Detail Screen -->
+  <div class="scr" id="s-detail">
+    <div class="hdr">
+      <span class="back" onclick="show('s-admin');renderAdmin()"><i class="ti ti-arrow-right"></i></span>
+      <h2 id="d-name">تفاصيل العميل</h2>
+      <span id="d-badge" style="font-size:10px;padding:4px 10px;border-radius:20px"></span>
+    </div>
+    <div class="scroll p16">
+      <div class="hero">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div class="ava" id="d-ava">م</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#fff" id="d-full">محمد أحمد</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.8)" id="d-stats">⚖️ 88كج · 📏 178سم</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+          <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:8px;text-align:center">
+            <div style="font-size:11px;color:rgba(255,255,255,0.8)">الهدف</div>
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-top:2px" id="d-goal">حرق دهون</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:8px;text-align:center">
+            <div style="font-size:11px;color:rgba(255,255,255,0.8)">الاشتراك</div>
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-top:2px" id="d-sub-info">📅 30 يوم متبقي</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,rgba(36,45,77,0.8),rgba(26,31,58,0.8));border-radius:16px;padding:16px;border:1px solid var(--bd);margin-bottom:16px;backdrop-filter:blur(10px)">
+        <div style="font-weight:700;color:var(--txt);margin-bottom:12px;font-size:14px">🔐 بيانات الدخول</div>
+        <label style="display:block;font-size:11px;color:var(--mut);font-weight:700;margin-bottom:6px">اسم المستخدم</label>
+        <input class="inp" id="d-user-in" placeholder="اسم المستخدم"/>
+        <label style="display:block;font-size:11px;color:var(--mut);font-weight:700;margin-bottom:6px;margin-top:12px">كلمة المرور</label>
+        <input class="inp" id="d-pass-in" type="password" placeholder="كلمة المرور"/>
+        <button class="btn" onclick="saveCredentials()" style="margin-top:12px">💾 حفظ البيانات</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab on" onclick="swTab('diet',this,'s-detail')">🍽️ الغذاء</button>
+        <button class="tab" onclick="swTab('train',this,'s-detail')">🏋️ التمارين</button>
+        <button class="tab" onclick="swTab('prog',this,'s-detail')">📊 التقدم</button>
+      </div>
+
+      <div id="p-diet"></div>
+      <div id="p-train" style="display:none"></div>
+      <div id="p-prog" style="display:none"></div>
+
+      <button class="btn" style="margin-top:16px;background:linear-gradient(135deg,#ff6b6b,#ff4757)" onclick="printClientReport()">🖨️ طباعة التقرير</button>
+    </div>
+  </div>
+
+  <!-- Client Screen -->
+  <div class="scr" id="s-client">
+    <div class="hdr">
+      <h2>👋 مرحباً <span id="c-name">محمد</span></h2>
+      <button class="back" onclick="logout()" style="width:auto;padding:8px 12px;font-size:12px;gap:6px;display:flex;align-items:center">
+        <span>🚪 خروج</span>
+      </button>
+    </div>
+    <div class="scroll p16">
+      <div class="hero">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.9)">هدفك</div>
+            <div style="font-size:18px;font-weight:700;color:#fff;margin-top:4px" id="c-goal">حرق دهون</div>
+          </div>
+          <div style="font-size:40px">🎯</div>
+        </div>
+      </div>
+
+      <div id="c-notif"></div>
+
+      <div id="c-sub-wrap" style="margin-bottom:16px"></div>
+
+      <div class="tabs">
+        <button class="tab on" onclick="swTab('diet',this,'s-client')">🍽️ الغذاء</button>
+        <button class="tab" onclick="swTab('train',this,'s-client')">🏋️ التمارين</button>
+        <button class="tab" onclick="swTab('flog',this,'s-client');renderFoodLog(curIdx)">✅ سجل غذائي</button>
+        <button class="tab" onclick="swTab('log',this,'s-client')">📝 السجل</button>
+        <button class="tab" onclick="swTab('hist',this,'s-client');renderTrainHistory(curIdx)">📈 تقدمي</button>
+        <button class="tab" onclick="swTab('prog',this,'s-client')">📊 الوزن</button>
+      </div>
+
+      <div id="c-diet"></div>
+      <div id="c-train" style="display:none"></div>
+      <div id="c-flog" style="display:none"></div>
+      <div id="c-log" style="display:none"></div>
+      <div id="c-hist" style="display:none"></div>
+      <div id="c-prog" style="display:none"></div>
+
+      <button class="btn" style="margin-top:16px;background:linear-gradient(135deg,#ff6b6b,#ff4757)" onclick="printClientReport()">🖨️ طباعة تقريري</button>
+    </div>
+  </div>
+
+  <!-- Admin Food Log Screen -->
+  <div class="scr" id="s-foodlog-admin">
+    <div class="hdr">
+      <span class="back" onclick="show('s-admin');renderAdmin()"><i class="ti ti-arrow-right"></i></span>
+      <h2>🍽️ سجل الغذاء اليومي</h2>
+      <span id="foodlog-date" style="font-size:11px;color:var(--mut)"></span>
+    </div>
+    <div class="scroll p16" id="foodlog-admin-content"></div>
+  </div>
+
+  <!-- Logs Screen -->
+  <div class="scr" id="s-logs">
+    <div class="hdr">
+      <span class="back" onclick="show('s-admin');renderAdmin()"><i class="ti ti-arrow-right"></i></span>
+      <h2>📋 سجل الأحداث</h2>
+      <span onclick="clearLogs()" style="font-size:11px;color:var(--ac);cursor:pointer;transition:var(--transition);padding:6px 10px;border-radius:8px;font-weight:600" onmouseover="this.style.background='rgba(255,107,53,0.15)'" onmouseout="this.style.background='transparent'">🗑️ مسح</span>
+    </div>
+    <div class="scroll p16">
+      <div id="logs-list"></div>
+    </div>
+  </div>
+
+  <!-- Print Area -->
+  <div id="print-area"></div>
+
+</div>
+
+<script>
+// Animated Particles Background
+function createParticles(){
+  const container=document.getElementById('particles-container');
+  for(let i=0;i<15;i++){
+    const particle=document.createElement('div');
+    particle.className='particle';
+    particle.style.left=Math.random()*100+'%';
+    particle.style.top=Math.random()*100+'%';
+    particle.style.animationDelay=Math.random()*20+'s';
+    particle.style.animationDuration=(15+Math.random()*10)+'s';
+    container.appendChild(particle);
+  }
+}
+createParticles();
+
+// Toast Notification
+function showToast(msg,type='info'){
+  const toast=document.createElement('div');
+  toast.className='toast '+type;
+  toast.textContent=msg;
+  document.body.appendChild(toast);
+  setTimeout(()=>{
+    toast.style.animation='slideInDown 0.4s var(--transition) reverse';
+    setTimeout(()=>toast.remove(),400);
+  },3000);
+}
+
+// Password Visibility Toggle
+function togglePasswordVisibility(){
+  const input=document.getElementById('p-in');
+  const icon=document.getElementById('pwd-icon');
+  if(input.type==='password'){
+    input.type='text';
+    icon.className='ti ti-eye-off';
+  }else{
+    input.type='password';
+    icon.className='ti ti-eye';
+  }
+}
+
+// Remember Me
+let rememberMe=false;
+function toggleRememberMe(){
+  rememberMe=!rememberMe;
+  document.getElementById('remember-checkbox').classList.toggle('checked');
+}
+
+const DD={
+  'حرق دهون':[
+    {meal:'🌅 إفطار',items:[
+      {n:'بيض مسلوق',cpu:70,q:3,u:'بيضة',p:6,c:0,f:5},
+      {n:'شوفان بحليب',cpu:180,q:1,u:'وجبة',p:8,c:30,f:4},
+      {n:'موزة',cpu:90,q:1,u:'حبة',p:1,c:23,f:0}
+    ]},
+    {meal:'🍽️ غداء',items:[
+      {n:'صدر دجاج مشوي',cpu:165,q:2,u:'100ج',p:31,c:0,f:4},
+      {n:'أرز بني',cpu:140,q:1,u:'150ج',p:3,c:30,f:1},
+      {n:'سلطة خضراء',cpu:50,q:1,u:'طبق',p:2,c:8,f:1}
+    ]},
+    {meal:'⚡ ما بعد التدريب',items:[
+      {n:'بروتين واي',cpu:120,q:1,u:'سكوب',p:25,c:3,f:2},
+      {n:'تفاحة',cpu:80,q:1,u:'حبة',p:0,c:21,f:0}
+    ]},
+    {meal:'🌙 عشاء',items:[
+      {n:'سمك مشوي',cpu:120,q:2,u:'100ج',p:22,c:0,f:3},
+      {n:'خضروات مطبوخة',cpu:80,q:1,u:'طبق',p:3,c:15,f:1},
+      {n:'حساء عدس',cpu:130,q:1,u:'كوب',p:9,c:20,f:1}
+    ]},
+  ],
+  'بناء عضل':[
+    {meal:'🌅 إفطار',items:[
+      {n:'بيض كامل',cpu:70,q:5,u:'بيضة',p:6,c:0,f:5},
+      {n:'شوفان بموز',cpu:350,q:1,u:'وجبة',p:10,c:65,f:6},
+      {n:'عسل طبيعي',cpu:60,q:1,u:'ملعقة',p:0,c:17,f:0}
+    ]},
+    {meal:'🍽️ غداء',items:[
+      {n:'صدر دجاج',cpu:165,q:3,u:'100ج',p:31,c:0,f:4},
+      {n:'أرز أبيض',cpu:130,q:2,u:'100ج',p:3,c:28,f:0},
+      {n:'خبز أسمر',cpu:120,q:1,u:'شريحتان',p:5,c:22,f:2}
+    ]},
+    {meal:'⚡ ما بعد التدريب',items:[
+      {n:'بروتين واي',cpu:120,q:2,u:'سكوب',p:25,c:3,f:2},
+      {n:'تمر',cpu:55,q:4,u:'حبة',p:0,c:15,f:0}
+    ]},
+    {meal:'🌙 عشاء',items:[
+      {n:'لحم مفروم',cpu:220,q:2,u:'100ج',p:26,c:0,f:13},
+      {n:'بطاطا مسلوقة',cpu:100,q:2,u:'حبة',p:2,c:22,f:0},
+      {n:'خضروات',cpu:60,q:1,u:'طبق',p:3,c:12,f:0}
+    ]},
+  ],
+  'لياقة عامة':[
+    {meal:'🌅 إفطار',items:[
+      {n:'بيض',cpu:70,q:2,u:'بيضة',p:6,c:0,f:5},
+      {n:'شوفان',cpu:150,q:1,u:'وجبة',p:6,c:27,f:3},
+      {n:'فاكهة موسمية',cpu:80,q:1,u:'حبة',p:1,c:20,f:0}
+    ]},
+    {meal:'🍽️ غداء',items:[
+      {n:'صدر دجاج',cpu:165,q:1,u:'100ج',p:31,c:0,f:4},
+      {n:'أرز بني',cpu:140,q:1,u:'100ج',p:3,c:30,f:1},
+      {n:'سلطة',cpu:50,q:1,u:'طبق',p:2,c:8,f:1}
+    ]},
+    {meal:'🥤 وجبة خفيفة',items:[
+      {n:'زبادي يوناني',cpu:130,q:1,u:'كوب',p:12,c:9,f:4},
+      {n:'مكسرات',cpu:180,q:1,u:'30ج',p:5,c:6,f:16}
+    ]},
+    {meal:'🌙 عشاء',items:[
+      {n:'تونة بزيت',cpu:200,q:1,u:'علبة',p:26,c:0,f:10},
+      {n:'خبز أسمر',cpu:80,q:2,u:'شريحة',p:4,c:15,f:1}
+    ]},
+  ],
+  'زيادة وزن':[
+    {meal:'🌅 إفطار',items:[
+      {n:'بيض مقلي بزيت',cpu:120,q:4,u:'بيضة',p:6,c:0,f:9},
+      {n:'شوفان بحليب كامل',cpu:420,q:1,u:'وجبة',p:14,c:60,f:14}
+    ]},
+    {meal:'🍽️ غداء',items:[
+      {n:'لحم بقر',cpu:220,q:3,u:'100ج',p:26,c:0,f:13},
+      {n:'أرز',cpu:130,q:3,u:'100ج',p:3,c:28,f:0},
+      {n:'خبز',cpu:100,q:2,u:'شريحة',p:3,c:19,f:1}
+    ]},
+    {meal:'⚡ ما بعد التدريب',items:[
+      {n:'بروتين واي',cpu:120,q:2,u:'سكوب',p:25,c:3,f:2},
+      {n:'موز',cpu:90,q:2,u:'حبة',p:1,c:23,f:0}
+    ]},
+    {meal:'🌙 عشاء',items:[
+      {n:'دجاج',cpu:165,q:2,u:'100ج',p:31,c:0,f:4},
+      {n:'مكرونة',cpu:150,q:2,u:'100ج',p:5,c:30,f:1}
+    ]},
+  ],
+};
+const DT={
+  'السبت':[{name:'بنش بريس (الصدر)',icon:'🏋️'},{name:'ضغط بالدمبل',icon:'💪'},{name:'كابل كروس',icon:'🔗'},{name:'فلاي على البنشة',icon:'🦋'}],
+  'الاثنين':[{name:'سكوات بالبار',icon:'🦵'},{name:'ليغ بريس',icon:'🦿'},{name:'ليغ إكستنشن',icon:'🔩'},{name:'ليغ كيرل',icon:'🔄'}],
+  'الأربعاء':[{name:'ديدليفت',icon:'⚡'},{name:'سحب علوي',icon:'🎯'},{name:'رفرفة للظهر',icon:'🦅'},{name:'سحب بالكابل',icon:'🔀'}],
+  'الجمعة':[{name:'ضغط عسكري',icon:'🎖️'},{name:'رفع جانبي',icon:'↗️'},{name:'كيرل بار',icon:'💥'},{name:'ترايسبس',icon:'🔱'}],
+};
+const ALL_DAYS=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
+
+function clone(o){return JSON.parse(JSON.stringify(o));}
+
+// ── FIREBASE ─────────────────────────────────────────
+let S={admin:{user:'admin',pass:'1234'},clients:[]};
+let cur=null,curIdx=null,selDay='السبت';
+
+async function fbGet(path){
+  const snap=await window._get(window._ref(window._db,path));
+  return snap.exists()?snap.val():null;
+}
+async function fbSet(path,val){
+  await window._set(window._ref(window._db,path),val);
+}
+async function fbUpdate(path,val){
+  await window._update(window._ref(window._db,path),val);
+}
+
+async function initData(){
+  const data=await fbGet('/');
+  if(!data||!data.admin){
+    const initState={
+      admin:{user:'admin',pass:'1234'},
+      clients:[
+        {name:'محمد أحمد',user:'client1',pass:'1234',wt:88,ht:178,goal:'حرق دهون',ava:'م',subDays:5,diet:clone(DD['حرق دهون']),train:clone(DT),progress:[{w:'أ1',kg:88},{w:'أ2',kg:86.5},{w:'أ3',kg:85}]},
+        {name:'سارة علي',user:'client2',pass:'1234',wt:62,ht:164,goal:'بناء عضل',ava:'س',subDays:22,diet:clone(DD['بناء عضل']),train:clone(DT),progress:[{w:'أ1',kg:62},{w:'أ2',kg:62.5},{w:'أ3',kg:63}]},
+        {name:'خالد إبراهيم',user:'client3',pass:'1234',wt:75,ht:180,goal:'لياقة عامة',ava:'خ',subDays:30,diet:clone(DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:75},{w:'أ2',kg:74.5},{w:'أ3',kg:74}]},
+      ]
+    };
+    await fbSet('/',initState);
+    S=initState;
+  } else {
+    S=data;
+    if(!S.clients) S.clients=[];
+    S.clients.forEach(c=>{
+      if(!c.diet) c.diet=clone(DD[c.goal]||DD['لياقة عامة']);
+      if(!c.train) c.train=clone(DT);
+      if(!c.progress) c.progress=[];
+    });
+  }
+  document.getElementById('loading').style.display='none';
+  restoreSession();
+}
+
+async function save(){await fbSet('/',S);}
+async function saveClient(idx){await fbSet('/clients/'+idx,S.clients[idx]);}
+
+// ── FIX MACROS ────────────────────────────────────────
+async function fixMacros(){
+  if(!confirm('هيتم تحديث الماكروز (بروتين/كارب/دهون) لكل الأصناف الموجودة في بيانات العملاء. هيحافظ على كل البيانات التانية. تكمل؟')) return;
+
+  // build lookup map from DD: name → {p,c,f}
+  const macroMap={};
+  Object.values(DD).forEach(meals=>{
+    meals.forEach(meal=>{
+      meal.items.forEach(it=>{
+        macroMap[it.n]={p:it.p||0,c:it.c||0,f:it.f||0,cpu:it.cpu};
+      });
+    });
+  });
+
+  let updated=0;
+  S.clients.forEach((client,ci)=>{
+    client.diet.forEach((meal,mi)=>{
+      meal.items.forEach((it,ii)=>{
+        // update macros if found in map or if missing
+        const ref=macroMap[it.n];
+        if(ref){
+          S.clients[ci].diet[mi].items[ii].p=ref.p;
+          S.clients[ci].diet[mi].items[ii].c=ref.c;
+          S.clients[ci].diet[mi].items[ii].f=ref.f;
+          updated++;
+        } else if(!it.p&&!it.c&&!it.f){
+          // estimate from calories if not in map
+          S.clients[ci].diet[mi].items[ii].p=Math.round(it.cpu*0.25/4);
+          S.clients[ci].diet[mi].items[ii].c=Math.round(it.cpu*0.5/4);
+          S.clients[ci].diet[mi].items[ii].f=Math.round(it.cpu*0.25/9);
+          updated++;
+        }
+      });
+    });
+  });
+
+  // save all clients to Firebase
+  for(let i=0;i<S.clients.length;i++){
+    await saveClient(i);
+  }
+
+  showToast(`✅ تم تحديث الماكروز لـ ${updated} صنف بنجاح`,'success');
+}
+
+// ── SESSION ───────────────────────────────────────────
+function saveSession(d){
+  try{
+    localStorage.setItem('ifs_ses',JSON.stringify(d));
+    if(rememberMe){
+      localStorage.setItem('ifs_remember',JSON.stringify({user:document.getElementById('u-in').value}));
+    }
+  }catch(e){}
+}
+function clearSession(){try{localStorage.removeItem('ifs_ses');}catch(e){}}
+function restoreSession(){
+  try{
+    const s=JSON.parse(localStorage.getItem('ifs_ses'));
+    if(!s)return show('s-login');
+    if(s.role==='admin'){cur={role:'admin'};renderAdmin();show('s-admin');}
+    else if(s.role==='client'&&S.clients[s.id]){cur={role:'client',id:s.id};curIdx=s.id;loadClient(s.id);show('s-client');}
+    else show('s-login');
+  }catch(e){show('s-login');}
+}
+
+// ── LOGGING ───────────────────────────────────────────
+async function writeLog(type,msg,user){
+  try{
+    const now=new Date();
+    const entry={type,msg,user,time:now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}),date:now.toLocaleDateString('ar-EG'),ts:now.getTime()};
+    const logsRef=window._ref(window._db,'logs');
+    const {push}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    await push(logsRef,entry);
+  }catch(e){console.log('log error',e);}
+}
+
+async function renderLogs(){
+  const el=document.getElementById('logs-list');
+  if(!el) return;
+  el.innerHTML='<div style="color:var(--mut);font-size:13px;text-align:center;padding:20px">جاري التحميل...</div>';
+  try{
+    const snap=await window._get(window._ref(window._db,'logs'));
+    const logs=snap.exists()?Object.values(snap.val()):[];
+    logs.sort((a,b)=>b.ts-a.ts);
+    if(logs.length===0){el.innerHTML='<div style="color:var(--mut);font-size:13px;text-align:center;padding:20px">لا توجد سجلات</div>';return;}
+    el.innerHTML=logs.map(l=>`<div class="card" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-weight:600;color:var(--txt);font-size:13px">${l.msg}</div><div style="font-size:10px;color:var(--mut)">${l.time}</div></div><div style="display:flex;gap:8px;font-size:11px"><span style="color:var(--ac);font-weight:600">${l.user}</span><span style="color:var(--mut)">${l.date}</span></div></div>`).join('');
+  }catch(e){el.innerHTML='<div style="color:var(--red);font-size:13px">خطأ في تحميل السجلات</div>';}
+}
+
+async function clearLogs(){
+  if(!confirm('هل تريد حذف جميع السجلات؟')) return;
+  try{await fbSet('logs',null);renderLogs();}catch(e){alert('خطأ في حذف السجلات');}
+}
+
+// ── SCREEN NAVIGATION ─────────────────────────────────
+function show(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+function goBack(){
+  if(cur.role==='admin'){show('s-admin');renderAdmin();}
+  else{show('s-client');loadClient(curIdx);}
+}
+
+// ── LOGIN ─────────────────────────────────────────────
+function validateLoginInputs(){
+  const u=document.getElementById('u-in').value.trim();
+  const p=document.getElementById('p-in').value.trim();
+  let isValid=true;
+
+  if(!u){
+    document.getElementById('u-err').classList.add('show');
+    isValid=false;
+  }else{
+    document.getElementById('u-err').classList.remove('show');
+  }
+
+  if(!p){
+    document.getElementById('p-err').classList.add('show');
+    isValid=false;
+  }else{
+    document.getElementById('p-err').classList.remove('show');
+  }
+
+  return isValid;
+}
+
+async function doLogin(){
+  if(!validateLoginInputs()) return;
+
+  const btn=document.getElementById('login-btn');
+  const originalContent=btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner"></div><span>جاري التحقق...</span>';
+
+  setTimeout(async ()=>{
+    const u=document.getElementById('u-in').value.trim();
+    const p=document.getElementById('p-in').value.trim();
+
+    // ── يوزر ahmed — أدمن ومتدرب في نفس الوقت ──
+    if(u==='ahmed'&&p==='2003'){
+      btn.disabled=false;btn.innerHTML=originalContent;
+      writeLog('login','أحمد دخل التطبيق','أحمد');
+      showRoleSelector();
+      return;
+    }
+
+    if(u===S.admin.user&&p===S.admin.pass){
+      cur={role:'admin'};saveSession(cur);writeLog('login','دخول المدرب','المدرب');
+      showToast('✅ مرحباً بك أيها المدرب!','success');
+      renderAdmin();show('s-admin');
+      btn.disabled=false;btn.innerHTML=originalContent;return;
+    }
+
+    const idx=S.clients.findIndex(c=>c.user===u&&c.pass===p);
+    if(idx>=0){
+      cur={role:'client',id:idx};curIdx=idx;saveSession({role:'client',id:idx});
+      writeLog('login',`${S.clients[idx].name} دخل التطبيق`,S.clients[idx].name);
+      showToast(`✅ مرحباً بك ${S.clients[idx].name}!`,'success');
+      loadClient(idx);show('s-client');
+      btn.disabled=false;btn.innerHTML=originalContent;return;
+    }
+
+    document.getElementById('l-err').style.display='block';
+    writeLog('login',`محاولة دخول فاشلة بيوزر: ${u}`,'غير معروف');
+    showToast('❌ بيانات الدخول غير صحيحة','error');
+    btn.disabled=false;btn.innerHTML=originalContent;
+  },800);
+}
+
+function showRoleSelector(){
+  // إزالة أي modal قديم
+  const old=document.getElementById('role-modal');if(old)old.remove();
+
+  const overlay=document.createElement('div');
+  overlay.id='role-modal';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
+
+  overlay.innerHTML=`<div style="background:#16213e;border-radius:20px;padding:28px;width:100%;max-width:360px;border:1px solid rgba(255,255,255,0.1);text-align:center">
+    <div style="font-size:36px;margin-bottom:12px">👋</div>
+    <div style="font-size:18px;font-weight:800;color:var(--txt);margin-bottom:6px">مرحباً أحمد!</div>
+    <div style="font-size:13px;color:var(--mut);margin-bottom:24px">اختار تدخل بأي صفة</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <button onclick="loginAsRole('admin')"
+        style="background:linear-gradient(135deg,var(--ac),#c1121f);border:none;border-radius:14px;padding:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px">
+        <i class="ti ti-shield-check" style="font-size:20px"></i> دخول كمدرب / أدمن
+      </button>
+      <button onclick="loginAsRole('client')"
+        style="background:linear-gradient(135deg,#0f3460,#16213e);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px">
+        <i class="ti ti-user" style="font-size:20px"></i> دخول كمتدرب
+      </button>
+      <button onclick="document.getElementById('role-modal').remove()"
+        style="background:transparent;border:1px solid var(--bd);border-radius:14px;padding:12px;color:var(--mut);font-size:13px;cursor:pointer;font-family:inherit">
+        إلغاء
+      </button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function loginAsRole(role){
+  document.getElementById('role-modal').remove();
+  if(role==='admin'){
+    cur={role:'admin'};saveSession(cur);
+    showToast('✅ مرحباً أحمد! دخلت كمدرب','success');
+    renderAdmin();show('s-admin');
+  } else {
+    // دور على يوزر ahmed بالظبط في قائمة العملاء
+    const ahmedUsers=['ahmed'];
+    let idx=S.clients.findIndex(c=>ahmedUsers.includes(c.user));
+    if(idx<0){
+      // ضيف أحمد كعميل لو مش موجود
+      S.clients.push({
+        name:'أحمد',user:'احمد',pass:'2003',wt:80,ht:175,
+        goal:'لياقة عامة',ava:'أ',subDays:365,
+        diet:clone(DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:80}]
+      });
+      await save();
+      idx=S.clients.length-1;
+    }
+    cur={role:'client',id:idx};curIdx=idx;saveSession({role:'client',id:idx});
+    showToast('✅ مرحباً أحمد! دخلت كمتدرب','success');
+    loadClient(idx);show('s-client');
+  }
+}
+
+function logout(){
+  if(!confirm('هل تريد تسجيل الخروج؟')) return;
+  clearSession();
+  document.getElementById('u-in').value='';
+  document.getElementById('p-in').value='';
+  document.getElementById('l-err').style.display='none';
+  document.getElementById('p-in').type='password';
+  document.getElementById('pwd-icon').className='ti ti-eye';
+  show('s-login');
+  writeLog('logout',`تسجيل خروج ${cur.role==='admin'?'المدرب':S.clients[curIdx].name}`,cur.role==='admin'?'المدرب':S.clients[curIdx].name);
+  showToast('👋 تم تسجيل الخروج بنجاح','info');
+}
+
+document.getElementById('p-in').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('u-in').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('p-in').focus();});
+
+// ── ADMIN ─────────────────────────────────────────────
+function renderAdmin(){
+  renderNotifs();
+  document.getElementById('a-total').textContent=S.clients.length;
+  document.getElementById('a-active').textContent=S.clients.filter(c=>c.subDays>0).length;
+  const list=document.getElementById('cli-list');list.innerHTML='';
+  S.clients.forEach((c,i)=>{
+    const pct=Math.round(Math.min(100,c.subDays/30*100));
+    const col=c.subDays<=5?'var(--ac)':c.subDays<=10?'var(--or)':'var(--gr)';
+    const d=document.createElement('div');d.className='cli-row';
+    d.innerHTML=`<div class="ava">${c.ava}</div><div style="flex:1">
+      <div style="font-weight:700;font-size:14px;color:var(--txt)">${c.name}</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:2px">⚖️ ${c.wt}كج · 📏 ${c.ht}سم</div>
+      <div style="font-size:10px;color:${col};margin-top:3px;font-weight:600">📅 ${c.subDays} يوم متبقي</div>
+    </div><i class="ti ti-chevron-left" style="color:var(--mut);font-size:18px"></i>`;
+    d.onclick=()=>openDetail(i);list.appendChild(d);
+  });
+}
+
+function renderNotifs(){
+  const a=document.getElementById('notifs-area');a.innerHTML='';
+  S.clients.forEach(c=>{
+    if(c.subDays<=0)return;
+    if(c.subDays<=5) a.innerHTML+=`<div class="alert-r"><div class="ndot"></div><div><div style="font-size:12px;font-weight:700;color:var(--txt)">${c.name}</div><div style="font-size:11px;color:rgba(255,255,255,0.7)">⚠️ ينتهي اشتراكه خلال ${c.subDays} أيام فقط</div></div></div>`;
+    else if(c.subDays<=10) a.innerHTML+=`<div class="alert-o"><div class="ndot or"></div><div><div style="font-size:12px;font-weight:700;color:var(--txt)">${c.name}</div><div style="font-size:11px;color:rgba(255,255,255,0.7)">ينتهي اشتراكه خلال ${c.subDays} أيام</div></div></div>`;
+  });
+}
+
+function toggleAddForm(){const w=document.getElementById('add-wrap');w.style.display=w.style.display==='none'?'block':'none';}
+
+async function addClient(){
+  const name=document.getElementById('n-name').value.trim();
+  const user=document.getElementById('n-user').value.trim();
+  const pass=document.getElementById('n-pass').value.trim();
+  const wt=parseInt(document.getElementById('n-wt').value)||70;
+  const ht=parseInt(document.getElementById('n-ht').value)||170;
+  const goal=document.getElementById('n-goal').value;
+  const days=parseInt(document.getElementById('n-days').value)||30;
+  if(!name||!user||!pass){showToast('❌ الرجاء تعبئة جميع الحقول المطلوبة','error');return;}
+  if(S.clients.find(c=>c.user===user)){showToast('❌ اسم المستخدم موجود بالفعل','error');return;}
+  S.clients.push({name,user,pass,wt,ht,goal,ava:name[0],subDays:days,diet:clone(DD[goal]||DD['لياقة عامة']),train:clone(DT),progress:[{w:'أ1',kg:wt}]});
+  await save();
+  writeLog('add_client',`تم إضافة عميل جديد: ${name}`,'المدرب');
+  document.getElementById('add-wrap').style.display='none';
+  ['n-name','n-user','n-pass','n-wt','n-ht','n-days'].forEach(id=>document.getElementById(id).value='');
+  renderAdmin();
+  showToast(`✅ تم إضافة ${name} بنجاح`,'success');
+}
+
+// ── CLIENT DETAIL ─────────────────────────────────────
+function openDetail(i){
+  curIdx=i;const c=S.clients[i];
+  document.getElementById('d-name').textContent=c.name;
+  document.getElementById('d-full').textContent=c.name;
+  document.getElementById('d-ava').textContent=c.ava;
+  document.getElementById('d-stats').textContent=`⚖️ ${c.wt}كج · 📏 ${c.ht}سم`;
+  document.getElementById('d-goal').textContent=c.goal;
+  const col=c.subDays<=5?'var(--ac)':c.subDays<=10?'var(--or)':'var(--gr)';
+  const badge=document.getElementById('d-badge');
+  badge.textContent=c.subDays>0?'✅ نشط':'❌ منتهي';
+  badge.style.cssText=`font-size:10px;padding:4px 10px;border-radius:20px;background:${c.subDays>0?'rgba(6,214,160,0.15)':'rgba(255,107,53,0.15)'};color:${c.subDays>0?'var(--gr)':'var(--ac)'}`;
+  document.getElementById('d-sub-info').textContent=`📅 ${c.subDays} يوم متبقي`;
+  document.getElementById('d-user-in').value=c.user;
+  document.getElementById('d-pass-in').value=c.pass;
+  renderAdminDiet('p-diet',i);
+  renderAdminTrain('p-train',i);
+  renderProgress('p-prog',c,i,'d');
+  resetTabs('s-detail');show('s-detail');
+}
+
+async function saveCredentials(){
+  const u=document.getElementById('d-user-in').value.trim();
+  const p=document.getElementById('d-pass-in').value.trim();
+  if(!u||!p){showToast('❌ الرجاء كتابة اليوزر والباسوورد','error');return;}
+  if(S.clients.find((c,i)=>c.user===u&&i!==curIdx)){showToast('❌ اسم المستخدم موجود لعميل آخر','error');return;}
+  S.clients[curIdx].user=u;S.clients[curIdx].pass=p;
+  await saveClient(curIdx);
+  writeLog('edit_creds',`تعديل بيانات دخول ${S.clients[curIdx].name}`,'المدرب');
+  showToast('✅ تم حفظ بيانات الدخول','success');
+}
+
+// ── TABS ──────────────────────────────────────────────
+function swTab(tab,btn,scr){
+  document.querySelectorAll('#'+scr+' .tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');
+  const pre=scr==='s-detail'?'p-':'c-';
+  const keys=scr==='s-detail'?['diet','train','prog']:['diet','train','flog','log','hist','prog'];
+  keys.forEach(k=>{const el=document.getElementById(pre+k);if(el)el.style.display=k===tab?'':'none';});
+}
+
+function resetTabs(scr){
+  document.querySelectorAll('#'+scr+' .tab').forEach((t,i)=>t.classList.toggle('on',i===0));
+  const pre=scr==='s-detail'?'p-':'c-';
+  const keys=scr==='s-detail'?['diet','train','prog']:['diet','train','flog','log','hist','prog'];
+  keys.forEach((k,i)=>{const el=document.getElementById(pre+k);if(el)el.style.display=i===0?'':'none';});
+}
+
+// ── FOOD LOG (CLIENT) ─────────────────────────────────
+function getTodayKey(){return new Date().toLocaleDateString('ar-EG');}
+
+async function renderFoodLog(ci){
+  const c=S.clients[ci];
+  const p=document.getElementById('c-flog');
+  p.innerHTML='<div style="color:var(--mut);text-align:center;padding:20px">جاري التحميل...</div>';
+  const today=getTodayKey().replace(/\//g,'-');
+  let foodLog={};
+  try{const snap=await fbGet(`foodlog/${ci}/${today}`);if(snap)foodLog=snap;}catch(e){}
+
+  let target=0;
+  c.diet.forEach(m=>m.items.forEach(it=>target+=it.q*it.cpu));
+  p.innerHTML='';
+
+  // header
+  const hdr=document.createElement('div');hdr.className='card';
+  hdr.style.cssText='background:linear-gradient(135deg,rgba(46,204,113,0.12),rgba(46,204,113,0.05));border:1px solid rgba(46,204,113,0.2)';
+  hdr.innerHTML=`<div style="font-size:14px;font-weight:800;color:#2ecc71;margin-bottom:4px">✅ سجل غذاء اليوم</div>
+    <div style="font-size:11px;color:var(--mut)">📅 ${getTodayKey()} — ضع ✓ على كل وجبة أكلتها</div>`;
+  p.appendChild(hdr);
+
+  // meals
+  c.diet.forEach((meal,mi)=>{
+    const card=document.createElement('div');card.className='card';
+    let mealEaten=0;
+    const mealTotal=meal.items.reduce((s,it)=>s+it.q*it.cpu,0);
+
+    const itemsHtml=meal.items.map((it,ii)=>{
+      const key=`${mi}_${ii}`;
+      const done=foodLog[key]===true;
+      const cal=it.q*it.cpu;
+      if(done) mealEaten+=cal;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <div onclick="toggleFoodItem(${ci},${mi},${ii})"
+          style="width:28px;height:28px;border-radius:8px;border:2px solid ${done?'#2ecc71':'rgba(255,255,255,0.2)'};
+          background:${done?'rgba(46,204,113,0.2)':'transparent'};
+          display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:16px;transition:all .2s">
+          ${done?'✓':''}
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:${done?'var(--txt)':'var(--mut)'};font-weight:500">${it.n}</div>
+          <div style="font-size:10px;color:var(--mut)">${it.q} ${it.u}</div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:${done?'var(--ac)':'var(--mut)'}">${cal} 🔥</div>
+      </div>`;
+    }).join('');
+
+    card.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--bd)">
+      <div style="font-weight:700;color:var(--gold);font-size:13px">${meal.meal}</div>
+      <div style="font-size:11px;color:var(--mut)">${mealEaten}/${mealTotal} كال</div>
+    </div>${itemsHtml}`;
+    p.appendChild(card);
+  });
+
+  // summary
+  let totalEaten=0;
+  c.diet.forEach((meal,mi)=>meal.items.forEach((it,ii)=>{
+    if(foodLog[`${mi}_${ii}`]) totalEaten+=it.q*it.cpu;
+  }));
+  const pct=Math.min(100,Math.round(totalEaten/target*100));
+  const remaining=Math.round(target-totalEaten);
+  let statusColor,statusIcon,statusMsg;
+  if(totalEaten===0){statusColor='var(--mut)';statusIcon='🍽️';statusMsg='لسه ما أكلتش — هيا!';}
+  else if(totalEaten<target*0.5){statusColor='var(--or)';statusIcon='⚡';statusMsg=`باقي ${remaining} كالوري للتارجت`;}
+  else if(totalEaten<target){statusColor='var(--gold)';statusIcon='🔥';statusMsg=`تمام! باقي ${remaining} كالوري`;}
+  else if(Math.round(totalEaten)===Math.round(target)){statusColor='#2ecc71';statusIcon='✅';statusMsg='وصلت للتارجت بالظبط! 🎉';}
+  else{statusColor='var(--ac)';statusIcon='⚠️';statusMsg=`تجاوزت التارجت بـ ${Math.round(totalEaten-target)} كالوري`;}
+
+  const sum=document.createElement('div');sum.className='card';
+  sum.innerHTML=`<div style="font-size:13px;font-weight:800;color:var(--txt);margin-bottom:12px">📊 ملخص اليوم</div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px;text-align:center">
+      <div><div style="font-size:26px;font-weight:800;color:var(--ac)">${Math.round(totalEaten)}</div><div style="font-size:10px;color:var(--mut)">أكلت</div></div>
+      <div style="align-self:center;color:var(--mut);font-size:18px">/</div>
+      <div><div style="font-size:26px;font-weight:800;color:var(--gold)">${target}</div><div style="font-size:10px;color:var(--mut)">التارجت</div></div>
+      <div><div style="font-size:26px;font-weight:800;color:#2ecc71">${pct}%</div><div style="font-size:10px;color:var(--mut)">مكتمل</div></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.08);border-radius:8px;height:14px;margin-bottom:12px;overflow:hidden">
+      <div style="height:100%;border-radius:8px;background:${statusColor};width:${pct}%;transition:width 0.4s"></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,0.08)">
+      <div style="font-size:28px;margin-bottom:6px">${statusIcon}</div>
+      <div style="font-size:14px;font-weight:700;color:${statusColor}">${statusMsg}</div>
+    </div>`;
+  p.appendChild(sum);
+}
+
+async function toggleFoodItem(ci,mi,ii){
+  const today=getTodayKey().replace(/\//g,'-');
+  const key=`${mi}_${ii}`;
+  let foodLog={};
+  try{const snap=await fbGet(`foodlog/${ci}/${today}`);if(snap)foodLog=snap;}catch(e){}
+  foodLog[key]=!foodLog[key];
+  await fbSet(`foodlog/${ci}/${today}`,foodLog);
+  renderFoodLog(ci);
+}
+
+// ── ADMIN FOOD LOG ────────────────────────────────────
+async function renderAdminFoodLog(){
+  const today=getTodayKey();
+  document.getElementById('foodlog-date').textContent=today;
+  const p=document.getElementById('foodlog-admin-content');
+  p.innerHTML='<div style="color:var(--mut);text-align:center;padding:20px">جاري التحميل...</div>';
+  const todayKey=today.replace(/\//g,'-');
+  p.innerHTML='';
+
+  // summary header
+  const hdr=document.createElement('div');hdr.className='card';
+  hdr.style.cssText='background:linear-gradient(135deg,rgba(46,204,113,0.1),rgba(46,204,113,0.05));border:1px solid rgba(46,204,113,0.2);margin-bottom:14px';
+  hdr.innerHTML=`<div style="font-size:14px;font-weight:800;color:#2ecc71;margin-bottom:4px">🍽️ متابعة الالتزام الغذائي</div>
+    <div style="font-size:11px;color:var(--mut)">📅 ${today} — مدى التزام العملاء بنظامهم الغذائي</div>`;
+  p.appendChild(hdr);
+
+  let totalCompliant=0;
+
+  for(let ci=0;ci<S.clients.length;ci++){
+    const c=S.clients[ci];
+    let foodLog={};
+    try{const snap=await fbGet(`foodlog/${ci}/${todayKey}`);if(snap)foodLog=snap;}catch(e){}
+
+    let eaten=0,total=0,eatenMeals=0;
+    const totalMeals=c.diet.length;
+    c.diet.forEach((meal,mi)=>{
+      let mealDone=true;
+      meal.items.forEach((it,ii)=>{
+        const cal=it.q*it.cpu;total+=cal;
+        if(foodLog[`${mi}_${ii}`]){eaten+=cal;}
+        else{mealDone=false;}
+      });
+      if(mealDone) eatenMeals++;
+    });
+
+    const pct=total>0?Math.min(100,Math.round(eaten/total*100)):0;
+    const col=pct>=80?'#2ecc71':pct>=50?'#f39c12':'var(--ac)';
+    const status=pct>=80?'✅ ممتاز':pct>=50?'⚡ جيد':'❌ ضعيف';
+    if(pct>=80) totalCompliant++;
+
+    const card=document.createElement('div');card.className='card';card.style.marginBottom='10px';
+    card.innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div class="ava">${c.ava}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;color:var(--txt);font-size:14px">${c.name}</div>
+          <div style="font-size:11px;color:var(--mut)">${c.goal}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:20px;font-weight:800;color:${col}">${pct}%</div>
+          <div style="font-size:10px;color:${col};font-weight:600">${status}</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border-radius:6px;height:8px;margin-bottom:8px;overflow:hidden">
+        <div style="height:100%;border-radius:6px;background:${col};width:${pct}%;transition:width 0.4s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-bottom:8px">
+        <span>أكل: <strong style="color:${col}">${Math.round(eaten)}</strong> / ${total} كال</span>
+        <span>وجبات: <strong style="color:${col}">${eatenMeals}</strong> / ${totalMeals}</span>
+      </div>
+      <div style="border-top:1px solid var(--bd);padding-top:8px">
+        ${c.diet.map((meal,mi)=>{
+          const mealItems=meal.items.map((it,ii)=>
+            `<span style="font-size:13px">${foodLog[`${mi}_${ii}`]?'✅':'⬜'}</span>`
+          ).join('');
+          return `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0">
+            <span style="font-size:11px;color:var(--mut)">${meal.meal}</span>
+            <div style="display:flex;gap:3px">${mealItems}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    p.appendChild(card);
+  }
+
+  // overall summary
+  const overallCard=document.createElement('div');overallCard.className='card';
+  overallCard.style.cssText='background:rgba(255,255,255,0.04);border:1px solid var(--bd);text-align:center;margin-top:4px';
+  overallCard.innerHTML=`<div style="font-size:12px;color:var(--mut);margin-bottom:8px">ملخص الالتزام العام</div>
+    <div style="font-size:28px;font-weight:800;color:#2ecc71">${totalCompliant} / ${S.clients.length}</div>
+    <div style="font-size:11px;color:var(--mut);margin-top:4px">عميل ملتزم بنظامه اليوم</div>`;
+  p.appendChild(overallCard);
+}
+
+// ── TRAIN HISTORY & PROGRESS ─────────────────────────
+function renderTrainHistory(ci){
+  const c=S.clients[ci];
+  const p=document.getElementById('c-hist');
+  p.innerHTML='';
+
+  // header
+  const hdr=document.createElement('div');
+  hdr.className='card';
+  hdr.style.background='linear-gradient(135deg,rgba(78,205,196,0.1),rgba(78,205,196,0.05))';
+  hdr.style.border='1px solid rgba(78,205,196,0.2)';
+  hdr.innerHTML=`<div style="font-size:15px;font-weight:800;color:#4ecdc4;margin-bottom:4px">📈 سجل تقدم التمارين</div>
+    <div style="font-size:12px;color:var(--mut)">مقارنة الأوزان والتكرارات بين الجلسات</div>`;
+  p.appendChild(hdr);
+
+  // loop through all days and exercises
+  const days=Object.keys(c.train);
+  let hasAny=false;
+
+  days.forEach(day=>{
+    const exs=c.train[day]||[];
+    const dayExsWithHist=[];
+
+    exs.forEach((ex,ei)=>{
+      const histKey=`hist-${ci}-${day}-${ei}`;
+      let hist=[];try{hist=JSON.parse(localStorage.getItem(histKey))||[];}catch(e){}
+      if(hist.length>0) dayExsWithHist.push({ex,ei,hist});
+    });
+
+    if(dayExsWithHist.length===0) return;
+    hasAny=true;
+
+    // day header
+    const dayHdr=document.createElement('div');
+    dayHdr.style.cssText='font-size:13px;font-weight:700;color:var(--gold);margin:12px 0 8px;display:flex;align-items:center;gap:6px';
+    dayHdr.innerHTML=`<i class="ti ti-calendar"></i> ${day}`;
+    p.appendChild(dayHdr);
+
+    dayExsWithHist.forEach(({ex,ei,hist})=>{
+      const card=document.createElement('div');
+      card.className='card';
+      card.style.marginBottom='10px';
+
+      const last=hist[hist.length-1];
+      const prev=hist.length>=2?hist[hist.length-2]:null;
+      const SET_R=[12,15,6,20];
+
+      // calc max weight per session
+      const lastMax=Math.max(...last.sets.map(w=>parseFloat(w)||0));
+      const prevMax=prev?Math.max(...prev.sets.map(w=>parseFloat(w)||0)):0;
+      const diff=prev?lastMax-prevMax:0;
+      const diffColor=diff>0?'#2ecc71':diff<0?'#e94560':'#8892a4';
+      const diffIcon=diff>0?'📈':diff<0?'📉':'➡️';
+
+      // progress bar
+      const allMaxes=hist.map(s=>Math.max(...s.sets.map(w=>parseFloat(w)||0)));
+      const globalMax=Math.max(...allMaxes)||1;
+      const globalMin=Math.min(...allMaxes.filter(x=>x>0))||0;
+
+      let setsCompare='';
+      SET_R.forEach((reps,si)=>{
+        const lastW=parseFloat(last.sets[si])||0;
+        const prevW=prev?parseFloat(prev.sets[si])||0:0;
+        const d=prev?lastW-prevW:0;
+        const dColor=d>0?'#2ecc71':d<0?'#e94560':'#8892a4';
+        setsCompare+=`<div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:var(--gold);font-weight:700">م${si+1}</div>
+          <div style="font-size:9px;color:var(--mut);margin-bottom:4px">${reps} تك</div>
+          <div style="font-size:16px;font-weight:800;color:#dde6f0">${lastW||'-'}</div>
+          <div style="font-size:9px;color:var(--mut)">كج</div>
+          ${prev?`<div style="font-size:10px;color:${dColor};font-weight:700;margin-top:3px">${d>0?'+':''}${d?d+'كج':'='}</div>`:''}
+        </div>`;
+      });
+
+      // mini chart
+      let chartBars='';
+      const chartSessions=hist.slice(-6);
+      const chartMax=Math.max(...chartSessions.map(s=>Math.max(...s.sets.map(w=>parseFloat(w)||0))))||1;
+      chartSessions.forEach((s,idx)=>{
+        const mx=Math.max(...s.sets.map(w=>parseFloat(w)||0));
+        const h=Math.round((mx/chartMax)*50)+10;
+        const isLast=idx===chartSessions.length-1;
+        chartBars+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div style="font-size:9px;color:${isLast?'#4ecdc4':'var(--mut)'};">${mx||'-'}</div>
+          <div style="width:100%;height:${h}px;background:${isLast?'linear-gradient(180deg,#4ecdc4,#2ecc71)':'rgba(255,255,255,0.12)'};border-radius:4px 4px 0 0;"></div>
+          <div style="font-size:8px;color:var(--mut)">${s.date.split('/').slice(0,2).join('/')}</div>
+        </div>`;
+      });
+
+      card.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:20px">${ex.icon||'🏋️'}</span>
+            <div>
+              <div style="font-weight:700;color:var(--txt);font-size:13px">${ex.name}</div>
+              <div style="font-size:10px;color:var(--mut)">${hist.length} جلسة مسجلة</div>
+            </div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:${diffColor}">${diffIcon} ${diff>0?'+':''}${diff?diff+'كج':''}</div>
+            ${prev?`<div style="font-size:9px;color:var(--mut)">مقارنة بالجلسة السابقة</div>`:'<div style="font-size:9px;color:var(--mut)">أول جلسة</div>'}
+          </div>
+        </div>
+
+        ${hist.length>=2?`
+        <!-- Mini Chart -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;color:var(--mut);margin-bottom:6px">📊 مسار الأوزان (آخر ${chartSessions.length} جلسات)</div>
+          <div style="display:flex;align-items:flex-end;gap:4px;height:70px;padding:0 4px">
+            ${chartBars}
+          </div>
+        </div>`:''  }
+
+        <!-- Last session sets -->
+        <div style="font-size:10px;color:var(--mut);margin-bottom:6px">آخر جلسة — ${last.date}</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:${prev?'10px':'0'}">
+          ${setsCompare}
+        </div>
+
+        ${prev?`
+        <!-- Previous session -->
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:10px;color:var(--mut)">الجلسة السابقة — ${prev.date}</div>
+          <div style="font-size:11px;color:var(--mut)">${prev.sets.map((w,i)=>`م${i+1}:${w||'-'}كج`).join(' · ')}</div>
+        </div>`:''}`;
+
+      p.appendChild(card);
+    });
+  });
+
+  if(!hasAny){
+    const empty=document.createElement('div');
+    empty.style.cssText='text-align:center;padding:40px 20px;color:var(--mut)';
+    empty.innerHTML=`<div style="font-size:48px;margin-bottom:12px">🏋️</div>
+      <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:6px">ابدأ سجل تمارينك!</div>
+      <div style="font-size:12px">اذهب لتبويب التمارين وسجّل الأوزان في كل جلسة<br>وهيظهر هنا تقدمك أوتوماتيك 💪</div>`;
+    p.appendChild(empty);
+  }
+}
+function calcTotalCal(ci){return S.clients[ci].diet.reduce((t,m)=>t+m.items.reduce((s,it)=>s+it.q*it.cpu,0),0);}
+
+function renderAdminDiet(panelId,ci){
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
+  const tot=document.createElement('div');tot.className='card';tot.id='adm-tot';
+  const totalCal=calcTotalCal(ci);
+  tot.innerHTML=`<div style="text-align:center">
+    <div style="font-size:12px;color:var(--mut);font-weight:600;margin-bottom:6px">📊 إجمالي السعرات اليومية</div>
+    <div style="font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${totalCal}</div>
+    <div style="font-size:11px;color:var(--mut);margin-top:4px">سعرة حرارية / يوم</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px">
+      <div style="background:rgba(255,107,53,0.1);border-radius:10px;padding:8px;text-align:center">
+        <div style="font-size:10px;color:var(--mut);font-weight:600">🥚 البروتين</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ac);margin-top:4px">${Math.round(totalCal*0.3/4)}ج</div>
+      </div>
+      <div style="background:rgba(255,107,53,0.1);border-radius:10px;padding:8px;text-align:center">
+        <div style="font-size:10px;color:var(--mut);font-weight:600">🌾 الكربوهيدرات</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ac);margin-top:4px">${Math.round(totalCal*0.45/4)}ج</div>
+      </div>
+      <div style="background:rgba(255,107,53,0.1);border-radius:10px;padding:8px;text-align:center">
+        <div style="font-size:10px;color:var(--mut);font-weight:600">🧈 الدهون</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ac);margin-top:4px">${Math.round(totalCal*0.25/9)}ج</div>
+      </div>
+    </div>
+  </div>`;
+  p.appendChild(tot);
+  c.diet.forEach((meal,mi)=>{
+    const sec=document.createElement('div');sec.className='card';
+    let html=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bd)">
+      <i class="ti ti-bowl-spoon" style="color:var(--gold);font-size:18px"></i>
+      <input class="inp" style="flex:1;font-weight:700;margin-bottom:0" value="${meal.meal}" onchange="S.clients[${ci}].diet[${mi}].meal=this.value;saveClient(${ci});" placeholder="اسم الوجبة"/>
+      <button style="width:32px;height:32px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:8px;color:var(--ac);cursor:pointer;font-size:14px;font-weight:700" onclick="delMeal(${ci},${mi})">🗑️</button></div>
+    <div style="display:grid;grid-template-columns:1fr 50px 55px 60px 32px;gap:6px;margin-bottom:8px">
+      <div style="font-size:10px;color:var(--mut);font-weight:700">الصنف</div>
+      <div style="font-size:10px;color:var(--mut);text-align:center;font-weight:700">الكمية</div>
+      <div style="font-size:10px;color:var(--mut);text-align:center;font-weight:700">الوحدة</div>
+      <div style="font-size:10px;color:var(--mut);text-align:center;font-weight:700">كال</div>
+      <div></div></div>`;
+    meal.items.forEach((it,ii)=>{
+      html+=`<div style="display:grid;grid-template-columns:1fr 50px 55px 60px 32px;gap:6px;margin-bottom:8px;align-items:center">
+        <input class="inp" style="margin-bottom:0" value="${it.n}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].n=this.value;saveClient(${ci});" placeholder="اسم الصنف"/>
+        <input class="inp" style="width:50px;text-align:center;margin-bottom:0" type="number" min="0" step="0.5" value="${it.q}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].q=parseFloat(this.value)||0;refreshDiet(${ci});" placeholder="ك"/>
+        <input class="inp" style="width:55px;text-align:center;margin-bottom:0" value="${it.u}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].u=this.value;saveClient(${ci});" placeholder="وحدة"/>
+        <input class="inp" style="width:60px;text-align:center;margin-bottom:0" type="number" min="0" value="${it.cpu}" onchange="S.clients[${ci}].diet[${mi}].items[${ii}].cpu=parseFloat(this.value)||0;refreshDiet(${ci});" placeholder="كال"/>
+        <button style="width:32px;height:32px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:8px;color:var(--ac);cursor:pointer;font-size:14px;font-weight:700" onclick="delItem(${ci},${mi},${ii})">×</button>
+      </div>
+      <div style="font-size:11px;color:var(--mut);padding:2px 0 8px;grid-column:1/-1">📊 إجمالي: <span style="color:var(--ac);font-weight:700">${it.q*it.cpu}</span> سعرة</div>`;
+    });
+    html+=`<button style="width:100%;background:rgba(255,107,53,0.08);border:1.5px dashed rgba(255,107,53,0.4);border-radius:12px;padding:10px;color:var(--ac);font-size:12px;cursor:pointer;font-family:inherit;transition:var(--transition);font-weight:700;margin-top:8px" onclick="addItem(${ci},${mi})">➕ إضافة صنف</button>`;
+    sec.innerHTML=html;p.appendChild(sec);
+  });
+  const addMealBtn=document.createElement('button');
+  addMealBtn.style.cssText='width:100%;background:rgba(255,107,53,0.08);border:1.5px dashed rgba(255,107,53,0.4);border-radius:12px;padding:12px;color:var(--ac);font-size:13px;cursor:pointer;font-family:inherit;transition:var(--transition);font-weight:700;margin-top:8px';
+  addMealBtn.textContent='➕ إضافة وجبة جديدة';
+  addMealBtn.onclick=()=>addMeal(ci);
+  addMealBtn.onmouseover=()=>{addMealBtn.style.background='rgba(255,107,53,0.15)';addMealBtn.style.transform='translateY(-2px)'};
+  addMealBtn.onmouseout=()=>{addMealBtn.style.background='rgba(255,107,53,0.08)';addMealBtn.style.transform='translateY(0)'};
+  p.appendChild(addMealBtn);
+}
+
+function refreshDiet(ci){renderAdminDiet('p-diet',ci);saveClient(ci);}
+
+async function addMeal(ci){
+  const name=prompt('اسم الوجبة:');
+  if(!name)return;
+  S.clients[ci].diet.push({meal:name,items:[]});
+  await saveClient(ci);
+  renderAdminDiet('p-diet',ci);
+}
+
+async function delMeal(ci,mi){
+  if(!confirm('حذف هذه الوجبة؟'))return;
+  S.clients[ci].diet.splice(mi,1);
+  await saveClient(ci);
+  renderAdminDiet('p-diet',ci);
+}
+
+async function addItem(ci,mi){
+  S.clients[ci].diet[mi].items.push({n:'',cpu:0,q:0,u:''});
+  await saveClient(ci);
+  renderAdminDiet('p-diet',ci);
+}
+
+async function delItem(ci,mi,ii){
+  S.clients[ci].diet[mi].items.splice(ii,1);
+  await saveClient(ci);
+  renderAdminDiet('p-diet',ci);
+}
+
+// ── ADMIN TRAIN EDIT ──────────────────────────────────
+function renderAdminTrain(panelId,ci){
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
+  const days=ALL_DAYS;
+  days.forEach(day=>{
+    const sec=document.createElement('div');sec.className='card';
+    const dayExs=c.train[day]||[];
+    let html=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bd)">
+      <i class="ti ti-calendar" style="color:var(--ac);font-size:18px"></i>
+      <div style="font-weight:700;color:var(--txt);flex:1;font-size:14px">📅 ${day}</div>
+      <button style="width:32px;height:32px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:8px;color:var(--ac);cursor:pointer;font-size:14px;font-weight:700" onclick="addExercise(${ci},'${day}')">+</button></div>`;
+    dayExs.forEach((ex,ei)=>{
+      html+=`<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+        <input class="inp" style="flex:1;margin-bottom:0" value="${ex.name}" onchange="S.clients[${ci}].train['${day}'][${ei}].name=this.value;saveClient(${ci});" placeholder="اسم التمرين"/>
+        <input class="inp" style="width:50px;text-align:center;margin-bottom:0" value="${ex.icon}" onchange="S.clients[${ci}].train['${day}'][${ei}].icon=this.value;saveClient(${ci});" placeholder="🏋️"/>
+        <button style="width:32px;height:32px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:8px;color:var(--ac);cursor:pointer;font-size:14px;font-weight:700" onclick="delExercise(${ci},'${day}',${ei})">×</button>
+      </div>`;
+    });
+    sec.innerHTML=html;p.appendChild(sec);
+  });
+}
+
+async function addExercise(ci,day){
+  const name=prompt('اسم التمرين:');
+  if(!name)return;
+  if(!S.clients[ci].train[day])S.clients[ci].train[day]=[];
+  S.clients[ci].train[day].push({name,icon:'🏋️'});
+  await saveClient(ci);
+  renderAdminTrain('p-train',ci);
+}
+
+async function delExercise(ci,day,ei){
+  S.clients[ci].train[day].splice(ei,1);
+  await saveClient(ci);
+  renderAdminTrain('p-train',ci);
+}
+
+// ── PROGRESS ──────────────────────────────────────────
+function renderProgress(panelId,c,ci,mode){
+  const p=document.getElementById(panelId);p.innerHTML='';
+  if(!c.progress||c.progress.length===0){p.innerHTML='<div style="color:var(--mut);font-size:13px;text-align:center;padding:20px">لا توجد بيانات تقدم</div>';return;}
+  let html=`<div style="font-weight:700;color:var(--txt);margin-bottom:12px;font-size:14px">📊 سجل الوزن والتقدم</div>
+    <div style="display:flex;align-items:flex-end;justify-content:center;gap:4px;height:150px;margin-bottom:16px">`;
+  const maxKg=Math.max(...c.progress.map(pr=>pr.kg));
+  const minKg=Math.min(...c.progress.map(pr=>pr.kg));
+  const range=maxKg-minKg||1;
+  c.progress.forEach(pr=>{
+    const h=((pr.kg-minKg)/range*100)+20;
+    html+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+      <div style="width:100%;height:${h}px;background:linear-gradient(to top,var(--ac),var(--gold));border-radius:6px 6px 0 0;transition:all 0.3s;cursor:pointer" onmouseover="this.style.background='linear-gradient(to top,var(--gold),var(--ac))'" onmouseout="this.style.background='linear-gradient(to top,var(--ac),var(--gold))'"></div>
+      <div style="font-size:9px;color:var(--mut);font-weight:600">${pr.w}</div>
+    </div>`;
+  });
+  html+=`</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">`;
+  c.progress.forEach((pr,i)=>{
+    const trend=i>0?c.progress[i].kg-c.progress[i-1].kg:0;
+    const trendIcon=trend<0?'📉':trend>0?'📈':'➡️';
+    html+=`<div style="background:linear-gradient(135deg,rgba(255,107,53,0.12),rgba(255,149,0,0.08));border:1px solid rgba(255,107,53,0.2);border-radius:10px;padding:10px;text-align:center">
+      <div style="font-size:11px;color:var(--mut);font-weight:600">${pr.w}</div>
+      <div style="font-size:16px;font-weight:800;color:var(--ac);margin:4px 0">${pr.kg}</div>
+      <div style="font-size:10px;color:var(--mut)">كج ${trendIcon}</div>
+    </div>`;
+  });
+  html+=`</div>`;
+  if(mode==='c'){
+    html+=`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)">
+      <div style="font-size:12px;color:var(--txt);margin-bottom:8px;font-weight:700">➕ إضافة قياس جديد</div>
+      <div style="display:flex;gap:8px">
+        <input class="inp" id="new-week" placeholder="أ1" style="flex:1;margin-bottom:0"/>
+        <input class="inp" id="new-kg" type="number" placeholder="75" style="width:70px;margin-bottom:0"/>
+        <button style="width:36px;height:36px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:8px;color:var(--ac);cursor:pointer;font-size:14px;font-weight:700" onclick="addProgress(${ci})">+</button>
+      </div>
+    </div>`;
+  }
+  const sec=document.createElement('div');sec.innerHTML=html;p.appendChild(sec);
+}
+
+async function addProgress(ci){
+  const w=document.getElementById('new-week').value.trim();
+  const kg=parseFloat(document.getElementById('new-kg').value);
+  if(!w||!kg){showToast('❌ الرجاء إدخال الأسبوع والوزن','error');return;}
+  S.clients[ci].progress.push({w,kg});
+  await saveClient(ci);
+  renderProgress('c-prog',S.clients[ci],ci,'c');
+  document.getElementById('new-week').value='';
+  document.getElementById('new-kg').value='';
+  showToast('✅ تم إضافة القياس بنجاح','success');
+}
+
+// ── CLIENT HOME ───────────────────────────────────────
+async function loadClient(i){
+  const c=S.clients[i];
+  document.getElementById('c-name').textContent=c.name;
+  document.getElementById('c-goal').textContent=c.goal;
+  const subWrap=document.getElementById('c-sub-wrap');
+  const pct=Math.round(Math.min(100,c.subDays/30*100));
+  const col=c.subDays<=5?'var(--ac)':c.subDays<=10?'var(--or)':'var(--gr)';
+  subWrap.innerHTML=`<div style="background:rgba(255,255,255,0.06);border-radius:14px;height:8px;overflow:hidden;border:1px solid var(--bd)"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,${col},${col});transition:width 0.6s var(--transition)"></div></div>
+    <div style="font-size:11px;color:${col};margin-top:6px;font-weight:700">📅 ${c.subDays} يوم متبقي من الاشتراك</div>`;
+  const notif=document.getElementById('c-notif');
+  if(c.subDays<=5){
+    notif.innerHTML=`<div class="alert-r"><div class="ndot"></div><div><div style="font-size:12px;font-weight:700;color:var(--txt)">⚠️ تنبيه مهم</div><div style="font-size:11px;color:rgba(255,255,255,0.8)">اشتراكك ينتهي خلال ${c.subDays} أيام فقط - تواصل مع المدرب</div></div></div>`;
+  }else if(c.subDays<=10){
+    notif.innerHTML=`<div class="alert-o"><div class="ndot or"></div><div><div style="font-size:12px;font-weight:700;color:var(--txt)">📢 تنبيه</div><div style="font-size:11px;color:rgba(255,255,255,0.8)">اشتراكك ينتهي خلال ${c.subDays} أيام</div></div></div>`;
+  }else{notif.innerHTML=`<div class="alert-g"><div class="ndot gr"></div><div><div style="font-size:12px;font-weight:700;color:var(--txt)">✅ حالة جيدة</div><div style="font-size:11px;color:rgba(255,255,255,0.8)">اشتراكك سارٍ بشكل طبيعي</div></div></div>`;}
+  renderClientDiet('c-diet',i);
+  renderClientTrain('c-train',i);
+  renderLog(i);
+  renderProgress('c-prog',c,i,'c');
+}
+
+function renderClientDiet(panelId,ci){
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
+
+  // calc totals
+  let totalCal=0,totalP=0,totalC=0,totalF=0;
+  c.diet.forEach(meal=>meal.items.forEach(it=>{
+    totalCal+=it.q*it.cpu;
+    totalP+=it.q*(it.p||0);
+    totalC+=it.q*(it.c||0);
+    totalF+=it.q*(it.f||0);
+  }));
+
+  // total card
+  const tot=document.createElement('div');tot.className='card';tot.id='cli-tot';
+  tot.innerHTML=`<div style="text-align:center;margin-bottom:12px">
+    <div style="font-size:12px;color:var(--mut);font-weight:600;margin-bottom:6px">📊 إجمالي السعرات اليومية</div>
+    <div style="font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${totalCal}</div>
+    <div style="font-size:11px;color:var(--mut);margin-top:4px">سعرة حرارية / يوم</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div style="background:rgba(78,205,196,0.12);border:1px solid rgba(78,205,196,0.25);border-radius:10px;padding:10px;text-align:center">
+      <div style="font-size:18px;font-weight:700;color:#4ecdc4">${totalP}ج</div>
+      <div style="font-size:10px;color:var(--mut);margin-top:2px">💪 بروتين</div>
+    </div>
+    <div style="background:rgba(255,193,7,0.12);border:1px solid rgba(255,193,7,0.25);border-radius:10px;padding:10px;text-align:center">
+      <div style="font-size:18px;font-weight:700;color:#ffc107">${totalC}ج</div>
+      <div style="font-size:10px;color:var(--mut);margin-top:2px">🌾 كارب</div>
+    </div>
+    <div style="background:rgba(255,107,53,0.12);border:1px solid rgba(255,107,53,0.25);border-radius:10px;padding:10px;text-align:center">
+      <div style="font-size:18px;font-weight:700;color:#ff6b35">${totalF}ج</div>
+      <div style="font-size:10px;color:var(--mut);margin-top:2px">🧈 دهون</div>
+    </div>
+  </div>`;
+  p.appendChild(tot);
+
+  c.diet.forEach((meal,mi)=>{
+    const card=document.createElement('div');card.className='card';
+    let mealCal=0,mealP=0,mealC=0,mealF=0;
+    meal.items.forEach(it=>{mealCal+=it.q*it.cpu;mealP+=it.q*(it.p||0);mealC+=it.q*(it.c||0);mealF+=it.q*(it.f||0);});
+    let html=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd)">
+      <i class="ti ti-bowl-spoon" style="color:var(--gold);font-size:18px"></i>
+      <div style="font-weight:700;color:var(--txt);flex:1;font-size:13px">${meal.meal}</div>
+      <div style="font-size:11px;color:var(--ac);font-weight:700">${mealCal} كال</div>
+    </div>`;
+    meal.items.forEach(it=>{
+      const iCal=it.q*it.cpu;
+      const iP=it.q*(it.p||0);
+      const iC=it.q*(it.c||0);
+      const iF=it.q*(it.f||0);
+      // حساب الجرامات من الوحدة
+      function calcGrams(q,u){
+        const fixed={'بيضة':60,'حبة':120,'وجبة':250,'سكوب':30,'طبق':150,'كوب':240,'علبة':185,'شريحة':30,'شريحتان':60,'ملعقة':15,'30ج':30};
+        if(fixed[u]) return q*fixed[u]+'ج';
+        // وحدات زي 100ج، 150ج، 200ج
+        const numMatch=u.match(/^(\d+)ج$/);
+        if(numMatch) return q*parseInt(numMatch[1])+'ج';
+        // كيلو جرام
+        if(u.includes('كج')) return q*1000+'ج';
+        return q+' '+u;
+      }
+      const gramsDisplay=calcGrams(it.q,it.u);
+      html+=`<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div>
+            <div style="font-size:13px;color:var(--txt);font-weight:600">${it.n}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+              <span style="background:rgba(255,255,255,0.1);border-radius:6px;padding:2px 8px;font-size:11px;color:#dde6f0;font-weight:700">⚖️ ${gramsDisplay}</span>
+              <span style="font-size:11px;color:var(--mut)">${it.q} ${it.u}</span>
+            </div>
+          </div>
+          <span style="color:var(--ac);font-weight:700;font-size:13px;flex-shrink:0">${iCal} 🔥</span>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span style="background:rgba(78,205,196,0.12);border-radius:6px;padding:2px 7px;font-size:10px;color:#4ecdc4;font-weight:600">💪 ${iP}ج بروتين</span>
+          <span style="background:rgba(255,193,7,0.12);border-radius:6px;padding:2px 7px;font-size:10px;color:#ffc107;font-weight:600">🌾 ${iC}ج كارب</span>
+          <span style="background:rgba(255,107,53,0.12);border-radius:6px;padding:2px 7px;font-size:10px;color:#ff6b35;font-weight:600">🧈 ${iF}ج دهون</span>
+        </div>
+      </div>`;
+    });
+    // meal macros summary
+    html+=`<div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:8px 10px;margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:10px;color:var(--mut)">إجمالي الوجبة:</div>
+      <div style="display:flex;gap:8px">
+        <span style="font-size:11px;color:#4ecdc4;font-weight:700">💪${mealP}ج</span>
+        <span style="font-size:11px;color:#ffc107;font-weight:700">🌾${mealC}ج</span>
+        <span style="font-size:11px;color:#ff6b35;font-weight:700">🧈${mealF}ج</span>
+        <span style="font-size:11px;color:var(--ac);font-weight:700">🔥${mealCal}</span>
+      </div>
+    </div>`;
+    card.innerHTML=html;p.appendChild(card);
+  });
+}
+
+// التكرارات الثابتة لكل مجموعة
+const SET_REPS = [12, 15, 6, 20];
+
+function renderClientTrain(panelId,ci){
+  const c=S.clients[ci];const p=document.getElementById(panelId);p.innerHTML='';
+  const days=ALL_DAYS;
+  days.forEach(day=>{
+    const dayExs=c.train[day]||[];
+    if(dayExs.length===0)return;
+
+    // day header card
+    const dayCard=document.createElement('div');
+    dayCard.style.cssText='background:linear-gradient(135deg,rgba(255,107,53,0.15),rgba(255,107,53,0.05));border:1px solid rgba(255,107,53,0.25);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px';
+    dayCard.innerHTML=`<i class="ti ti-calendar" style="color:var(--ac);font-size:20px"></i><div style="font-weight:700;color:var(--txt);font-size:14px">📅 ${day}</div>`;
+    p.appendChild(dayCard);
+
+    dayExs.forEach((ex,ei)=>{
+      const card=document.createElement('div');card.className='card';
+      card.style.marginBottom='10px';
+
+      // load last session
+      const histKey=`hist-${ci}-${day}-${ei}`;
+      let hist=[];try{hist=JSON.parse(localStorage.getItem(histKey))||[];}catch(e){}
+      const last=hist[hist.length-1];
+
+      // last session preview
+      let lastHtml='';
+      if(last){
+        const sInfo=last.sets.map((s,i)=>`م${i+1}:${s||'-'}كج`).join(' · ');
+        lastHtml=`<div style="background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:8px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:14px">📅</span>
+          <div>
+            <div style="font-size:10px;color:var(--gold);font-weight:700">آخر جلسة — ${last.date}</div>
+            <div style="font-size:11px;color:#aab8cc;margin-top:2px">${sInfo}</div>
+          </div>
+        </div>`;
+      }
+
+      // 4 sets with fixed reps
+      const setsHtml=SET_REPS.map((reps,si)=>{
+        const wKey=`set-${ci}-${day}-${ei}-${si}-w`;
+        let sw='';try{sw=localStorage.getItem(wKey)||'';}catch(e){}
+        return `<div style="background:rgba(255,255,255,0.05);border:1px solid var(--bd);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:2px">م${si+1}</div>
+          <div style="background:rgba(255,107,53,0.15);border-radius:6px;padding:3px 6px;margin-bottom:8px;display:inline-block">
+            <span style="font-size:12px;font-weight:700;color:var(--ac)">${reps}</span>
+            <span style="font-size:9px;color:var(--mut)"> تك</span>
+          </div>
+          <input type="number" placeholder="كج" value="${sw}"
+            style="width:100%;background:rgba(255,255,255,0.08);border:1px solid var(--bd);border-radius:8px;padding:8px 4px;color:var(--txt);font-size:14px;font-weight:700;text-align:center;outline:none;font-family:inherit"
+            onchange="try{localStorage.setItem('set-${ci}-${day}-${ei}-${si}-w',this.value)}catch(e){}"/>
+          <div style="font-size:9px;color:var(--mut);margin-top:4px">كيلو</div>
+        </div>`;
+      }).join('');
+
+      card.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:20px">${ex.icon||'🏋️'}</span>
+            <div>
+              <div style="font-weight:700;color:var(--txt);font-size:13px">${ex.name}</div>
+              <div style="font-size:10px;color:var(--mut);margin-top:1px">${last?'آخر جلسة: '+last.date:'أول جلسة 💪'}</div>
+            </div>
+          </div>
+          <button onclick="showExHistory(${ci},'${day}',${ei},'${ex.name}')"
+            style="background:rgba(255,255,255,0.07);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;color:var(--mut);font-size:11px;cursor:pointer;font-family:inherit;white-space:nowrap">
+            📊 السجل
+          </button>
+        </div>
+        ${lastHtml}
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">${setsHtml}</div>
+        <button onclick="saveExSession(${ci},'${day}',${ei},'${ex.name}',${JSON.stringify(SET_REPS)})"
+          style="width:100%;background:linear-gradient(135deg,rgba(46,204,113,0.2),rgba(46,204,113,0.1));border:1px solid rgba(46,204,113,0.35);border-radius:10px;padding:10px;color:#2ecc71;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
+          ✓ حفظ الجلسة
+        </button>`;
+      p.appendChild(card);
+    });
+  });
+}
+
+function saveExSession(ci,day,ei,name,reps){
+  const sets=[0,1,2,3].map(si=>{
+    let w='';try{w=localStorage.getItem(`set-${ci}-${day}-${ei}-${si}-w`)||'';}catch(e){}
+    return w;
+  });
+  if(sets.every(s=>!s)){showToast('❌ سجّل الأوزان الأول!','error');return;}
+  const histKey=`hist-${ci}-${day}-${ei}`;
+  let hist=[];try{hist=JSON.parse(localStorage.getItem(histKey))||[];}catch(e){}
+  hist.push({date:new Date().toLocaleDateString('ar-EG'),sets,reps});
+  if(hist.length>50) hist=hist.slice(-50);
+  try{localStorage.setItem(histKey,JSON.stringify(hist));}catch(e){}
+  renderClientTrain('c-train',ci);
+  showToast(`✅ تم حفظ جلسة "${name}"`,'success');
+}
+
+function showExHistory(ci,day,ei,name){
+  const histKey=`hist-${ci}-${day}-${ei}`;
+  let hist=[];try{hist=JSON.parse(localStorage.getItem(histKey))||[];}catch(e){}
+
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:0';
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+
+  const modal=document.createElement('div');
+  modal.style.cssText='background:#16213e;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto';
+
+  let histHtml='';
+  if(hist.length===0){
+    histHtml='<div style="color:var(--mut);text-align:center;padding:30px;font-size:13px">لا يوجد جلسات مسجلة بعد 💪</div>';
+  } else {
+    [...hist].reverse().forEach((s,idx)=>{
+      const reps=s.reps||SET_REPS;
+      const setsHtml=s.sets.map((w,si)=>`
+        <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:4px">م${si+1}</div>
+          <div style="font-size:11px;color:var(--mut);margin-bottom:4px">${reps[si]||'-'} تكرار</div>
+          <div style="font-size:18px;font-weight:800;color:#dde6f0">${w||'-'}</div>
+          <div style="font-size:9px;color:var(--mut);margin-top:2px">كيلو</div>
+        </div>`).join('');
+      histHtml+=`<div style="background:#1e2d40;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.08)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--gold);font-weight:700">📅 ${s.date}</div>
+          ${idx===0?'<span style="background:rgba(46,204,113,0.2);color:#2ecc71;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700">الأحدث ✓</span>':''}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">${setsHtml}</div>
+      </div>`;
+    });
+  }
+
+  modal.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--txt)">${name}</div>
+        <div style="font-size:11px;color:var(--mut);margin-top:2px">${hist.length} جلسة مسجلة</div>
+      </div>
+      <button onclick="this.closest('[style*=fixed]').remove()"
+        style="background:rgba(255,255,255,0.08);border:none;border-radius:50%;width:34px;height:34px;color:var(--mut);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+    </div>
+    ${histHtml}`;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+}
+
+async function renderLog(i){
+  const c=S.clients[i];const p=document.getElementById('c-log');p.innerHTML='';
+  if(!c.log)c.log=[];
+  const today=new Date().toLocaleDateString('ar-EG');
+  const form=document.createElement('div');form.className='card';
+  form.innerHTML=`<div style="font-size:12px;color:var(--ac);font-weight:700;margin-bottom:12px">📝 سجل اليوم</div>
+    <label style="display:block;font-size:11px;color:var(--mut);font-weight:700;margin-bottom:6px">⚖️ الوزن الحالي (كج)</label>
+    <input class="inp" id="log-wt" type="number" placeholder="75" style="margin-bottom:0"/>
+    <label style="display:block;font-size:11px;color:var(--mut);font-weight:700;margin-bottom:6px;margin-top:12px">📝 الملاحظات</label>
+    <input class="inp" id="log-note" placeholder="مثال: شعرت بتحسن في الأداء" style="margin-bottom:0"/>
+    <button class="btn" onclick="saveLog(${i})" style="margin-top:12px">✅ حفظ السجل</button>`;
+  p.appendChild(form);
+  if(c.log.length>0){
+    const hist=document.createElement('div');hist.innerHTML='<div style="font-size:12px;color:var(--txt);font-weight:700;margin-top:14px;margin-bottom:10px">📋 السجلات السابقة</div>';
+    c.log.slice().reverse().forEach(l=>{
+      const card=document.createElement('div');card.className='card';
+      card.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-weight:700;color:var(--txt);font-size:14px">⚖️ ${l.wt} كج</div><div style="font-size:10px;color:var(--mut);font-weight:600">📅 ${l.date}</div></div><div style="font-size:11px;color:var(--mut)">${l.note}</div>`;
+      hist.appendChild(card);
+    });
+    p.appendChild(hist);
+  }
+}
+
+async function saveLog(i){
+  const wt=parseFloat(document.getElementById('log-wt').value);
+  const note=document.getElementById('log-note').value.trim();
+  if(!wt){showToast('❌ الرجاء إدخال الوزن','error');return;}
+  const today=new Date().toLocaleDateString('ar-EG');
+  if(!S.clients[i].log)S.clients[i].log=[];
+  const idx=S.clients[i].log.findIndex(l=>l.date===today);
+  if(idx>=0){S.clients[i].log[idx]={wt,note,date:today};}
+  else{S.clients[i].log.push({wt,note,date:today});}
+  await saveClient(i);
+  renderLog(i);
+  showToast('✅ تم حفظ السجل بنجاح','success');
+}
+
+// ── PRINT REPORT ──────────────────────────────────────
+function printClientReport(){
+  const c=S.clients[curIdx];
+  const totalCal=calcTotalCal(curIdx);
+  const macroProtein=Math.round(totalCal*0.3/4);
+  const macroCarbs=Math.round(totalCal*0.45/4);
+  const macroFats=Math.round(totalCal*0.25/9);
+
+  let html=`
+    <div class="print-page">
+      <div class="print-header">
+        <div class="print-logo">🏋️ IronFit Pro</div>
+        <div class="print-title">تقرير العميل الشامل</div>
+        <div class="print-date">${new Date().toLocaleDateString('ar-EG')} - ${new Date().toLocaleTimeString('ar-EG')}</div>
+      </div>
+
+      <div class="print-section">
+        <div class="print-section-title">👤 بيانات العميل</div>
+        <div class="print-row">
+          <span class="print-label">الاسم:</span>
+          <span class="print-value">${c.name}</span>
+        </div>
+        <div class="print-row">
+          <span class="print-label">الهدف:</span>
+          <span class="print-value">${c.goal}</span>
+        </div>
+        <div class="print-row">
+          <span class="print-label">الوزن:</span>
+          <span class="print-value">${c.wt} كج</span>
+        </div>
+        <div class="print-row">
+          <span class="print-label">الطول:</span>
+          <span class="print-value">${c.ht} سم</span>
+        </div>
+        <div class="print-row">
+          <span class="print-label">أيام الاشتراك المتبقية:</span>
+          <span class="print-value">${c.subDays} يوم</span>
+        </div>
+      </div>
+
+      <div class="print-section">
+        <div class="print-section-title">📊 الخطة الغذائية اليومية</div>
+        <div class="print-row">
+          <span class="print-label">إجمالي السعرات:</span>
+          <span class="print-value">${totalCal} سعرة</span>
+        </div>
+        <div class="print-row">
+          <span class="print-label">البروتين:</span>
+          <span class="print-value">${macroProtein} جرام</span>
+        </div>
+        <div class="print-row">
+          <span class="print-label">الكربوهيدرات:</span>
+          <span class="print-value">${macroCarbs} جرام</span>
+        </div>
+        <div class="print-row">
+          <span class="print-label">الدهون:</span>
+          <span class="print-value">${macroFats} جرام</span>
+        </div>
+
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th>الوجبة</th>
+              <th>الصنف</th>
+              <th>الكمية</th>
+              <th>السعرات</th>
+            </tr>
+          </thead>
+          <tbody>`;
+    
+    c.diet.forEach(meal=>{
+      meal.items.forEach((item,idx)=>{
+        html+=`<tr>
+          ${idx===0?`<td rowspan="${meal.items.length}">${meal.meal}</td>`:''}
+          <td>${item.n}</td>
+          <td>${item.q} ${item.u}</td>
+          <td>${item.q*item.cpu}</td>
+        </tr>`;
+      });
+    });
+
+    html+=`
+          </tbody>
+        </table>
+      </div>
+
+      <div class="print-section">
+        <div class="print-section-title">🏋️ برنامج التمارين</div>
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th>اليوم</th>
+              <th>التمارين</th>
+            </tr>
+          </thead>
+          <tbody>`;
+    
+    ALL_DAYS.forEach(day=>{
+      const exercises=c.train[day]||[];
+      if(exercises.length>0){
+        html+=`<tr>
+          <td>${day}</td>
+          <td>${exercises.map(ex=>`${ex.icon} ${ex.name}`).join(' • ')}</td>
+        </tr>`;
+      }
+    });
+
+    html+=`
+          </tbody>
+        </table>
+      </div>
+
+      <div class="print-section">
+        <div class="print-section-title">📈 سجل التقدم</div>
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th>الأسبوع</th>
+              <th>الوزن (كج)</th>
+              <th>التغيير</th>
+            </tr>
+          </thead>
+          <tbody>`;
+    
+    c.progress.forEach((pr,i)=>{
+      const trend=i>0?c.progress[i].kg-c.progress[i-1].kg:0;
+      const trendIcon=trend<0?'📉 نزول':trend>0?'📈 ارتفاع':'➡️ ثابت';
+      html+=`<tr>
+        <td>${pr.w}</td>
+        <td>${pr.kg}</td>
+        <td>${trend!==0?Math.abs(trend).toFixed(1)+' '+trendIcon:'-'}</td>
+      </tr>`;
+    });
+
+    html+=`
+          </tbody>
+        </table>
+      </div>
+
+      <div class="print-footer">
+        <p>تم إنشاء هذا التقرير بواسطة نظام IronFit Pro</p>
+        <p>للمزيد من المعلومات، يرجى التواصل مع المدرب</p>
+      </div>
+    </div>
+  `;
+
+  const printArea=document.getElementById('print-area');
+  printArea.innerHTML=html;
+  window.print();
+}
+
+// ── BACKUP DATA ───────────────────────────────────────
+async function backupData(){
+  const dataStr=JSON.stringify(S,null,2);
+  const dataBlob=new Blob([dataStr],{type:'application/json'});
+  const url=URL.createObjectURL(dataBlob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=`ironfit-backup-${new Date().getTime()}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ تم تحميل النسخة الاحتياطية','success');
+  writeLog('backup','تم إنشاء نسخة احتياطية من البيانات','المدرب');
+}
+
+// ── INIT ──────────────────────────────────────────────
+window.addEventListener('fbReady',initData);
+setTimeout(initData,2000);
+</script>
+</body>
+</html>
